@@ -486,23 +486,3 @@ $OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 ENDIF\
 ```
-
-## Kelemahan Simulator
-
-Kelemahan dari simulator ini adalah pada request berupa JSON, input tidak bisa bersal dari array dan properti objek tidak boleh mengandung karakter `non alpha numeric` selain `underscore`.
-
-Contoh request yang benar :
-```json
-{
-    "param1": "123ABC",
-    "param_2": "QWERTY (2020)"
-}
-```
-
-Contoh request yang salah:
-```json
-{
-    "param 1": "123ABC",
-    "param.2": "QWERTY (2020)"
-}
-```
