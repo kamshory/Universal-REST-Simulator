@@ -109,6 +109,15 @@ function parse_input($config, $request_headers, $request_data)
 					$value = eval('return @$obj->'.$attr.';');					
 					$res[$key] = isset($value)?$value:'';
 				}
+				else if(stripos($config['REQUEST_TYPE'], '/xml') !== false)
+				{
+					$obj = json_decode(json_encode($request_data));
+					$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+					$tst = trim(substr(trim($arr2[1]), strlen('$REQUEST.')));
+					$attr = str_replace(".", "->", $tst);					
+					$value = eval('return @$obj->'.$attr.';');					
+					$res[$key] = isset($value)?$value:'';
+				}
 			}
 		}
 	}
@@ -255,6 +264,11 @@ function get_request_body($parsed, $url)
 			$input_buffer = file_get_contents("php://input");
 			$request_data = json_decode($input_buffer, true);
 		}
+		else if(stripos($parsed['REQUEST_TYPE'], '/xml') !== false)
+		{
+			$input_buffer = file_get_contents("php://input");
+			$request_data = json_decode(json_encode(new SimpleXMLElement($input_buffer)), true);
+		}
 	}
 	return $request_data;
 }
@@ -340,7 +354,6 @@ $url = get_url();
 	
 // Select configuration file
 $parsed = get_config_file($config_dir, $context_path);
-
 if(!empty($parsed))
 {
 	// Get request headers
@@ -371,4 +384,5 @@ if(!empty($parsed))
 		echo $response;
 	}
 }
+
 ?>
