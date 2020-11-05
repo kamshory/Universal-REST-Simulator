@@ -146,7 +146,7 @@ Content-length: 166
 }
 ```
 
-maka `$INPUT.PRODUCT` akan bernilai `002`, demikian pula `$INPUT.ACCOUNT` akan bernilai `beneficiary_account_number` dan seterusnya.
+maka `$INPUT.PRODUCT` akan bernilai `002`, demikian pula `$INPUT.ACCOUNT` akan bernilai `1234567890` dan seterusnya.
 
 ## Pemilihan Kondisi
 
