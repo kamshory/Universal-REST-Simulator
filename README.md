@@ -13,6 +13,7 @@ PARSING_RULE=\
 $INPUT.PRODUCT=$REQUEST.product_code\
 $INPUT.ACCOUNT=$REQUEST.customer_no\
 $INPUT.REF_NUMBER=$REQUEST.refno\
+$INPUT.ACCEPT_LANGUAGE=$HEADER.ACCEPT_LANGUAGE\
 $INPUT.AMOUNT=$REQUEST.amount
 ```
 
@@ -81,7 +82,22 @@ Pengguna bebas menggunakan content type apa saja untuk response karena pada dasa
 
 **Property: `PARSING_RULE`**
 
-Simulator membaca input tergantung dari content type request. Untuk content type  `application/x-www-form-urlencoded`, simulator langsung mengambil nilai dari parameter yang sesuai. Untuk content type `application/json`, simulator akan mengambil data secara bertingkat. Dengan demikian, pengguna bebas memberikan request JSON dengan struktur bertingkat.
+`$INPUT` adalah objek yang dapat dianggap sebagai global variable dan memiliki properti. `$INPUT` selalu ditulis dengan huruf kapital. Properti dari `$INPUT` dapat ditulis dengan huruf besar maupun huruf kecil dan akan bersifat _case sensitive_.
+
+Input berasal dari 2 sumber yaitu `$REQUEST` (_request body_ pada `POST` dan `PUT` serta _query string_ pada `GET`) dan `$HEADER` (request header). Baik `$REQUEST` maupun `$HEADER` harus ditulis dengan huruf kapital. Nama properti dari `$REQUEST` adalah _case sensitive_ sedangkan nama properti dari `$HEADER` berupa huruf kapital dan `-` diganti menjadi `_`. Hal ini disebabkan karena properti header mungkin sudah berubah dan tidak dapat diprediksi penulisannya secara pasti. 
+
+Simulator membaca input tergantung dari `content type` request. Untuk `content type`  `application/x-www-form-urlencoded`, simulator langsung mengambil nilai dari parameter yang sesuai. Untuk content type `application/json`, simulator akan mengambil data secara bertingkat. Dengan demikian, pengguna bebas memberikan request JSON dengan struktur bertingkat.
+
+Matriks input dan method Universal REST Simulator adalah sebagai berikut:
+
+| Method | Content Tpe                       | Sumber Data  | Objek                 |
+| ------ | --------------------------------- | ------------ | --------------------- |
+| `GET`  | applicatiom/x-www-form-urlencoded | Header, URL  |` $HEADER`, `$REQUEST` |
+| `POST` | applicatiom/x-www-form-urlencoded | Header, Body |` $HEADER`, `$REQUEST` |
+| `POST` | applicatiom/json                  | Header, Body |` $HEADER`, `$REQUEST` |
+| `PUT`  | applicatiom/x-www-form-urlencoded | Header, Body |` $HEADER`, `$REQUEST` |
+| `PUT`  | applicatiom/json                  | Header, Body |` $HEADER`, `$REQUEST` |
+
 
 **Contoh Konfigurasi Input URL Encoded**
 
@@ -210,7 +226,7 @@ Content-type: application/json
 Content-length: 166
 ```
 
-**Configurasi**
+**Konfigurasi**
 
 ```ini
 PATH=/biller/mai
@@ -286,7 +302,7 @@ Content-length: 166
 }
 ```
 
-**Configurasi**
+**Konfigurasi**
 
 ```ini
 PATH=/bank/bni
@@ -341,4 +357,24 @@ $OUTPUT=\
 	"refid":"873264832658723585"\
 }\
 ENDIF\
+```
+
+## Kelemahan Simulator
+
+Kelemahan dari simulator ini adalah pada request berupa JSON, input tidak bisa bersal dari array dan properti objek tidak boleh mengandung karakter `non alpha numeric` selain `underscore`.
+
+Contoh request yang benar :
+```json
+{
+    "param1": "123ABC",
+    "param_2": "QWERTY (2020)"
+}
+```
+
+Contoh request yang salah:
+```json
+{
+    "param 1": "123ABC",
+    "param.2": "QWERTY (2020)"
+}
 ```
