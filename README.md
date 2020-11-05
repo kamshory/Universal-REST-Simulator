@@ -327,6 +327,8 @@ ENDIF\
 
 ## Contoh Konfigurasi Request JSON
 
+Pada reqquest JSON, mungkin `key` dari JSON mengandung karakter selain `alpha numeric` dan `underscore`. Agar simulator dapat membaca input dari request tersebut, ganti semua karakter selain `alpha numeric` dan `underscore` dengan `underscore` atau `_`. 
+
 > Contoh Request
 
 ```http
@@ -486,3 +488,4 @@ $OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 ENDIF\
 ```
+
