@@ -58,12 +58,22 @@ function parse_config($context_path, $document_root = null)
 	}
 	return $parsed;
 }
+function fix_array_key($request_data)
+{
+	$fixed_data = array();
+	foreach($request_data as $key=>$val)
+	{
+		$key2 = trim(preg_replace("/[^A-Za-z0-9_]/", '_', $key));
+		$fixed_data[$key2] = $val;
+	}
+	return $fixed_data;
+}
 function fix_header_key($request_headers)
 {
 	$headers = array();
 	foreach($request_headers as $key=>$val)
 	{
-		$key2 = strtoupper(str_replace("-", "_", $key));
+		$key2 = trim(strtoupper(str_replace("-", "_", $key)));
 		$headers[$key2] = $val;
 	}
 	return $headers;
@@ -255,11 +265,13 @@ function get_request_body($parsed, $url)
 		{
 			$input_buffer = file_get_contents("php://input");
 			$request_data = json_decode($input_buffer, true);
+			$request_data = fix_array_key($request_data);
 		}
 		else if(stripos($parsed['REQUEST_TYPE'], '/xml') !== false)
 		{
 			$input_buffer = file_get_contents("php://input");
 			$request_data = json_decode(json_encode(new SimpleXMLElement($input_buffer)), true);
+			$request_data = fix_array_key($request_data);
 		}
 	}
 	return $request_data;
