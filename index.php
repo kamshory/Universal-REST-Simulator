@@ -58,9 +58,20 @@ function parse_config($context_path, $document_root = null)
 	}
 	return $parsed;
 }
-
-function parse_input($config, $request_data)
+function fix_header_key($request_headers)
 {
+	$headers = array();
+	foreach($request_headers as $key=>$val)
+	{
+		$key2 = strtoupper(str_replace("-", "_", $key));
+		$headers[$key2] = $val;
+	}
+	return $headers;
+}
+function parse_input($config, $request_headers, $request_data)
+{
+	$headers = fix_header_key($request_headers);
+	
 	// Parsing input
 	$rule = $config['PARSING_RULE'];
 	$rule = str_replace("\\", "\r\n", $rule);
@@ -71,6 +82,16 @@ function parse_input($config, $request_data)
 		if(stripos($line, "=") > 0)
 		{
 			$arr2 = explode("=", $line, 2);
+			
+			
+			// Parse from headers
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$HEADER.') === 0)
+			{
+				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+				$value = trim($headers[$key]);
+				$res[$key] = isset($value)?$value:'';
+			}
+			
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$REQUEST.') === 0)
 			{
 				if(stripos($config['REQUEST_TYPE'], '/x-www-form-urlencoded') !== false)
@@ -217,6 +238,53 @@ function replace_date($string)
 	return $string;
 }
 
+function get_request_body($parsed, $url)
+{
+	if($parsed['METHOD'] == 'GET')
+	{
+		$query = parse_url($url, PHP_URL_QUERY);
+		parse_str($query, $request_data);
+	}
+	else if($parsed['METHOD'] == 'POST' || $parsed['METHOD'] == 'PUT')
+	{
+		if(stripos($parsed['REQUEST_TYPE'], '/x-www-form-urlencoded') !== false)
+		{
+			$query = file_get_contents("php://input");
+			parse_str($query, $request_data);
+		}
+		else if(stripos($parsed['REQUEST_TYPE'], '/json') !== false)
+		{
+			$input_buffer = file_get_contents("php://input");
+			$request_data = json_decode($input_buffer, true);
+		}
+	}
+	return $request_data;
+}
+
+function get_config_file($dir, $context_path)
+{
+	if ($handle = opendir($dir)) {
+		while (false !== ($file = readdir($handle))) {
+			if ('.' === $file) continue;
+			if ('..' === $file) continue;
+			$filepath = rtrim($dir, "/")."/".$file;	
+			$prsd = parse_config($filepath);
+			if($prsd['PATH'] == $context_path)
+			{
+				$parsed = $prsd;
+				break;
+			}
+		}
+		closedir($handle);
+	}
+	return $parsed;
+}
+
+function get_request_headers()
+{
+	return getallheaders();
+}
+
 function startsWith( $haystack, $needle ) {
      $length = strlen( $needle );
      return substr( $haystack, 0, $length ) === $needle;
@@ -229,59 +297,45 @@ function endsWith( $haystack, $needle ) {
     }
     return substr( $haystack, -$length ) === $needle;
 }
-
+function get_context_path()
+{
+	$url = $_SERVER['REQUEST_URI'];
+	$context_path = parse_url($url, PHP_URL_PATH);
+	return $context_path;
+}
+function get_url()
+{
+	return $_SERVER['REQUEST_URI'];
+}
 // End of functions
 
 error_reporting(0);
-$url = $_SERVER['REQUEST_URI'];
-$context_path = parse_url($url, PHP_URL_PATH);
 
-$dir = "config";
-$parsed = array();
+$config_dir = "config";
 
+
+// Get context path
+$context_path = get_context_path();
+
+// Get URL
+$url = get_url();
+	
 // Select configuration file
-if ($handle = opendir($dir)) {
-    while (false !== ($file = readdir($handle))) {
-        if ('.' === $file) continue;
-        if ('..' === $file) continue;
-		$filepath = rtrim($dir, "/")."/".$file;	
-		$prsd = parse_config($filepath);
-		if($prsd['PATH'] == $context_path)
-		{
-			$parsed = $prsd;
-			break;
-		}
-    }
-    closedir($handle);
-}
+$parsed = get_config_file($config_dir, $context_path);
 
-// Read client request
-if($parsed['METHOD'] == 'GET')
-{
-	$query = parse_url($url, PHP_URL_QUERY);
-	parse_str($query, $request_data);
-}
-else if($parsed['METHOD'] == 'POST' || $parsed['METHOD'] == 'PUT')
-{
-	if(stripos($parsed['REQUEST_TYPE'], '/x-www-form-urlencoded') !== false)
-	{
-		$query = file_get_contents("php://input");
-		parse_str($query, $request_data);
-	}
-	else if(stripos($parsed['REQUEST_TYPE'], '/json') !== false)
-	{
-		$input_buffer = file_get_contents("php://input");
-		$request_data = json_decode($input_buffer, true);
-	}
-}
+// Get request headers
+$request_headers = get_request_headers();
+
+// Get request body
+$request_data = get_request_body($parsed, $url);
 
 // Parse request
-$request = parse_input($parsed, $request_data);
+$request = parse_input($parsed, $request_headers, $request_data);
 
 // Process the transaction
 $output = process_transaction($parsed, $request);
 
-// Send response to client
+// Finally, send response to client
 if(!empty($output))
 {
 	$content_type = $parsed['RESPONSE_TYPE'];
@@ -291,6 +345,7 @@ if(!empty($output))
 	{
 		usleep($delay * 1000);
 	}
+	
 	header("Content-type: $content_type");
 	header("Content-length: ".strlen($response));
 	echo $response;
