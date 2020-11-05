@@ -100,16 +100,8 @@ function parse_input($config, $request_headers, $request_data)
 					$value = trim(substr(trim($arr2[1]), strlen('$REQUEST.')));
 					$res[$key] = isset($request_data[$value])?$request_data[$value]:'';
 				}
-				else if(stripos($config['REQUEST_TYPE'], '/json') !== false)
-				{
-					$obj = json_decode(json_encode($request_data));
-					$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
-					$tst = trim(substr(trim($arr2[1]), strlen('$REQUEST.')));
-					$attr = str_replace(".", "->", $tst);					
-					$value = eval('return @$obj->'.$attr.';');					
-					$res[$key] = isset($value)?$value:'';
-				}
-				else if(stripos($config['REQUEST_TYPE'], '/xml') !== false)
+				else if(stripos($config['REQUEST_TYPE'], '/json') !== false 
+					|| stripos($config['REQUEST_TYPE'], '/xml') !== false)
 				{
 					$obj = json_decode(json_encode($request_data));
 					$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
