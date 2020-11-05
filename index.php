@@ -278,6 +278,23 @@ function get_config_file($dir, $context_path)
 	return $parsed;
 }
 
+if(!function_exists('getallheaders'))
+{
+	function getallheaders()
+	{
+		$headers = array();
+		foreach ($_SERVER as $name => $value)
+		{
+			if (substr($name, 0, 5) == 'HTTP_')
+			{
+				$key = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
+				$headers[$key] = $value;
+			}
+		}
+		return $headers;
+	}
+}
+ 
 function get_request_headers()
 {
 	return getallheaders();
