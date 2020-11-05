@@ -81,8 +81,7 @@ function parse_input($config, $request_headers, $request_data)
 	{
 		if(stripos($line, "=") > 0)
 		{
-			$arr2 = explode("=", $line, 2);
-			
+			$arr2 = explode("=", $line, 2);			
 			
 			// Parse from headers
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$HEADER.') === 0)
@@ -92,6 +91,7 @@ function parse_input($config, $request_headers, $request_data)
 				$res[$key] = isset($value)?$value:'';
 			}
 			
+			// Parse from request
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$REQUEST.') === 0)
 			{
 				if(stripos($config['REQUEST_TYPE'], '/x-www-form-urlencoded') !== false)
@@ -153,8 +153,7 @@ function process_transaction($parsed, $request)
 				$arr3 = explode("\r\n", $rline);
 				
 				foreach($arr3 as $idx2=>$result)
-				{
-					
+				{				
 					// TODO Parse result
 					$str = preg_replace( '/[^a-z0-9\.\$_]/i', ' ', $result); 
 					$str = preg_replace('/\s\s+/', ' ', $str);
@@ -228,7 +227,6 @@ function replace_date($string)
 			{
 				$src = substr($string, $start, $stop + 1 - $start);
 				$date = eval_date($src);
-				//$date = $src;
 				$string = str_replace($src, $date, $string);
 				break;
 			}
@@ -285,18 +283,21 @@ function get_request_headers()
 	return getallheaders();
 }
 
-function startsWith( $haystack, $needle ) {
+function startsWith( $haystack, $needle ) 
+{
      $length = strlen( $needle );
      return substr( $haystack, 0, $length ) === $needle;
 }
 
-function endsWith( $haystack, $needle ) {
+function endsWith( $haystack, $needle ) 
+{
     $length = strlen( $needle );
     if( !$length ) {
         return true;
     }
     return substr( $haystack, -$length ) === $needle;
 }
+
 function get_context_path()
 {
 	$url = $_SERVER['REQUEST_URI'];
@@ -323,31 +324,34 @@ $url = get_url();
 // Select configuration file
 $parsed = get_config_file($config_dir, $context_path);
 
-// Get request headers
-$request_headers = get_request_headers();
-
-// Get request body
-$request_data = get_request_body($parsed, $url);
-
-// Parse request
-$request = parse_input($parsed, $request_headers, $request_data);
-
-// Process the transaction
-$output = process_transaction($parsed, $request);
-
-// Finally, send response to client
-if(!empty($output))
+if(!empty($parsed))
 {
-	$content_type = $parsed['RESPONSE_TYPE'];
-	$delay = @$output['DELAY'];
-	$response = @$output['OUTPUT'];
-	if($delay > 0)
+	// Get request headers
+	$request_headers = get_request_headers();
+
+	// Get request body
+	$request_data = get_request_body($parsed, $url);
+
+	// Parse request
+	$request = parse_input($parsed, $request_headers, $request_data);
+
+	// Process the transaction
+	$output = process_transaction($parsed, $request);
+
+	// Finally, send response to client
+	if(!empty($output))
 	{
-		usleep($delay * 1000);
+		$content_type = $parsed['RESPONSE_TYPE'];
+		$delay = @$output['DELAY'];
+		$response = @$output['OUTPUT'];
+		if($delay > 0)
+		{
+			usleep($delay * 1000);
+		}
+		
+		header("Content-type: $content_type");
+		header("Content-length: ".strlen($response));
+		echo $response;
 	}
-	
-	header("Content-type: $content_type");
-	header("Content-length: ".strlen($response));
-	echo $response;
 }
 ?>
