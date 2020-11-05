@@ -259,8 +259,8 @@ $OUTPUT=\
 	"rc":"00",\
 	"sn":"82634862385235365285",\
 	"nama":"Budi",\
-	"customer_no":$INPUT.ACCOUNT,\
-	"product_code":$INPUT.PRODUCT,\
+	"customer_no":"$INPUT.ACCOUNT",\
+	"product_code":"$INPUT.PRODUCT",\
 	"time_stamp":"$DATE('Y-m-d H:i:s')",\
 	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
 	"refid":"873264832658723585"\
@@ -273,8 +273,8 @@ $OUTPUT=\
 	"rc":"25",\
 	"sn":"82634862385235365285",\
 	"nama":"Budi",\
-	"customer_no":$INPUT.ACCOUNT,\
-	"product_code":$INPUT.PRODUCT,\
+	"customer_no":"$INPUT.ACCOUNT",\
+	"product_code":"$INPUT.PRODUCT",\
 	"time_stamp":"$DATE('Y-m-d H:i:s')",\
 	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
 	"refid":"873264832658723585"\
@@ -336,8 +336,8 @@ $OUTPUT=\
 	"rc":"00",\
 	"sn":"82634862385235365285",\
 	"nama":"Budi",\
-	"customer_no":$INPUT.ACCOUNT,\
-	"product_code":$INPUT.PRODUCT,\
+	"customer_no":"$INPUT.ACCOUNT",\
+	"product_code":"$INPUT.PRODUCT",\
 	"time_stamp":"$DATE('Y-m-d H:i:s')",\
 	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
 	"refid":"873264832658723585"\
@@ -350,8 +350,8 @@ $OUTPUT=\
 	"rc":"25",\
 	"sn":"82634862385235365285",\
 	"nama":"Budi",\
-	"customer_no":$INPUT.ACCOUNT,\
-	"product_code":$INPUT.PRODUCT,\
+	"customer_no":"$INPUT.ACCOUNT",\
+	"product_code":"$INPUT.PRODUCT",\
 	"time_stamp":"$DATE('Y-m-d H:i:s')",\
 	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
 	"refid":"873264832658723585"\
