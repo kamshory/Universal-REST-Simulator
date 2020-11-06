@@ -191,6 +191,16 @@ Content-length: 196
 
 maka `$INPUT.PRODUCT` akan bernilai `10001`, demikian pula `$INPUT.ACCOUNT` akan bernilai `081266612127` dan seterusnya.
 
+## Echo
+
+Echo yang dimaksud di sini adalah mengambil nilai dari input. Objek input dapat dimasukkan ke output dengan cara menulis `$INPUT.NAMA_VARIABLE`. 
+
+Ada beberapa kondisi di mana `$INPUT.NAMA_VARIABLE` tidak berarti sebagaimana tertulis. Sebagai contoh: `$INPUT.NAMA_VARIABLE01` bisa berarti sebagaimana ditulis dan bisa berarti `$INPUT.NAMA_VARIABLE` yang disambung dengan string konstan `01` atau bahkan `$INPUT.NAMA_VARIABLE01` tersebut bukanlah input melainkan string konstan yang harus ditulis demikian alih-alih simulator menggantinya dengan nilai input. 
+
+Universal REST Simulator memperkenalkan pemecah `{[|]}` yang dapat disisipkan di mana saja. Pemecah ini akan memecah teks dalam konfigurasi namun akan dihilangkan pada response.
+
+Pada kasus di atas, jika yang dimaksud `$INPUT.NAMA_VARIABLE` yang disambung dengan string konstan `01`, maka harus ditulis dengan `$INPUT.NAMA_VARIABLE{[|]}01`. Jika yang dimaksud adalah string konstan `$INPUT.NAMA_VARIABLE01`, maka harus ditulis dengan `${[|]}INPUT.NAMA_VARIABLE01` sehingga tidak akan dianggap sebagai input.
+
 ## Format $DATE()
 
 Format `$DATE()` mengikuti format pada bahasa pemrograman PHP. Berikut ini merupakan penjelasan dari format `$DATE()` pada bahasa pemrograman PHP. Untuk menyisipkan karakter konstan pada fungsi `$DATE()`, awali dengan `\`. Misalnya `$DATE('Y-m-d\TH:i:s.000\Z', 'UTC+7')` akan menampilkan `2020-10:10T20:20:20.000Z`. Perhatikan bahwa `\T` akan menjadi `T` dan `\Z` akan menjadi `Z`.
