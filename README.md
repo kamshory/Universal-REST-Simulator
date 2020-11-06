@@ -191,13 +191,67 @@ Content-length: 196
 
 maka `$INPUT.PRODUCT` akan bernilai `10001`, demikian pula `$INPUT.ACCOUNT` akan bernilai `081266612127` dan seterusnya.
 
+## Format $DATE()
+
+Format `$DATE()` mengikuti format pada bahasa pemrograman PHP. Berikut ini merupakan penjelasan dari format `$DATE()` pada bahasa pemrograman PHP.
+
+| format character  | Description | Example returned values |
+|-------------------|------------ |------------------------ |
+| Day | --- | --- |
+| d | Day of the month, 2 digits with leading zeros | 01 to 31 |
+| D | A textual representation of a day, three letters | Mon through Sun |
+| j | Day of the month without leading zeros | 1 to 31 |
+| l (lowercase 'L') | A full textual representation of the day of the week | Sunday through Saturday |
+| N | ISO-8601 numeric representation of the day of the week (added in PHP 5.1.0) | 1 (for Monday) through 7 (for Sunday) |
+| S | English ordinal suffix for the day of the month, 2 characters | st, nd, rd or th. Works well with j |
+| w | Numeric representation of the day of the week | 0 (for Sunday) through 6 (for Saturday) |
+| z | The day of the year (starting from 0) | 0 through 365 |
+| Week | --- | --- |
+| W | ISO-8601 week number of year, weeks starting on Monday | Example: 42 (the 42nd week in the year) |
+| Month | --- | --- |
+| F | A full textual representation of a month, such as January or March | January through December |
+| m | Numeric representation of a month, with leading zeros | 01 through 12 |
+| M | A short textual representation of a month, three letters | Jan through Dec |
+| n | Numeric representation of a month, without leading zeros | 1 through 12 |
+| t | Number of days in the given month | 28 through 31 |
+| Year | --- | --- |
+| L | Whether it's a leap year | 1 if it is a leap year, 0 otherwise. |
+| o | ISO-8601 week-numbering year. This has the same value as Y, except that if the ISO week number (W) belongs to the previous or next year, that year is used instead. (added in PHP 5.1.0) | Examples: 1999 or 2003 |
+| Y | A full numeric representation of a year, 4 digits | Examples: 1999 or 2003 |
+| y | A two digit representation of a year | Examples: 99 or 03 |
+| Time | --- | --- |
+| a | Lowercase Ante meridiem and Post meridiem | am or pm |
+| A | Uppercase Ante meridiem and Post meridiem | AM or PM |
+| B | Swatch Internet time | 000 through 999 |
+| g | 12-hour format of an hour without leading zeros | 1 through 12 |
+| G | 24-hour format of an hour without leading zeros | 0 through 23 |
+| h | 12-hour format of an hour with leading zeros | 01 through 12 |
+| H | 24-hour format of an hour with leading zeros | 00 through 23 |
+| i | Minutes with leading zeros | 00 to 59 |
+| s | Seconds with leading zeros | 00 through 59 |
+| u | Microseconds (added in PHP 5.2.2). Note that date() will always generate 000000 since it takes an int parameter, whereas DateTime::format() does support microseconds if DateTime was created with microseconds. | Example: 654321 |
+| v | Milliseconds (added in PHP 7.0.0). Same note applies as for u. | Example: 654 |
+| Timezone | --- | --- |
+| e | Timezone identifier (added in PHP 5.1.0) | Examples: UTC, GMT, Atlantic/Azores |
+| I (capital i) | Whether or not the date is in daylight saving time | 1 if Daylight Saving Time, 0 otherwise. |
+| O | Difference to Greenwich time (GMT) without colon between hours and minutes | Example: +0200 |
+| P | Difference to Greenwich time (GMT) with colon between hours and minutes (added in PHP 5.1.3) | Example: +02:00 |
+| T | Timezone abbreviation | Examples: EST, MDT ... |
+| Z | Timezone offset in seconds. The offset for timezones west of UTC is always negative, and for those east of UTC is always positive. | -43200 through 50400 |
+| Full Date/Time | --- | --- |
+| c | ISO 8601 date (added in PHP 5) | 2004-02-12T15:19:21+00:00 |
+| r | » RFC 2822 formatted date | Example: Thu, 21 Dec 2000 16:01:07 +0200 |
+| U | Seconds since the Unix Epoch (January 1 1970 00:00:00 GMT) | See also time() |
+
+**Sumber**: https://www.php.net/manual/en/datetime.format.php 
+
 ## Pemilihan Kondisi
 
 **Propety: `TRANSACTION_RULE`**
 
-Simulator hanya mendukung kondisi `IF` dan tidak `ELSE`.  Semua data yang dihasilkan adalah data yang berada di antara `THEN` dan `ENDIF`.
+Simulator hanya mendukung kondisi `IF` dan tidak `ELSE`.  Semua data yang dihasilkan adalah data yang berada di antara `{[THEN]}` dan `{[ENDIF]}`. `IF` ditulis dengan `{[IF]}`, `THEN` ditulis dengan `{[THEN]}`, dan `ENDIF` ditulis dengan `{[ENDIF]}`. Hal ini untuk membedakan antara kata tercadang dengan kata yang mungkin muncul dalam data konfigurasi.
 
-Simulator akan mengevaluasi ekspresi pada `IF`. Jika kondisi tersebut bernilai `true`, maka simulator akan mengambil semua data pada blok tersebut tidak peduli apakah kondisi pada blok berikutnya bernilai `true` atau `false`.
+Simulator akan mengevaluasi ekspresi pada `{[IF]}`. Jika kondisi tersebut bernilai `true`, maka simulator akan mengambil semua data pada blok tersebut tidak peduli apakah kondisi pada blok berikutnya bernilai `true` atau `false`.
 
 Beberapa data yang yang dapat dihasikan oleh simulator adalah sebagai berikut:
 
@@ -223,8 +277,8 @@ $INPUT.PRODUCT=$REQUEST.data.destination_bank_code\
 $INPUT.ACCOUNT=$REQUEST.data.beneficiary_account_number\
 $INPUT.REF_NUMBER=$REQUEST.data.customer_reference_number
 TRANSACTION_RULE=\
-IF ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567890")\
-THEN $DELAY=0\
+{[IF]} ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567890")\
+{[THEN]} $DELAY=0\
 $OUTPUT=\
 {\
 	"rc":"00",\
@@ -236,9 +290,9 @@ $OUTPUT=\
 	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
 	"refid":"$INPUT.REF_NUMBER"\
 }\
-ENDIF\
-IF ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567891")\
-THEN $DELAY=20000\
+{[ENDIF]}\
+{[IF]} ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567891")\
+{[THEN]} $DELAY=20000\
 $OUTPUT=\
 {\
 	"rc":"00",\
@@ -250,9 +304,9 @@ $OUTPUT=\
 	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
 	"refid":"873264832658723585"\
 }\
-ENDIF\
-IF (true)\
-THEN $DELAY=0\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]} $DELAY=0\
 $OUTPUT=\
 {\
 	"rc":"25",\
@@ -264,7 +318,7 @@ $OUTPUT=\
 	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
 	"refid":"873264832658723585"\
 }\
-ENDIF\
+{[ENDIF]}\
 ```
 
 Simulator akan mengevaluasi kondisi yang sesuai. Jika ada dua buah kondisi
@@ -292,8 +346,8 @@ $INPUT.PRODUCT=$REQUEST.product_code\
 $INPUT.ACCOUNT=$REQUEST.customer_no\
 $INPUT.REF_NUMBER=$REQUEST.refno
 TRANSACTION_RULE=\
-IF ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612126")\
-THEN $DELAY=0\
+{[IF]} ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612126")\
+{[THEN]} $DELAY=0\
 $OUTPUT=\
 {\
 	"rc":"00",\
@@ -305,9 +359,9 @@ $OUTPUT=\
 	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
 	"refid":"$INPUT.REF_NUMBER"\
 }\
-ENDIF\
-IF ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612127")\
-THEN $DELAY=20000\
+{[ENDIF]}\
+{[IF]} ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612127")\
+{[THEN]} $DELAY=20000\
 $OUTPUT=\
 {\
 	"rc":"00",\
@@ -319,9 +373,9 @@ $OUTPUT=\
 	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
 	"refid":"873264832658723585"\
 }\
-ENDIF\
-IF (true)\
-THEN $DELAY=0\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]} $DELAY=0\
 $OUTPUT=\
 {\
 	"rc":"25",\
@@ -333,7 +387,7 @@ $OUTPUT=\
 	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
 	"refid":"873264832658723585"\
 }\
-ENDIF\
+{[ENDIF]}\
 ```
 
 ## Contoh Konfigurasi Request JSON
@@ -371,8 +425,8 @@ $INPUT.PRODUCT=$REQUEST.data.destination_bank_code\
 $INPUT.ACCOUNT=$REQUEST.data.beneficiary_account_number\
 $INPUT.REF_NUMBER=$REQUEST.data.customer_reference_number
 TRANSACTION_RULE=\
-IF ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567890")\
-THEN $DELAY=0\
+{[IF]} ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567890")\
+{[THEN]} $DELAY=0\
 $OUTPUT=\
 {\
 	"rc":"00",\
@@ -384,9 +438,9 @@ $OUTPUT=\
 	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
 	"refid":"$INPUT.REF_NUMBER"\
 }\
-ENDIF\
-IF ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567891")\
-THEN $DELAY=20000\
+{[ENDIF]}\
+{[IF]} ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567891")\
+{[THEN]} $DELAY=20000\
 $OUTPUT=\
 {\
 	"rc":"00",\
@@ -398,9 +452,9 @@ $OUTPUT=\
 	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
 	"refid":"873264832658723585"\
 }\
-ENDIF\
-IF (true)\
-THEN $DELAY=0\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]} $DELAY=0\
 $OUTPUT=\
 {\
 	"rc":"25",\
@@ -412,7 +466,7 @@ $OUTPUT=\
 	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
 	"refid":"873264832658723585"\
 }\
-ENDIF\
+{[ENDIF]}\
 ```
 
 ## Contoh Konfigurasi Request XML
@@ -453,8 +507,8 @@ $INPUT.REF_NUMBER=$REQUEST.refno\
 $INPUT.AMOUNT=$REQUEST.amount
 
 TRANSACTION_RULE=\
-IF ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612126" && $INPUT.AMOUNT > 0)\
-THEN $DELAY=0\
+{[IF]} ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612126" && $INPUT.AMOUNT > 0)\
+{[THEN]} $DELAY=0\
 $OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 \
@@ -467,9 +521,9 @@ $OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
 	<msg>Transaksi ini dikenakan biaya Rp. 250</msg>\
 	<refid>$INPUT.REF_NUMBER</refid>\
 <data>\
-ENDIF\
-IF ($INPUT.PRODUCT == "10001" && $INPUT.ACCOUNT == "081266612127")\
-THEN $DELAY=0\
+{[ENDIF]}\
+{[IF]} ($INPUT.PRODUCT == "10001" && $INPUT.ACCOUNT == "081266612127")\
+{[THEN]} $DELAY=0\
 $OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 \
@@ -482,9 +536,9 @@ $OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
 	<msg>Transaksi ini dikenakan biaya Rp. 250</msg>\
 	<refid>$INPUT.REF_NUMBER</refid>\
 <data>\
-ENDIF\
-IF (true)\
-THEN $DELAY=0\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]} $DELAY=0\
 $OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 \
@@ -497,7 +551,7 @@ $OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
 	<msg>Pelanggan tidak ditemukan</msg>\
 	<refid>$INPUT.REF_NUMBER</refid>\
 <data>\
-ENDIF\
+{[ENDIF]}\
 ```
 
 ## Callback
@@ -534,8 +588,8 @@ $INPUT.REF_NUMBER=$REQUEST.refno\
 $INPUT.AMOUNT=$REQUEST.amount
 
 TRANSACTION_RULE=\
-IF ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612126" && $INPUT.AMOUNT > 0)\
-THEN\
+{[IF]} ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612126" && $INPUT.AMOUNT > 0)\
+{[THEN]}\
 $DELAY=0\
 $CALLBACK_URL=http://localhost/test/\
 $CALLBACK_METHOD=POST\
@@ -570,9 +624,9 @@ $OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
 	<msg>Transaksi ini dikenakan biaya Rp. 250</msg>\
 	<refid>$INPUT.REF_NUMBER</refid>\
 <data>\
-ENDIF\
-IF ($INPUT.PRODUCT == "10001" && $INPUT.ACCOUNT == "081266612127")\
-THEN $DELAY=0\
+{[ENDIF]}\
+{[IF]} ($INPUT.PRODUCT == "10001" && $INPUT.ACCOUNT == "081266612127")\
+{[THEN]} $DELAY=0\
 $OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 \
@@ -585,9 +639,9 @@ $OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
 	<msg>Transaksi ini dikenakan biaya Rp. 250</msg>\
 	<refid>$INPUT.REF_NUMBER</refid>\
 <data>\
-ENDIF\
-IF (true)\
-THEN $DELAY=0\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]} $DELAY=0\
 $OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 \
@@ -600,5 +654,6 @@ $OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
 	<msg>Pelanggan tidak ditemukan</msg>\
 	<refid>$INPUT.REF_NUMBER</refid>\
 <data>\
-ENDIF\
+{[ENDIF]}\
 ```
+
