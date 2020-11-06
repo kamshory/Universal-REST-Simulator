@@ -193,7 +193,7 @@ maka `$INPUT.PRODUCT` akan bernilai `10001`, demikian pula `$INPUT.ACCOUNT` akan
 
 ## Format $DATE()
 
-Format `$DATE()` mengikuti format pada bahasa pemrograman PHP. Berikut ini merupakan penjelasan dari format `$DATE()` pada bahasa pemrograman PHP.
+Format `$DATE()` mengikuti format pada bahasa pemrograman PHP. Berikut ini merupakan penjelasan dari format `$DATE()` pada bahasa pemrograman PHP. Untuk menyisipkan karakter konstan pada fungsi `$DATE()`, awali dengan `\`. Misalnya `$DATE('Y-m-d\TH:i:s.000\Z', 'UTC+7')` akan menampilkan `2020-10:10T20:20:20.000Z`. Perhatikan bahwa `\T` akan menjadi `T` dan `\Z` akan menjadi `Z`.
 
 | format character  | Description | Example returned values |
 |-------------------|------------ |------------------------ |
@@ -656,4 +656,3 @@ $OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 {[ENDIF]}\
 ```
-
