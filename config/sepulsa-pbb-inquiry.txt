@@ -1,0 +1,80 @@
+PATH=/Universal-REST-Simulator/sepulsa/v3/inquiry/pbb
+
+METHOD=POST
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.CUSTOMER_ID=$REQUEST.customer_id\
+$INPUT.PRODUCT=$REQUEST.product_code\
+$INPUT.PAYMENT_PERIOD=$REQUEST.payment_period
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.PRODUCT == "265" && $INPUT.CUSTOMER_ID == "357800000003101001")\
+{[THEN]} $DELAY=0\
+$OUTPUT=\
+{\
+  "response_code": "00",\
+  "product": {\
+    "code": "$INPUT.PRODUCT",\
+    "product_type": "pbb",\
+    "label": "PBB Jakarta",\
+    "operator": "PBB Jakarta",\
+    "nominal": 0\
+  },\
+  "customer_id": "$INPUT.CUSTOMER_ID",\
+  "reference_no": "8988757309534470",\
+  "amount": 190000,\
+  "price": 192500,\
+  "data": {\
+    "customer_name": "WISHNU EKA SIDHARTA",\
+    "payment_period": "$INPUT.PAYMENT_PERIOD",\
+    "kecamatan": "Poncokusumo",\
+    "kelurahan": "Gondokusuman",\
+    "surface_area": "1519 m2",\
+    "building_area": "119 m2",\
+    "due_date": "$INPUT.PAYMENT_PERIOD{[|]}1231",\
+    "bill_amount": "190000",\
+    "admin_charge": "2500",\
+    "total_amount": "192500",\
+    "reference_no": "8988757309534470",\
+    "bill_items": [\
+      {\
+        "item_name": "NJOP BUMI/ M2",\
+        "item_value": "10000000"\
+      }\
+    ]\
+  }\
+}\
+{[ENDIF]}\
+{[IF]} ($INPUT.PRODUCT == "10001" && $INPUT.CUSTOMER_ID == "081266612127")\
+{[THEN]} $DELAY=20000\
+$OUTPUT=\
+{\
+	"rc":"00",\
+	"sn":"82634862385235365285",\
+	"nama":"Budi",\
+	"customer_no":$INPUT.CUSTOMER_ID,\
+	"product_code":$INPUT.PRODUCT,\
+	"time_stamp":"$DATE('Y-m-d H:i:s')",\
+	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
+	"refid":"873264832658723585"\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]} $DELAY=0\
+$OUTPUT=\
+{\
+	"rc":"25",\
+	"sn":"82634862385235365285",\
+	"nama":"Budi",\
+	"customer_no":$INPUT.CUSTOMER_ID,\
+	"product_code":$INPUT.PRODUCT,\
+	"time_stamp":"$DATE('Y-m-d H:i:s')",\
+	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
+	"refid":"873264832658723585"\
+}\
+{[ENDIF]}\
+

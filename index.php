@@ -196,6 +196,7 @@ function process_transaction($parsed, $request)
 					$variable = trim($variable);
 					if(strlen($variable) > 0)
 					{
+						$value = str_ireplace('{[|]}', '', $value);
 						$return_data[$variable] = $value;	
 					}
 				}
@@ -278,7 +279,7 @@ function get_request_body($parsed, $url)
 		else if(stripos($parsed['REQUEST_TYPE'], '/xml') !== false)
 		{
 			$input_buffer = file_get_contents("php://input");
-			$request_data = json_decode(json_encode(new SimpleXMLElement($input_buffer)), true);
+			$request_data = json_decode(json_encode(simplexml_load_string($input_buffer)), true);
 			$request_data = fix_array_key($request_data);
 		}
 	}
