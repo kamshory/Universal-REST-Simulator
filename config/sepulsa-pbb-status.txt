@@ -11,48 +11,46 @@ $INPUT.TRANSACTION_ID=$REQUEST.TRANSACTION_ID
 
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.TRANSACTION_ID != "")\
-{[THEN]} $DELAY=0\
+{[THEN]}\
+$STATUS=200\
+$DELAY=0\
 $HEADER=X-Server-Name: Universal REST Simulator\
 $OUTPUT={\
-    "transaction_id": $DATE('U'),\
-    "response_code": "00",\
-    "product": {\
-        "code": "$INPUT.PRODUCT_CODE",\
-        "label": "PBB Jakarta",\
-        "product_type": "pbb",\
-        "operator": "PBB Jakarta",\
-        "nominal": 0\
-    },\
-    "customer_id": "$INPUT.CUSTOMER_ID",\
-    "order_id": "$INPUT.ORDER_ID",\
-    "reference_no": "$INPUT.REFERENCE_NO",\
-    "amount": 190000,\
-    "price": 192500,\
-    "created": $DATE('U'),\
-    "changed": $DATE('U'),\
-    "data": {\
-        "admin_charge": "2500",\
-        "bill_amount": "190000",\
-        "bill_items": [\
-            {\
-                "item_name": "NJOP BUMI/ M2",\
-                "item_value": "10000000"\
-            },\
-            {\
-                "item_name": "NJOP BANG./ M2",\
-                "item_value": "10000000"\
-            }\
-        ],\
-        "building_area": "119 m2",\
-        "customer_name": "WISHNU EKA SIDHARTA",\
-        "due_date": "$DATE('Y'){[|]}1231",\
-        "kecamatan": "Poncokusumo",\
-        "kelurahan": "Gondokusuman",\
-        "payment_period": "$DATE('Y')",\
-        "reference_no": "$INPUT.REFERENCE_NO",\
-        "surface_area": "1519 m2",\
-        "total_amount": "192500"\
-    }\
+  "changed": $DATE('U'),\
+  "transaction_id": $INPUT.TRANSACTION_ID,\
+  "response_code": "00",\
+  "customer_id": "357800000003101001",\
+  "order_id": "ORDER-001",\
+  "amount": 190000,\
+  "price": 192500,\
+  "created": $DATE('U'),\
+  "product": {\
+    "code": "265",\
+    "product_type": "pbb",\
+    "label": "PBB Jakarta",\
+    "operator": "PBB Jakarta",\
+    "nominal": 0\
+  },\
+  "reference_no": "8988757309534470",\
+  "data": {\
+    "customer_name": "WISHNU EKA SIDHARTA",\
+    "payment_period": "2018",\
+    "kecamatan": "Poncokusumo",\
+    "kelurahan": "Gondokusuman",\
+    "surface_area": "1519 m2",\
+    "building_area": "119 m2",\
+    "due_date": "20190831",\
+    "bill_amount": "190000",\
+    "admin_charge": "2500",\
+    "total_amount": "192500",\
+    "reference_no": "5538184796753210",\
+    "bill_items": [\
+      {\
+        "item_name": "NJOP BUMI/ M2",\
+        "item_value": "10000000"\
+      }\
+    ]\
+  }\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
@@ -61,7 +59,7 @@ $OUTPUT=\
 {\
   "response_code": "20",\
   "product": {\
-    "code": "$INPUT.PRODUCT_CODE",\
+    "code": "265",\
     "product_type": "pbb",\
     "label": "PBB Jakarta",\
     "operator": "PBB Jakarta",\

@@ -270,14 +270,16 @@ Simulator akan mengevaluasi ekspresi pada `{[IF]}`. Jika kondisi tersebut bernil
 
 Beberapa data yang yang dapat dihasikan oleh simulator adalah sebagai berikut:
 
-1. `$HEADER` adalah response header yang dibuat perbaris.
-2. `$DELAY` adalah waktu tunggu. Server akan menunggu beberapa saat sebelum mengirimkan respon.
-3. `$OUTPUT` adalah response body. 
-4. `$CALLBACK_URL` adalah URL yang dituju pada proses callback.
-5. `$CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
-6. `$CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
-7. `$CALLBACK_HEADER` adalah request header untuk callback.
-8. `$CALLBACK_OUTPUT` adalah request body untuk callback.
+
+1. `$STATUS` adalah HTTP status code. Nilai default dari `$STATUS` adalah `200`
+2. `$HEADER` adalah response header yang dibuat perbaris.
+3. `$DELAY` adalah waktu tunggu. Server akan menunggu beberapa saat sebelum mengirimkan respon.
+4. `$OUTPUT` adalah response body. 
+5. `$CALLBACK_URL` adalah URL yang dituju pada proses callback.
+6. `$CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
+7. `$CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
+8. `$CALLBACK_HEADER` adalah request header untuk callback.
+9. `$CALLBACK_OUTPUT` adalah request body untuk callback.
 
 Penjelasan tentang callback dapat dibaca pada bagian **Callback**.
 
@@ -293,7 +295,9 @@ $INPUT.ACCOUNT=$REQUEST.data.beneficiary_account_number\
 $INPUT.REF_NUMBER=$REQUEST.data.customer_reference_number
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567890")\
-{[THEN]} $DELAY=0\
+{[THEN]}\
+$STATUS=200\
+$DELAY=0\
 $OUTPUT=\
 {\
 	"rc":"00",\
@@ -671,4 +675,3 @@ $OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 {[ENDIF]}\
 ```
-

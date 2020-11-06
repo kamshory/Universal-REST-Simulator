@@ -536,6 +536,10 @@ if(!empty($parsed))
 		{
 			$response = @$output['OUTPUT'];
 			header("Content-length: ".strlen($response));
+			if(isset($output['STATUS']))
+			{
+				http_response_code($output['STATUS']);
+			}
 			echo $response;
 		}
 	}
