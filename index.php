@@ -58,6 +58,7 @@ function parse_config($context_path, $document_root = null)
 	}
 	return $parsed;
 }
+
 function fix_array_key($request_data)
 {
 	$fixed_data = array();
@@ -68,6 +69,7 @@ function fix_array_key($request_data)
 	}
 	return $fixed_data;
 }
+
 function fix_header_key($request_headers)
 {
 	$headers = array();
@@ -78,6 +80,7 @@ function fix_header_key($request_headers)
 	}
 	return $headers;
 }
+
 function parse_input($config, $request_headers, $request_data)
 {
 	$headers = fix_header_key($request_headers);
@@ -131,13 +134,13 @@ function process_transaction($parsed, $request)
 	$content_type = $parsed['RESPONSE_TYPE'];
 	$transaction_rule = $parsed['TRANSACTION_RULE'];
 	$transaction_rule = str_replace('\\$', "\r\n$", $transaction_rule);
-	$arr = explode('ENDIF', $transaction_rule);
+	$arr = explode('{[ENDIF]}', $transaction_rule);
 	$return_data = array();
 	foreach($arr as $idx=>$data)
 	{
-		if(stripos($data, "THEN") > 0)
+		if(stripos($data, "{[THEN]}") > 0)
 		{
-			$arr2 = explode("THEN", $data);
+			$arr2 = explode("{[THEN]}", $data);
 			$rcondition = str_replace("\\", "\r\n", $arr2[0]);
 			$rline = $arr2[1];
 			
@@ -154,8 +157,9 @@ function process_transaction($parsed, $request)
 				}
 			}
 			$rcondition = trim($rcondition, " \t\r\n ");
-			if(stripos($rcondition, 'IF') === 0)
+			if(stripos($rcondition, '{[IF]}') === 0)
 			{
+				$rcondition = str_ireplace('{[IF]}', 'if', $rcondition);
 				$rcondition = trim(substr($rcondition, 2));
 			}
 			
@@ -343,10 +347,12 @@ function get_context_path()
 	$context_path = parse_url($url, PHP_URL_PATH);
 	return $context_path;
 }
+
 function get_url()
 {
 	return $_SERVER['REQUEST_URI'];
 }
+
 function send_response_header($headers)
 {
 	$arr = explode("\r\n", $headers);
@@ -359,6 +365,7 @@ function send_response_header($headers)
 		}
 	}
 }
+
 function send_callback($output)
 {
 	$res = "";
@@ -372,6 +379,7 @@ function send_callback($output)
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST , 0);
 		$headers = array();
 		if(isset($output['CALLBACK_HEADER']))
 		{
@@ -435,6 +443,7 @@ $url = get_url();
 	
 // Select configuration file
 $parsed = get_config_file($config_dir, $context_path);
+
 if(!empty($parsed))
 {
 	// Get request headers
