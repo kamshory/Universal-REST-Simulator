@@ -8,17 +8,17 @@ RESPONSE_TYPE=application/json
 
 PARSING_RULE=\
 $INPUT.CUSTOMER_ID=$REQUEST.customer_id\
-$INPUT.PRODUCT=$REQUEST.product_code\
+$INPUT.PRODUCT_CODE=$REQUEST.product_code\
 $INPUT.PAYMENT_PERIOD=$REQUEST.payment_period
 
 TRANSACTION_RULE=\
-{[IF]} ($INPUT.PRODUCT == "265" && $INPUT.CUSTOMER_ID == "357800000003101001")\
+{[IF]} ($INPUT.PRODUCT_CODE == "265" && $INPUT.CUSTOMER_ID == "357800000003101001")\
 {[THEN]} $DELAY=0\
 $OUTPUT=\
 {\
   "response_code": "00",\
   "product": {\
-    "code": "$INPUT.PRODUCT",\
+    "code": "$INPUT.PRODUCT_CODE",\
     "product_type": "pbb",\
     "label": "PBB Jakarta",\
     "operator": "PBB Jakarta",\
@@ -49,13 +49,13 @@ $OUTPUT=\
   }\
 }\
 {[ENDIF]}\
-{[IF]} ($INPUT.PRODUCT == "265" && $INPUT.CUSTOMER_ID == "357800000003101002")\
+{[IF]} ($INPUT.PRODUCT_CODE == "265" && $INPUT.CUSTOMER_ID == "357800000003101002")\
 {[THEN]} $DELAY=0\
 $OUTPUT=\
 {\
   "response_code": "00",\
   "product": {\
-    "code": "$INPUT.PRODUCT",\
+    "code": "$INPUT.PRODUCT_CODE",\
     "product_type": "pbb",\
     "label": "PBB Jakarta",\
     "operator": "PBB Jakarta",\
@@ -92,7 +92,7 @@ $OUTPUT=\
 {\
   "response_code": "20",\
   "product": {\
-    "code": "$INPUT.PRODUCT",\
+    "code": "$INPUT.PRODUCT_CODE",\
     "product_type": "pbb",\
     "label": "PBB Jakarta",\
     "operator": "PBB Jakarta",\

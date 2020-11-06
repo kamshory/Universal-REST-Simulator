@@ -92,6 +92,21 @@ Pengguna bebas menggunakan content type apa saja untuk response karena pada dasa
 
 Input berasal dari 2 sumber yaitu `$REQUEST` (_request body_ pada `POST` dan `PUT` serta _query string_ pada `GET`) dan `$HEADER` (request header). Baik `$REQUEST` maupun `$HEADER` harus ditulis dengan huruf kapital. Nama properti dari `$REQUEST` adalah _case sensitive_ sedangkan nama properti dari `$HEADER` berupa huruf kapital dan `-` diganti menjadi `_`. Hal ini disebabkan karena properti header mungkin sudah berubah dan tidak dapat diprediksi penulisannya secara pasti. 
 
+`$REQUEST` dapat berasal dari:
+1. Query pada `GET`
+2. Request body pada `POST` dan `PUT`
+3. Wildcard URL
+
+Untuk mengambil `$REQUEST` dari wildcard URL, cukup menggunakan `{[IDENTIFIER]}` pada URL. 
+
+Contoh:
+
+```ini
+PATH=/payment/{[PRODUCT_CODE]}/{[CUSTOMER_ID]}/{[REFERENCE_NUMBER]}
+```
+
+Jika client melakukan request baik `GET`, `POST` atau `PUT` dengan URL `/payment/123/456/7890`, maka `$REQUEST.PRODUCT_CODE` akan bernila `123`, `$REQUEST.CUSTOMER_ID` akan bernila `456`, `$REQUEST.REFERENCE_NUMBER` akan bernila `7890`.
+
 Simulator membaca input tergantung dari `content type` request. Untuk `content type`  `application/x-www-form-urlencoded`, simulator langsung mengambil nilai dari parameter yang sesuai. Untuk content type `application/json`, simulator akan mengambil data secara bertingkat. Dengan demikian, pengguna bebas memberikan request JSON dengan struktur bertingkat.
 
 Matriks input dan method Universal REST Simulator adalah sebagai berikut:
@@ -190,16 +205,6 @@ Content-length: 196
 ```
 
 maka `$INPUT.PRODUCT` akan bernilai `10001`, demikian pula `$INPUT.ACCOUNT` akan bernilai `081266612127` dan seterusnya.
-
-## Echo
-
-Echo yang dimaksud di sini adalah mengambil nilai dari input. Objek input dapat dimasukkan ke output dengan cara menulis `$INPUT.NAMA_VARIABLE`. 
-
-Ada beberapa kondisi di mana `$INPUT.NAMA_VARIABLE` tidak berarti sebagaimana tertulis. Sebagai contoh: `$INPUT.NAMA_VARIABLE01` bisa berarti sebagaimana ditulis dan bisa berarti `$INPUT.NAMA_VARIABLE` yang disambung dengan string konstan `01` atau bahkan `$INPUT.NAMA_VARIABLE01` tersebut bukanlah input melainkan string konstan yang harus ditulis demikian alih-alih simulator menggantinya dengan nilai input. 
-
-Universal REST Simulator memperkenalkan pemecah `{[|]}` yang dapat disisipkan di mana saja. Pemecah ini akan memecah teks dalam konfigurasi namun akan dihilangkan pada response.
-
-Pada kasus di atas, jika yang dimaksud `$INPUT.NAMA_VARIABLE` yang disambung dengan string konstan `01`, maka harus ditulis dengan `$INPUT.NAMA_VARIABLE{[|]}01`. Jika yang dimaksud adalah string konstan `$INPUT.NAMA_VARIABLE01`, maka harus ditulis dengan `${[|]}INPUT.NAMA_VARIABLE01` sehingga tidak akan dianggap sebagai input.
 
 ## Format $DATE()
 
@@ -666,3 +671,4 @@ $OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 {[ENDIF]}\
 ```
+

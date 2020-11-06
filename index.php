@@ -1,5 +1,4 @@
 <?php
-
 // Functions
 function parse_config($context_path, $document_root = null)
 {
@@ -81,7 +80,7 @@ function fix_header_key($request_headers)
 	return $headers;
 }
 
-function parse_input($config, $request_headers, $request_data)
+function parse_input($config, $request_headers, $request_data, $context_path)
 {
 	$headers = fix_header_key($request_headers);
 	
@@ -125,6 +124,33 @@ function parse_input($config, $request_headers, $request_data)
 				}
 			}
 		}
+	}
+	// Parse URL
+	if(stripos($config['PATH'], '{[') !== false && stripos($config['PATH'], ']}') !== false)
+	{
+		$start = stripos($config['PATH'], '{[');
+		$end = stripos($config['PATH'], ']}');
+		
+		if($start === false || $end === false)
+		{
+			$base_path = $config['PATH'];
+		}
+		else
+		{
+			$base_path = substr($config['PATH'], 0, $start);
+			$wildcard_data = trim(substr($context_path, $start), "/");
+			$wildcard_variable = trim(substr($config['PATH'], $start), "/");
+			$arr1 = explode("/", $wildcard_variable);
+			$arr2 = explode("/", $wildcard_data);
+			foreach($arr1 as $key=>$val)
+			{
+				if(startsWith($val, '{[') && endsWith($val, ']}'))
+				{
+					$par = trim(str_replace(array('{[', ']}'), '', $val));
+					$res[$par] = $arr2[$key];
+				}		
+			}
+		}	
 	}
 	return $res;
 }
@@ -285,15 +311,39 @@ function get_request_body($parsed, $url)
 	return $request_data;
 }
 
+function is_match_path($config_path, $request_path)
+{
+	$start = stripos($config_path, '{[');
+	$end = stripos($config_path, ']}');
+	if($start === false || $end === false)
+	{
+		$base_path = $config_path;
+	}
+	else
+	{
+		$base_path = substr($config_path, 0, $start);
+	}
+	if(stripos($request_path, $base_path) === 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 function get_config_file($dir, $context_path)
 {
-	if ($handle = opendir($dir)) {
-		while (false !== ($file = readdir($handle))) {
+	if ($handle = opendir($dir)) 
+	{
+		while (false !== ($file = readdir($handle))) 
+		{
 			if ('.' === $file) continue;
 			if ('..' === $file) continue;
 			$filepath = rtrim($dir, "/")."/".$file;	
 			$prsd = parse_config($filepath);
-			if($prsd['PATH'] == $context_path)
+			if(is_match_path($prsd['PATH'], $context_path) && $prsd['METHOD'] == $_SERVER["REQUEST_METHOD"])
 			{
 				$parsed = $prsd;
 				break;
@@ -453,7 +503,7 @@ if(!empty($parsed))
 	$request_data = get_request_body($parsed, $url);
 
 	// Parse request
-	$request = parse_input($parsed, $request_headers, $request_data);
+	$request = parse_input($parsed, $request_headers, $request_data, $context_path);
 
 	// Process the transaction
 	$output = process_transaction($parsed, $request);

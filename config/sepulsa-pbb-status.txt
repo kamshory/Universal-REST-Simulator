@@ -1,25 +1,19 @@
-PATH=/Universal-REST-Simulator/sepulsa/v3/transaction/pbb
+PATH=/Universal-REST-Simulator/sepulsa/v3/transaction/pbb/{[TRANSACTION_ID]}
 
-METHOD=POST
+METHOD=GET
 
-REQUEST_TYPE=application/json
+REQUEST_TYPE=applicatiom/x-www-form-urlencoded
 
 RESPONSE_TYPE=application/json
 
 PARSING_RULE=\
-$INPUT.CUSTOMER_ID=$REQUEST.customer_id\
-$INPUT.PRODUCT_CODE=$REQUEST.product_code\
-$INPUT.REFERENCE_NO=$REQUEST.reference_no\
-$INPUT.ORDER_ID=$REQUEST.order_id
+$INPUT.TRANSACTION_ID=$REQUEST.TRANSACTION_ID
 
 TRANSACTION_RULE=\
-{[IF]} ($INPUT.PRODUCT_CODE == "265" && $INPUT.CUSTOMER_ID == "357800000003101001")\
+{[IF]} ($INPUT.TRANSACTION_ID != "")\
 {[THEN]} $DELAY=0\
-$CALLBACK_URL=http://localhost/test/\
-$CALLBACK_METHOD=POST\
-$CALLBACK_TYPE=application/json\
-$CALLBACK_HEADER=X-Server-Name: Universal REST Simulator\
-$CALLBACK_OUTPUT={\
+$HEADER=X-Server-Name: Universal REST Simulator\
+$OUTPUT={\
     "transaction_id": $DATE('U'),\
     "response_code": "00",\
     "product": {\
@@ -59,24 +53,6 @@ $CALLBACK_OUTPUT={\
         "surface_area": "1519 m2",\
         "total_amount": "192500"\
     }\
-}\
-$OUTPUT=\
-{\
-  "transaction_id": $DATE('U'),\
-  "response_code": "10",\
-  "customer_id": "$INPUT.CUSTOMER_ID",\
-  "order_id": "$INPUT.ORDER_ID",\
-  "amount": 190000,\
-  "price": 192500,\
-  "created": $DATE('U'),\
-  "product": {\
-    "code": "$INPUT.PRODUCT_CODE",\
-    "product_type": "pbb",\
-    "label": "PBB Jakarta",\
-    "operator": "PBB Jakarta",\
-    "nominal": 0\
-  },
-  "reference_no": "$INPUT.REFERENCE_NO"\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
