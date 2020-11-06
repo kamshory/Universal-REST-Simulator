@@ -248,7 +248,6 @@ function replace_date($string)
 				$src = substr($string, $start, $stop + 1 - $start);
 				$date = eval_date($src);
 				$string = str_replace($src, $date, $string);
-				break;
 			}
 		}
 		while(stripos($string, '$DATE') !== false);
