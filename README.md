@@ -105,7 +105,7 @@ Contoh:
 PATH=/payment/{[PRODUCT_CODE]}/{[CUSTOMER_ID]}/{[REFERENCE_NUMBER]}
 ```
 
-Jika client melakukan request baik `GET`, `POST` atau `PUT` dengan URL `/payment/123/456/7890`, maka `$REQUEST.PRODUCT_CODE` akan bernila `123`, `$REQUEST.CUSTOMER_ID` akan bernila `456`, `$REQUEST.REFERENCE_NUMBER` akan bernila `7890`.
+Jika client melakukan request baik `GET`, `POST` atau `PUT` dengan URL `/payment/123/456/7890`, maka `$REQUEST.PRODUCT_CODE` akan bernila `123`, `$REQUEST.CUSTOMER_ID` akan bernila `456`, `$REQUEST.REFERENCE_NUMBER` akan bernila `7890`. Wildcard URL tetap dapat digabungkan dengan query string. Baik input dari wildcard URL maupun query string akan dapat diparsing dalam satu request.
 
 Simulator membaca input tergantung dari `content type` request. Untuk `content type`  `application/x-www-form-urlencoded`, simulator langsung mengambil nilai dari parameter yang sesuai. Untuk content type `application/json`, simulator akan mengambil data secara bertingkat. Dengan demikian, pengguna bebas memberikan request JSON dengan struktur bertingkat.
 
