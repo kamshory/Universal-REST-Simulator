@@ -103,6 +103,36 @@ function parse_input($config, $request_headers, $request_data, $context_path)
 				$res[$key] = isset($value)?$value:'';
 			}
 			
+			// Parse from authorization
+			if(isset($headers['AUTHORIZATION']))
+			{
+				$authorization = trim($headers['AUTHORIZATION']);
+				if(stripos($authorization, 'Basic ') === 0)
+				{
+					$auths = base64_decode(substr($authorization, 6));
+					if(stripos($auths, ":") !== false)
+					{
+						$up = explode(":", $auths, 2);
+						if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$AUTHORIZATION_BASIC.') === 0)
+						{
+							$key1 = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+							$key2 = trim(substr(trim($arr2[1]), strlen('$AUTHORIZATION_BASIC.')));
+							if($key2 == 'USERNAME')
+							{
+								$value = trim($up[0]);
+								$res[$key1] = isset($value)?$value:'';
+							}
+							if($key2 == 'PASSWORD')
+							{
+								$value = trim($up[1]);
+								$res[$key1] = isset($value)?$value:'';
+							}
+							
+						}
+					}
+				}
+			}
+			
 			// Parse from request
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$REQUEST.') === 0)
 			{
