@@ -195,7 +195,7 @@ maka `$INPUT.PRODUCT` akan bernilai `10001`, demikian pula `$INPUT.ACCOUNT` akan
 
 **Propety: `TRANSACTION_RULE`**
 
-Pada dasarnya simulator hanya akan menghasilkan `HEADER`, `DELAY` dan `OUTPUT`. `DELAY` adalah berapa lama simulator akan menunggu sebelum melanjutkan pproses. `HEADER` berguna untuk mengirimkan response header kepada client. `DELAY` sangat berguna untuk kasus `time out`. `OUTPUT` adalah response body yang akan dikirimkan ke klien.
+Pada dasarnya simulator hanya akan menghasilkan `HEADER`, `DELAY` dan `OUTPUT`. `HEADER` berguna untuk mengirimkan response header kepada client. `DELAY` adalah berapa lama simulator akan menunggu sebelum melanjutkan pproses.  `DELAY` sangat berguna untuk kasus `time out`. `OUTPUT` adalah response body yang akan dikirimkan ke klien.
 
 Simulator hanya mendukung kondisi `IF` dan tidak `ELSE`. Baik `DELAY` maupun `OUTPUT` yang dihasilkan adalah data yang berada di antara `THEN` dan `ENDIF`.
 
@@ -488,3 +488,4 @@ $OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 ENDIF\
 ```
+
