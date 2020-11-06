@@ -195,11 +195,22 @@ maka `$INPUT.PRODUCT` akan bernilai `10001`, demikian pula `$INPUT.ACCOUNT` akan
 
 **Propety: `TRANSACTION_RULE`**
 
-Pada dasarnya simulator hanya akan menghasilkan `HEADER`, `DELAY` dan `OUTPUT`. `HEADER` berguna untuk mengirimkan response header kepada client. `DELAY` adalah berapa lama simulator akan menunggu sebelum melanjutkan pproses.  `DELAY` sangat berguna untuk kasus `time out`. `OUTPUT` adalah response body yang akan dikirimkan ke klien.
+Simulator hanya mendukung kondisi `IF` dan tidak `ELSE`.  Semua data yang dihasilkan adalah data yang berada di antara `THEN` dan `ENDIF`.
 
-Simulator hanya mendukung kondisi `IF` dan tidak `ELSE`. Baik `DELAY` maupun `OUTPUT` yang dihasilkan adalah data yang berada di antara `THEN` dan `ENDIF`.
+Simulator akan mengevaluasi ekspresi pada `IF`. Jika kondisi tersebut bernilai `true`, maka simulator akan mengambil semua data pada blok tersebut tidak peduli apakah kondisi pada blok berikutnya bernilai `true` atau `false`.
 
-Simulator akan mengevaluasi ekspresi pada `IF`. Jika kondisi tersebut bernilai `true`, maka simulator akan mengambil `DELAY` dan `OUTPUT` pada blok tersebut tidak peduli apakah kondisi pada blok berikutnya bernilai `true` atau `false`.
+Beberapa data yang yang dapat dihasikan oleh simulator adalah sebagai berikut:
+
+1. `$HEADER` adalah response header yang dibuat perbaris.
+2. `$DELAY` adalah waktu tunggu. Server akan menunggu beberapa saat sebelum mengirimkan respon.
+3. `$OUTPUT` adalah response body. 
+4. `$CALLBACK_URL` adalah URL yang dituju pada proses callback.
+5. `$CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
+6. `$CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
+7. `$CALLBACK_HEADER` adalah request header untuk callback.
+8. `$CALLBACK_OUTPUT` adalah request body untuk callback.
+
+Penjelasan tentang callback dapat dibaca pada bagian **Callback**.
 
 ```ini
 PATH=/bank/bni
@@ -489,3 +500,105 @@ $OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
 ENDIF\
 ```
 
+## Callback
+
+Beberapa simulator mengirimkan callback dikarenakan proses asinkron. Universal REST Simulator juga mendukung callback. Callback akan dikirim setelah request diparsing sebelum melakukan delay (jika ada).
+
+Untuk menambahkan callback, beberapa konfigurasi perlu dibuat pada `TRANSACTION_RULE` yaitu sebagai berikut:
+
+1. `$CALLBACK_URL` adalah URL yang dituju pada proses callback.
+2. `$CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
+3. `$CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
+4. `$CALLBACK_HEADER` adalah request header untuk callback.
+5. `$CALLBACK_OUTPUT` adalah request body untuk callback.
+
+Method default adalah `GET`. Apabila `$CALLBACK_METHOD` adalah `GET`, maka `$CALLBACK_OUTPUT` tidak akan dikirim dan `Content-length` dan `Content-type` pada header juga tidak akan dikirim.
+
+Perlu diingat bahwa pada method `POST` dan `PUT`, pengguna wajib menjantumkan `$CALLBACK_OUTPUT` karena server yang dituju akan menunggu simulator mengirimkan `body` pada proses callback. `$CALLBACK_TYPE` pada `POST` dan `PUT` juga harus diseting untuk menentukan `Content-type` pada callback. `Content-length` akan dibuat secara otomatis oleh simulator pada saat callback dilakukan. Pengguna dapat menambahkan `User-agent` pada header. Jika pengguna tidak memasukkan `User-agent`, maka simulator akan membuat `User-agent` default karena beberapa server mungkin mewajibkan setiap request mencantumkan `User-agent`.
+
+**Konfigurasi**
+
+```ini
+PATH=/universal-rest-simulator/xml
+
+METHOD=POST
+
+REQUEST_TYPE=application/xml
+
+RESPONSE_TYPE=application/xml
+
+PARSING_RULE=\
+$INPUT.PRODUCT=$REQUEST.product_code\
+$INPUT.ACCOUNT=$REQUEST.customer_no\
+$INPUT.REF_NUMBER=$REQUEST.refno\
+$INPUT.AMOUNT=$REQUEST.amount
+
+TRANSACTION_RULE=\
+IF ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612126" && $INPUT.AMOUNT > 0)\
+THEN\
+$DELAY=0\
+$CALLBACK_URL=http://localhost/test/\
+$CALLBACK_METHOD=POST\
+$CALLBACK_TYPE=application/xml\
+$CALLBACK_HEADER=\X-Server-Name: Universal REST Simulator\
+X-Response-Code: 00\
+X-Response-Text: Success\
+$CALLBACK_OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
+<data>\
+\
+	<rc>00</rc>\
+	<sn>82634862385235365285</sn>\
+	<nama>BNI</nama>\
+	<customer_no>$INPUT.ACCOUNT</customer_no>\
+	<product_code>$INPUT.PRODUCT</product_code>\
+	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
+	<msg>Ini output dari callback Transaksi ini dikenakan biaya Rp. 250</msg>\
+	<refid>$INPUT.REF_NUMBER</refid>\
+<data>\
+$HEADER=\X-Server-Name: Universal REST Simulator\
+X-Response-Code: 00\
+X-Response-Text: Success\
+$OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
+<data>\
+\
+	<rc>00</rc>\
+	<sn>82634862385235365285</sn>\
+	<nama>BNI</nama>\
+	<customer_no>$INPUT.ACCOUNT</customer_no>\
+	<product_code>$INPUT.PRODUCT</product_code>\
+	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
+	<msg>Transaksi ini dikenakan biaya Rp. 250</msg>\
+	<refid>$INPUT.REF_NUMBER</refid>\
+<data>\
+ENDIF\
+IF ($INPUT.PRODUCT == "10001" && $INPUT.ACCOUNT == "081266612127")\
+THEN $DELAY=0\
+$OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
+<data>\
+\
+	<rc>00</rc>\
+	<sn>82634862385235365285</sn>\
+	<nama>BNI</nama>\
+	<customer_no>$INPUT.ACCOUNT</customer_no>\
+	<product_code>$INPUT.PRODUCT</product_code>\
+	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
+	<msg>Transaksi ini dikenakan biaya Rp. 250</msg>\
+	<refid>$INPUT.REF_NUMBER</refid>\
+<data>\
+ENDIF\
+IF (true)\
+THEN $DELAY=0\
+$OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
+<data>\
+\
+	<rc>25</rc>\
+	<sn>82634862385235365285</sn>\
+	<nama>BNI</nama>\
+	<customer_no>$INPUT.ACCOUNT</customer_no>\
+	<product_code>$INPUT.PRODUCT</product_code>\
+	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
+	<msg>Pelanggan tidak ditemukan</msg>\
+	<refid>$INPUT.REF_NUMBER</refid>\
+<data>\
+ENDIF\
+```
