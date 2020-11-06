@@ -189,8 +189,11 @@ function process_transaction($parsed, $request)
 					{
 						$variable = substr($variable, 1);
 					}
-					
-					$return_data[$variable] = $value;	
+					$variable = trim($variable);
+					if(strlen($variable) > 0)
+					{
+						$return_data[$variable] = $value;	
+					}
 				}
 				break;
 			}
@@ -356,6 +359,67 @@ function send_response_header($headers)
 		}
 	}
 }
+function send_callback($output)
+{
+	$res = "";
+	$url = @$output['CALLBACK_URL'];
+	if(stripos($url, "://") !== false)
+	{		
+		$body = @$output['CALLBACK_OUTPUT'];
+		$content_length = strlen($body);
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		$headers = array();
+		if(isset($output['CALLBACK_HEADER']))
+		{
+			$header = trim($output['CALLBACK_HEADER'], " \t\r\n ");
+			if(strlen($header) > 2)
+			{
+				$headers = explode("\r\n", $header);				
+			}
+			if(stripos($header, "User-agent: ") === false)
+			{
+				$headers[] = 'User-agent: Universal REST Simulator';
+			}
+		}
+		if(strtoupper($output['CALLBACK_METHOD']) == 'POST')
+		{
+			curl_setopt($ch, CURLOPT_POST, 1);
+			if($content_length > 0)
+			{
+				$headers[] = 'Content-length: '.$content_length;
+				if(isset($output['CALLBACK_TYPE']))
+				{
+					$headers[] = 'Content-type: '.$output['CALLBACK_TYPE'];
+				}
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $body);  
+			}
+		}
+		else if(strtoupper($output['CALLBACK_METHOD']) == 'PUT')
+		{
+			curl_setopt($ch, CURLOPT_PUT, 1);
+			if($content_length > 0)
+			{
+				$headers[] = 'Content-length: '.$content_length;
+				if(isset($output['CALLBACK_TYPE']))
+				{
+					$headers[] = 'Content-type: '.$output['CALLBACK_TYPE'];
+				}
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $body);  
+			}
+		}
+		if(!empty($headers))
+		{
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		}
+		$res = curl_exec($ch);
+		curl_close($ch);
+	}
+	return $res;
+}
 // End of functions
 
 error_reporting(0);
@@ -388,6 +452,10 @@ if(!empty($parsed))
 	// Finally, send response to client
 	if(!empty($output))
 	{
+		if(isset($output['CALLBACK_URL']))
+		{
+			$clbk = send_callback($output);
+		}
 		if(isset($output['DELAY']))
 		{
 			$delay = @$output['DELAY'] * 1;			
@@ -398,7 +466,7 @@ if(!empty($parsed))
 		}
 		if(isset($output['HEADER']))
 		{
-			send_response_header($output['HEADER']);
+			$clbk = send_response_header($output['HEADER']);
 		}
 		if(isset($parsed['RESPONSE_TYPE']))
 		{
