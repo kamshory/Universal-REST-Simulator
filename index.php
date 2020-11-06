@@ -158,9 +158,10 @@ function process_transaction($parsed, $request)
 			{
 				$rcondition = trim(substr($rcondition, 2));
 			}
+			
 			$test = eval("return ".$rcondition.";");
 			if($test)
-			{			
+			{
 				$arr3 = explode("\r\n", $rline);
 				
 				foreach($arr3 as $idx2=>$result)
@@ -343,6 +344,18 @@ function get_url()
 {
 	return $_SERVER['REQUEST_URI'];
 }
+function send_response_header($headers)
+{
+	$arr = explode("\r\n", $headers);
+	foreach($arr as $header)
+	{
+		$header = trim($header, " \t\r\n");
+		if(stripos($header, ":") > 0)
+		{
+			header($header);
+		}
+	}
+}
 // End of functions
 
 error_reporting(0);
@@ -382,7 +395,10 @@ if(!empty($parsed))
 		{
 			usleep($delay * 1000);
 		}
-		
+		if(isset($output['HEADER']))
+		{
+			send_response_header($output['HEADER']);
+		}
 		header("Content-type: $content_type");
 		header("Content-length: ".strlen($response));
 		echo $response;
