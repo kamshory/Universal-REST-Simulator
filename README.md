@@ -40,7 +40,7 @@ karena setelah baris kehilangan `\` di akhirnya, maka simulator tidak akan melan
 
 **Property: `PATH`**
 
-Universal REST Simulator akan memilih konfigurasi sesuai dengan `path` yang diakses. Sebagai contoh: pengguna membuat 7 file konfigurasi, Universal REST Simulator akan memilih satu file dengan `path` yang sesuai. Setelah mendapatkan file yang sesuai, simulator akan berhenti mencari file lain.
+Universal REST Simulator akan memilih konfigurasi sesuai dengan `path` yang diakses dengan method yang sama dengan method request. Sebagai contoh: pengguna membuat 7 file konfigurasi, Universal REST Simulator akan memilih satu file dengan `path` yang sesuai. Setelah mendapatkan file dengan path dan method yang sesuai, simulator akan berhenti mencari file lain.
 
 Contoh struktur file konfigurasi:
 

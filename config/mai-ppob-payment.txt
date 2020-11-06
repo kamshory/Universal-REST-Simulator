@@ -1,0 +1,68 @@
+PATH=/Universal-REST-Simulator/mai/v1/ppob/buy
+
+METHOD=GET
+
+REQUEST_TYPE=applicatiom/x-www-form-urlencoded
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.PRODUCT_CODE=$REQUEST.product_code\
+$INPUT.REQUEST_TIME=$REQUEST.request_time\
+$INPUT.MERCHANT_CODE=$REQUEST.merchant_code\
+$INPUT.CUSTOMER_ID=$REQUEST.customer_no\
+$INPUT.REFERENCE_NUMBER=$REQUEST.refno\
+$INPUT.PARTNER_ID=$REQUEST.partner_id\
+$INPUT.TRANSACTION_ID=$REQUEST.transaction_id\
+$INPUT.AMOUNT=$REQUEST.amount
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.PRODUCT_CODE == "10000" && $INPUT.CUSTOMER_ID == "10067728" && $INPUT.AMOUNT > 0)\
+{[THEN]} $DELAY=0\
+$OUTPUT={\
+	"produk":"PAM Jakarta Aetra",\
+	"nopel":"$INPUT.CUSTOMER_ID",\
+	"nama":"UDIN CHAERUDIN BA",\	
+	"tagihan":11484,\
+	"admin":2500,\
+	"total_tagihan":13984,\
+	"biller_ref":"20062006838",\
+	"data":{\
+		"periode":"202005",\
+		"pemakaian":"00000000-00000000"\
+	},\
+	"tgl_lunas":"2020-09-22 12:42:37",\
+	"reff_no":"$INPUT.REFERENCE_NUMBER",\
+	"struk":[\
+		"PEMBAYARAN REKENING AIR PT AETRA AIR JAKARTA",\
+		"",\
+		"NO PELANGGAN : $INPUT.CUSTOMER_ID",\
+		"NAMA         : UDIN CHAERUDIN BA",\
+		"BULAN        : MAY20",\
+		"ST.METER     : 00000000-00000000",\
+		"PEM.MTR      : 0",\
+		"KODE REF     : 299201022476",\
+		"TAGIHAN      : Rp      11.484",\
+		"DENDA        : Rp           0",\
+		"B.ADMIN      : Rp       2.500",\
+		"JUMLAH       : --------------------- +",\
+		"TOTAL BAYAR  : Rp      13.984",\
+		"",\
+		"PT AETRA AIR JAKARTA  MENYATAKAN STRUK INI SBG BUKTI PEMBAYARAN SAH"\
+	],\
+	"msg":"Approve",\
+	"price":"12809",\
+	"rc":"00",\
+	"reffid":"$INPUT.REFERENCE_NUMBER",\
+	"restime":"$DATE('Y-m-d H:i:s')"\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]} $DELAY=0\
+$OUTPUT={\
+	"rc":"00",\
+	"msg":"Nomor pelanggan tidak ditemukan",\
+	"reffid":"$INPUT.REFERENCE_NUMBER"\
+}\
+{[ENDIF]}\
+

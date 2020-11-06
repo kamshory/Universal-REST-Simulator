@@ -1,0 +1,80 @@
+PATH=/Universal-REST-Simulator/sepulsa/transaction/mobile.json
+
+METHOD=POST
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.CUSTOMER_ID=$REQUEST.customer_number\
+$INPUT.PRODUCT_CODE=$REQUEST.product_id\
+$INPUT.ORDER_ID=$REQUEST.order_id
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.PRODUCT_CODE == "99" && $INPUT.CUSTOMER_ID == "08123456789")\
+{[THEN]} $DELAY=0\
+{[THEN]} $DELAY=0\
+$CALLBACK_URL=http://sepulsa-adapter:8080/process-callback/mobile\
+$CALLBACK_METHOD=POST\
+$CALLBACK_TYPE=application/json\
+$CALLBACK_HEADER=X-Server-Name: Universal REST Simulator\
+$CALLBACK_OUTPUT={\
+  "serial_number":"0041000804201970",\
+  "transaction_id":"11",\
+  "type":"mobile",\
+  "created":"$DATE('U')",\
+  "changed":"$DATE('U')",\
+  "customer_number":"$INPUT.CUSTOMER_ID",\
+  "product_id":"$INPUT.PRODUCT_CODE",\
+  "order_id":"$INPUT.ORDER_ID",\
+  "status":"success",\
+  "price":"21000",\
+  "amount":"0",\
+  "response_code":"00",\
+  "key":"this_is_a_secret"\
+}\
+$OUTPUT={\
+  "transaction_id": "11",\
+  "type": "mobile",\
+  "created": "$DATE('U')",\
+  "changed": "$DATE('U')",\
+  "customer_number": "$INPUT.CUSTOMER_ID",\
+  "order_id": "$INPUT.ORDER_ID",\
+  "price": "5000",\
+  "status": "pending",\
+  "response_code": "10",\
+  "serial_number": "",\
+  "amount": "0",\
+  "product_id": {\
+    "product_id": "$INPUT.PRODUCT_CODE",\
+    "type": "mobile",\
+    "label": "Telkomsel Rp 100.000",\
+    "operator": "telkomsel",\
+    "nominal": "100000",\
+    "price": 99500,\
+    "enabled": "1",\
+    "field_denom": "100000.00",\
+    "field_paket_data": true\
+  }\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]} $DELAY=0\
+$OUTPUT=$OUTPUT=\
+{\
+  "response_code": "20",\
+  "product": {\
+    "code": "265",\
+    "product_type": "mobile",\
+    "label": "Telkomsel",\
+    "operator": "Telkomsel",\
+    "nominal": 0\
+  },\
+  "customer_id": "$INPUT.CUSTOMER_ID",\
+  "amount": 0\
+}\
+{[ENDIF]}\
+
+
+
