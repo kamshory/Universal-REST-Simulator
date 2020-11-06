@@ -388,20 +388,29 @@ if(!empty($parsed))
 	// Finally, send response to client
 	if(!empty($output))
 	{
-		$content_type = $parsed['RESPONSE_TYPE'];
-		$delay = @$output['DELAY'];
-		$response = @$output['OUTPUT'];
-		if($delay > 0)
+		if(isset($output['DELAY']))
 		{
-			usleep($delay * 1000);
+			$delay = @$output['DELAY'] * 1;			
+			if($delay > 0)
+			{
+				usleep($delay * 1000);
+			}
 		}
 		if(isset($output['HEADER']))
 		{
 			send_response_header($output['HEADER']);
 		}
-		header("Content-type: $content_type");
-		header("Content-length: ".strlen($response));
-		echo $response;
+		if(isset($parsed['RESPONSE_TYPE']))
+		{
+			$content_type = $parsed['RESPONSE_TYPE'];
+			header("Content-type: $content_type");
+		}
+		if(isset($output['OUTPUT']))
+		{
+			$response = @$output['OUTPUT'];
+			header("Content-length: ".strlen($response));
+			echo $response;
+		}
 	}
 }
 
