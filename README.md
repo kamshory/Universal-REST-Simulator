@@ -96,8 +96,9 @@ Input berasal dari 2 sumber yaitu `$REQUEST` (_request body_ pada `POST` dan `PU
 1. Query pada `GET`
 2. Request body pada `POST` dan `PUT`
 3. Wildcard URL
+4. Basic Authorization
 
-Untuk mengambil `$REQUEST` dari wildcard URL, cukup menggunakan `{[IDENTIFIER]}` pada URL. 
+Untuk mengambil `$REQUEST` dari wildcard URL, cukup menggunakan `{[IDENTIFIER]}` pada URL. `{[IDENTIFIER]}` bersifat _case sensitive_.
 
 Contoh:
 
@@ -107,19 +108,23 @@ PATH=/payment/{[PRODUCT_CODE]}/{[CUSTOMER_ID]}/{[REFERENCE_NUMBER]}
 
 Jika client melakukan request baik `GET`, `POST` atau `PUT` dengan URL `/payment/123/456/7890`, maka `$REQUEST.PRODUCT_CODE` akan bernila `123`, `$REQUEST.CUSTOMER_ID` akan bernila `456`, `$REQUEST.REFERENCE_NUMBER` akan bernila `7890`. Wildcard URL tetap dapat digabungkan dengan query string. Baik input dari wildcard URL maupun query string akan dapat diparsing dalam satu request.
 
+Basic authorization mengandung username dan password untuk mengakses sebuah sumber data. Informasi username dan password dikodekan dengan base 64. Simulator mengekstrak informasi tersebut lalu menyimpannya ke objek `$AUTHORIZATION_BASIC`.
+
+Untuk mengambil username dari basic authorization, gunakan `$AUTHORIZATION_BASIC.USERNAME`. Untuk mengambil password dari basic authorization, gunakan `$AUTHORIZATION_BASIC.PASSWORD`. Penulisan `$AUTHORIZATION_BASIC.USERNAME` dan `$AUTHORIZATION_BASIC.PASSWORD` harus dengan huruf kapital.
+
 Simulator membaca input tergantung dari `content type` request. Untuk `content type`  `application/x-www-form-urlencoded`, simulator langsung mengambil nilai dari parameter yang sesuai. Untuk content type `application/json`, simulator akan mengambil data secara bertingkat. Dengan demikian, pengguna bebas memberikan request JSON dengan struktur bertingkat.
 
 Matriks input dan method Universal REST Simulator adalah sebagai berikut:
 
 | Method | Content Tpe                       | Sumber Data  | Objek                 |
 | ------ | --------------------------------- | ------------ | --------------------- |
-| `GET`  | applicatiom/x-www-form-urlencoded | Header, URL  |` $HEADER`, `$REQUEST` |
-| `POST` | applicatiom/x-www-form-urlencoded | Header, Body |` $HEADER`, `$REQUEST` |
-| `POST` | applicatiom/json                  | Header, Body |` $HEADER`, `$REQUEST` |
-| `POST` | applicatiom/xml                   | Header, Body |` $HEADER`, `$REQUEST` |
-| `PUT`  | applicatiom/x-www-form-urlencoded | Header, Body |` $HEADER`, `$REQUEST` |
-| `PUT`  | applicatiom/json                  | Header, Body |` $HEADER`, `$REQUEST` |
-| `PUT`  | applicatiom/xml                   | Header, Body |` $HEADER`, `$REQUEST` |
+| `GET`  | applicatiom/x-www-form-urlencoded | Header, URL, <br>Basic Authorization  |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`|
+| `POST` | applicatiom/x-www-form-urlencoded | Header, Body, <br>Basic Authorization |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
+| `POST` | applicatiom/json                  | Header, Body, <br>Basic Authorization |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
+| `POST` | applicatiom/xml                   | Header, Body, <br>Basic Authorization |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
+| `PUT`  | applicatiom/x-www-form-urlencoded | Header, Body, <br>Basic Authorization |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
+| `PUT`  | applicatiom/json                  | Header, Body, <br>Basic Authorization |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
+| `PUT`  | applicatiom/xml                   | Header, Body, <br>Basic Authorization |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
 
 
 **Contoh Konfigurasi Input URL Encoded**
