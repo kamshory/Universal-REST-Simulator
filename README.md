@@ -112,7 +112,7 @@ Basic authorization mengandung username dan password untuk mengakses sebuah sumb
 
 Untuk mengambil username dari basic authorization, gunakan `$AUTHORIZATION_BASIC.USERNAME`. Untuk mengambil password dari basic authorization, gunakan `$AUTHORIZATION_BASIC.PASSWORD`. Penulisan `$AUTHORIZATION_BASIC.USERNAME` dan `$AUTHORIZATION_BASIC.PASSWORD` harus dengan huruf kapital.
 
-Simulator membaca input tergantung dari `content type` request. Untuk `content type`  `application/x-www-form-urlencoded`, simulator langsung mengambil nilai dari parameter yang sesuai. Untuk content type `application/json`, simulator akan mengambil data secara bertingkat. Dengan demikian, pengguna bebas memberikan request JSON dengan struktur bertingkat.
+Simulator membaca input tergantung dari `content type` request. Untuk `content type`  `application/x-www-form-urlencoded`, simulator langsung mengambil nilai dari parameter yang sesuai. Untuk content type `application/json` dan `application/xml`, simulator akan mengambil data secara bertingkat. Dengan demikian, pengguna bebas memberikan request JSON dan XML dengan struktur bertingkat.
 
 Matriks input dan method Universal REST Simulator adalah sebagai berikut:
 
