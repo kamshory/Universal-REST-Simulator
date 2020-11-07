@@ -103,7 +103,7 @@ function parse_input($config, $request_headers, $request_data, $context_path)
 				$res[$key] = isset($value)?$value:'';
 			}
 			
-			// Get UUID
+			// Get UUID from system
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && trim($arr2[1]) == '$SYSTEM.UUID')
 			{
 				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));

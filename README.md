@@ -126,6 +126,18 @@ Matriks input dan method Universal REST Simulator adalah sebagai berikut:
 | `PUT`  | applicatiom/json                  | Header, Body, <br>Basic Authorization |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
 | `PUT`  | applicatiom/xml                   | Header, Body, <br>Basic Authorization |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
 
+**Nilai dari UUID**
+
+Universal REST Simulator memungkinkan penggunaan UUID. Untuk mengambil UUID dari sistem, gunakan `$SYSTEM.UUID`. 
+
+Contoh:
+
+```ini
+$INPUT.UUID=$SYSTEM.UUID\
+$INPUT.RANDOM_ID=$SYSTEM.UUID\
+$INPUT.UNIQ_ID=$SYSTEM.UUID
+```
+Dari contoh di atas, `$INPUT.UUID`, `$INPUT.RANDOM_ID`, dan `$INPUT.UNIQ_ID` akan memiliki nilai yang berbeda-beda.
 
 **Contoh Konfigurasi Input URL Encoded**
 
