@@ -14,8 +14,8 @@ $INPUT.PRODUCT_CODE=$REQUEST.product_id
 
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.PRODUCT_CODE == "113" && $INPUT.CUSTOMER_ID == "081234000001")\
-{[THEN]} $DELAY=0\
-$OUTPUT={\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
   "reference_no": "2203267",\
   "customer_no": "$INPUT.CUSTOMER_ID",\
   "customer_name": "SEPULSA",\
@@ -28,8 +28,8 @@ $OUTPUT={\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
-{[THEN]} $DELAY=0\
-$OUTPUT={\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
   "response_code": "20",\
   "message": "Id pelanggan tidak ditemukan"\
 }\

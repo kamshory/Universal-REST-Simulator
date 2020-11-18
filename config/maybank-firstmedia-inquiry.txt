@@ -1,0 +1,279 @@
+PATH=/universal-simulator/maybank/inquiry
+
+METHOD=POST
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.CUSTOMER_ID=$REQUEST.RequestMsg.Msg.payee\
+$INPUT.RRN=$REQUEST.RequestMsg.Msg.RRN\
+$INPUT.AMOUNT=$REQUEST.RequestMsg.Msg.trxAmount\
+$INPUT.CURRENCY=$REQUEST.RequestMsg.Msg.currencyCode\
+$INPUT.PROCESSING_CODE=$REQUEST.RequestMsg.Msg.processingCode\
+$INPUT.TRANSMISSION_DATE_TIME=$REQUEST.RequestMsg.Msg.trxDateTime\
+$INPUT.TERMINAL_TRACE_NO=$REQUEST.RequestMsg.Msg.terminalTraceNo\
+$INPUT.LOCAL_TIME=$REQUEST.RequestMsg.Msg.localTimeTrx\
+$INPUT.LOCAL_DATE=$REQUEST.RequestMsg.Msg.localDateTrx\
+$INPUT.POS_ENTRY_CODE=$REQUEST.RequestMsg.Msg.posEntryCode\
+$INPUT.CA_CODE=$REQUEST.RequestMsg.Msg.acqIdentificationCode\
+$INPUT.CA_TERMINAL=$REQUEST.RequestMsg.Msg.caTerminalIdentification\
+$INPUT.CA_ID=$REQUEST.RequestMsg.Msg.caIdentification\
+$INPUT.CA_NAME_LOCATION=$REQUEST.RequestMsg.Msg.caNameLocation\
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.CUSTOMER_ID == "072018150009")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"ResponseMsg": {\
+		"responseCode": "00",\
+		"responseDesc": "Completely Success",\
+		"Msg": {\
+			"MTI": "0210",\
+			"processingCode": "$INPUT.PROCESSING_CODE",\
+			"trxAmount": "0000000000437500",\
+			"trxDateTime": "$INPUT.TRANSMISSION_DATE_TIME",\
+			"terminalTraceNo": "$INPUT.TERMINAL_TRACE_NO",\
+			"localTimeTrx": "$INPUT.LOCAL_TIME",\
+			"localDateTrx": "$INPUT.LOCAL_DATE",\
+			"posEntryCode": "$INPUT.POS_ENTRY_CODE",\
+			"acqIdentificationCode": "$INPUT.CA_CODE",\
+			"RRN": "$INPUT.RRN",\
+			"hostRC": "00",\
+			"caTerminalIdentification": "$INPUT.CA_TERMINAL",\
+			"caIdentification": "$INPUT.CA_ID",\
+			"caNameLocation": "$INPUT.CA_NAME_LOCATION",\
+			"addData": "119000KAMSHORY ROY                    ",\
+			"currencyCode": "$INPUT.CURRENCY",\
+			"infoData": "Inquiry PayTren"\
+		}\
+	}\
+}\\
+{[ENDIF]}\
+{[IF]} ($INPUT.CUSTOMER_ID == "072018150001")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"ResponseMsg": {\
+		"responseCode": "00",\
+		"responseDesc": "Completely Success",\
+		"Msg": {\
+			"MTI": "0210",\
+			"processingCode": "$INPUT.PROCESSING_CODE",\
+			"trxAmount": "0000000000437500",\
+			"trxDateTime": "$INPUT.TRANSMISSION_DATE_TIME",\
+			"terminalTraceNo": "$INPUT.TERMINAL_TRACE_NO",\
+			"localTimeTrx": "$INPUT.LOCAL_TIME",\
+			"localDateTrx": "$INPUT.LOCAL_DATE",\
+			"posEntryCode": "$INPUT.POS_ENTRY_CODE",\
+			"acqIdentificationCode": "$INPUT.CA_CODE",\
+			"RRN": "$INPUT.RRN",\
+			"hostRC": "00",\
+			"caTerminalIdentification": "$INPUT.CA_TERMINAL",\
+			"caIdentification": "$INPUT.CA_ID",\
+			"caNameLocation": "$INPUT.CA_NAME_LOCATION",\
+			"addData": "1080 81012820072018150000NOTO BOTO SONGO KETIBAN KLOPO 000000004375000000002000",\
+			"currencyCode": "$INPUT.CURRENCY",\
+			"infoData": "INQURY FIRST MEDIA"\
+		}\
+	}\
+}\\
+{[ENDIF]}\
+{[IF]} ($INPUT.CUSTOMER_ID == "072018150002" && $INPUT.PROCESSING_CODE == "381000")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"ResponseMsg": {\
+		"responseCode": "00",\
+		"responseDesc": "Completely Success",\
+		"Msg": {\
+			"MTI": "0210",\
+			"processingCode": "$INPUT.PROCESSING_CODE",\
+			"trxAmount": "0000000000437500",\
+			"trxDateTime": "$INPUT.TRANSMISSION_DATE_TIME",\
+			"terminalTraceNo": "$INPUT.TERMINAL_TRACE_NO",\
+			"localTimeTrx": "$INPUT.LOCAL_TIME",\
+			"localDateTrx": "$INPUT.LOCAL_DATE",\
+			"posEntryCode": "$INPUT.POS_ENTRY_CODE",\
+			"acqIdentificationCode": "$INPUT.CA_CODE",\
+			"RRN": "$INPUT.RRN",\
+			"hostRC": "00",\
+			"caTerminalIdentification": "$INPUT.CA_TERMINAL",\
+			"caIdentification": "$INPUT.CA_ID",\
+			"caNameLocation": "$INPUT.CA_NAME_LOCATION",\
+			"addData": "000100KAMSHORY                        0000004375000000020000002020112220201125",\
+			"currencyCode": "$INPUT.CURRENCY",\
+			"infoData": "INQURY CREDIT CARD BII"\
+		}\
+	}\
+}\\
+{[ENDIF]}\
+{[IF]} ($INPUT.CUSTOMER_ID == "072018150002" && $INPUT.PROCESSING_CODE == "181000")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"ResponseMsg": {\
+		"responseCode": "00",\
+		"responseDesc": "Completely Success",\
+		"Msg": {\
+			"MTI": "0210",\
+			"processingCode": "$INPUT.PROCESSING_CODE",\
+			"trxAmount": "$INPUT.AMOUNT",\
+			"trxDateTime": "$INPUT.TRANSMISSION_DATE_TIME",\
+			"terminalTraceNo": "$INPUT.TERMINAL_TRACE_NO",\
+			"localTimeTrx": "$INPUT.LOCAL_TIME",\
+			"localDateTrx": "$INPUT.LOCAL_DATE",\
+			"posEntryCode": "$INPUT.POS_ENTRY_CODE",\
+			"acqIdentificationCode": "$INPUT.CA_CODE",\
+			"RRN": "$INPUT.RRN",\
+			"hostRC": "00",\
+			"caTerminalIdentification": "$INPUT.CA_TERMINAL",\
+			"caIdentification": "$INPUT.CA_ID",\
+			"caNameLocation": "$INPUT.CA_NAME_LOCATION",\
+			"addData": "000100KAMSHORY                        0000004375000000020000002020112220201125",\
+			"currencyCode": "$INPUT.CURRENCY",\
+			"infoData": "PEMBAYARAN CREDIT CARD BII. SIMPAN STRUK INI SEBAGAI BUKTI PEMBAYARAN YANG SAH"\
+		}\
+	}\
+}\\
+{[ENDIF]}\
+{[IF]} ($INPUT.CUSTOMER_ID == "072018150003" && $INPUT.PROCESSING_CODE == "381000")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"ResponseMsg": {\
+		"responseCode": "00",\
+		"responseDesc": "Completely Success",\
+		"Msg": {\
+			"MTI": "0210",\
+			"processingCode": "$INPUT.PROCESSING_CODE",\
+			"trxAmount": "0000000000437500",\
+			"trxDateTime": "$INPUT.TRANSMISSION_DATE_TIME",\
+			"terminalTraceNo": "$INPUT.TERMINAL_TRACE_NO",\
+			"localTimeTrx": "$INPUT.LOCAL_TIME",\
+			"localDateTrx": "$INPUT.LOCAL_DATE",\
+			"posEntryCode": "$INPUT.POS_ENTRY_CODE",\
+			"acqIdentificationCode": "$INPUT.CA_CODE",\
+			"RRN": "$INPUT.RRN",\
+			"hostRC": "00",\
+			"caTerminalIdentification": "$INPUT.CA_TERMINAL",\
+			"caIdentification": "$INPUT.CA_ID",\
+			"caNameLocation": "$INPUT.CA_NAME_LOCATION",\
+			"addData": "70040000000043750012345678901",\
+			"currencyCode": "$INPUT.CURRENCY",\
+			"infoData": "INQURY CREDIT CARD CITIBANK"\
+		}\
+	}\
+}\\
+{[ENDIF]}\
+{[IF]} ($INPUT.CUSTOMER_ID == "072018150003" && $INPUT.PROCESSING_CODE == "181000")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"ResponseMsg": {\
+		"responseCode": "00",\
+		"responseDesc": "Completely Success",\
+		"Msg": {\
+			"MTI": "0210",\
+			"processingCode": "$INPUT.PROCESSING_CODE",\
+			"trxAmount": "$INPUT.AMOUNT",\
+			"trxDateTime": "$INPUT.TRANSMISSION_DATE_TIME",\
+			"terminalTraceNo": "$INPUT.TERMINAL_TRACE_NO",\
+			"localTimeTrx": "$INPUT.LOCAL_TIME",\
+			"localDateTrx": "$INPUT.LOCAL_DATE",\
+			"posEntryCode": "$INPUT.POS_ENTRY_CODE",\
+			"acqIdentificationCode": "$INPUT.CA_CODE",\
+			"RRN": "$INPUT.RRN",\
+			"hostRC": "00",\
+			"caTerminalIdentification": "$INPUT.CA_TERMINAL",\
+			"caIdentification": "$INPUT.CA_ID",\
+			"caNameLocation": "$INPUT.CA_NAME_LOCATION",\
+			"addData": "70040000000043750012345678901",\
+			"currencyCode": "$INPUT.CURRENCY",\
+			"infoData": "PEMBAYARAN CREDIT CARD CITIBANK. SIMPAN STRUK INI SEBAGAI BUKTI PEMBAYARAN YANG SAH"\
+		}\
+	}\
+}\\
+{[ENDIF]}\
+{[IF]} ($INPUT.CUSTOMER_ID == "072018150004" && $INPUT.PROCESSING_CODE == "381000")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"ResponseMsg": {\
+		"responseCode": "00",\
+		"responseDesc": "Completely Success",\
+		"Msg": {\
+			"MTI": "0210",\
+			"processingCode": "$INPUT.PROCESSING_CODE",\
+			"trxAmount": "0000000000437500",\
+			"trxDateTime": "$INPUT.TRANSMISSION_DATE_TIME",\
+			"terminalTraceNo": "$INPUT.TERMINAL_TRACE_NO",\
+			"localTimeTrx": "$INPUT.LOCAL_TIME",\
+			"localDateTrx": "$INPUT.LOCAL_DATE",\
+			"posEntryCode": "$INPUT.POS_ENTRY_CODE",\
+			"acqIdentificationCode": "$INPUT.CA_CODE",\
+			"RRN": "$INPUT.RRN",\
+			"hostRC": "00",\
+			"caTerminalIdentification": "$INPUT.CA_TERMINAL",\
+			"caIdentification": "$INPUT.CA_ID",\
+			"caNameLocation": "$INPUT.CA_NAME_LOCATION",\
+			"addData": "701000000000437500",\
+			"currencyCode": "$INPUT.CURRENCY",\
+			"infoData": "INQURY CREDIT CARD BANK LAIN"\
+		}\
+	}\
+}\\
+{[ENDIF]}\
+{[IF]} ($INPUT.CUSTOMER_ID == "072018150004" && $INPUT.PROCESSING_CODE == "181000")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"ResponseMsg": {\
+		"responseCode": "00",\
+		"responseDesc": "Completely Success",\
+		"Msg": {\
+			"MTI": "0210",\
+			"processingCode": "$INPUT.PROCESSING_CODE",\
+			"trxAmount": "$INPUT.AMOUNT",\
+			"trxDateTime": "$INPUT.TRANSMISSION_DATE_TIME",\
+			"terminalTraceNo": "$INPUT.TERMINAL_TRACE_NO",\
+			"localTimeTrx": "$INPUT.LOCAL_TIME",\
+			"localDateTrx": "$INPUT.LOCAL_DATE",\
+			"posEntryCode": "$INPUT.POS_ENTRY_CODE",\
+			"acqIdentificationCode": "$INPUT.CA_CODE",\
+			"RRN": "$INPUT.RRN",\
+			"hostRC": "00",\
+			"caTerminalIdentification": "$INPUT.CA_TERMINAL",\
+			"caIdentification": "$INPUT.CA_ID",\
+			"caNameLocation": "$INPUT.CA_NAME_LOCATION",\
+			"addData": "701000000000437500",\
+			"currencyCode": "$INPUT.CURRENCY",\
+			"infoData": "PEMBAYARAN CREDIT CARD BANK LAIN. SIMPAN STRUK INI SEBAGAI BUKTI PEMBAYARAN YANG SAH"\
+		}\
+	}\
+}\\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"ResponseMsg": {\
+		"responseCode": "14",\
+		"responseDesc": "Completely Success",\
+		"Msg": {\
+			"MTI": "0210",\
+			"processingCode": "$INPUT.PROCESSING_CODE",\
+			"trxAmount": "0000000000437500",\
+			"trxDateTime": "$INPUT.TRANSMISSION_DATE_TIME",\
+			"terminalTraceNo": "$INPUT.TERMINAL_TRACE_NO",\
+			"localTimeTrx": "$INPUT.LOCAL_TIME",\
+			"localDateTrx": "$INPUT.LOCAL_DATE",\
+			"posEntryCode": "$INPUT.POS_ENTRY_CODE",\
+			"acqIdentificationCode": "$INPUT.CA_CODE",\
+			"RRN": "$INPUT.RRN",\
+			"hostRC": "00",\
+			"caTerminalIdentification": "$INPUT.CA_TERMINAL",\
+			"caIdentification": "$INPUT.CA_ID",\
+			"caNameLocation": "$INPUT.CA_NAME_LOCATION",\
+			"addData": "",\
+			"currencyCode": "$INPUT.CURRENCY",\
+			"infoData": "NOMOR PELANGGAN TIDAK DITEMUKAN"\
+		}\
+	}\
+}\
+{[ENDIF]}\
+
+

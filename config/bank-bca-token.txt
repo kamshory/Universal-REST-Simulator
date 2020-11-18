@@ -17,9 +17,9 @@ TRANSACTION_RULE=\
 {[IF]} ($INPUT.GRANT_TYPE == "client_credentials" && $INPUT.USER == 'KAMSHORY' && $INPUT.PASS == 'KolakJengkol')\
 {[THEN]}\
 $STATUS=200\
-$DELAY=0\
+$OUTPUT.DELAY=0\
 $HEADER=X-Server-Name: Universal REST Simulator\
-$OUTPUT={\
+$OUTPUT.BODY={\
 	"access_token":"$INPUT.UUID1{[|]}$INPUT.UUID2{[|]}$INPUT.UUID3",\
 	"token_type":"Bearer",\
 	"expires_in":3600,\

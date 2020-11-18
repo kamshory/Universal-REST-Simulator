@@ -13,7 +13,7 @@ PARSING_RULE=\
 $INPUT.PRODUCT=$REQUEST.product_code\
 $INPUT.ACCOUNT=$REQUEST.customer_no\
 $INPUT.REF_NUMBER=$REQUEST.refno\
-$INPUT.ACCEPT_LANGUAGE=$HEADER.ACCEPT_LANGUAGE\
+$INPUT.ACCEPT_LANGUAGE=$OUTPUT.HEADER.ACCEPT_LANGUAGE\
 $INPUT.AMOUNT=$REQUEST.amount
 ```
 
@@ -90,7 +90,7 @@ Pengguna bebas menggunakan content type apa saja untuk response karena pada dasa
 
 `$INPUT` adalah objek yang dapat dianggap sebagai global variable dan memiliki properti. `$INPUT` selalu ditulis dengan huruf kapital. Properti dari `$INPUT` dapat ditulis dengan huruf besar maupun huruf kecil dan akan bersifat _case sensitive_.
 
-Input berasal dari 2 sumber yaitu `$REQUEST` (_request body_ pada `POST` dan `PUT` serta _query string_ pada `GET`) dan `$HEADER` (request header). Baik `$REQUEST` maupun `$HEADER` harus ditulis dengan huruf kapital. Nama properti dari `$REQUEST` adalah _case sensitive_ sedangkan nama properti dari `$HEADER` berupa huruf kapital dan `-` diganti menjadi `_`. Hal ini disebabkan karena properti header mungkin sudah berubah dan tidak dapat diprediksi penulisannya secara pasti. 
+Input berasal dari 2 sumber yaitu `$REQUEST` (_request body_ pada `POST` dan `PUT` serta _query string_ pada `GET`) dan `$OUTPUT.HEADER` (request header). Baik `$REQUEST` maupun `$OUTPUT.HEADER` harus ditulis dengan huruf kapital. Nama properti dari `$REQUEST` adalah _case sensitive_ sedangkan nama properti dari `$OUTPUT.HEADER` berupa huruf kapital dan `-` diganti menjadi `_`. Hal ini disebabkan karena properti header mungkin sudah berubah dan tidak dapat diprediksi penulisannya secara pasti. 
 
 `$REQUEST` dapat berasal dari:
 1. Query pada `GET`
@@ -118,13 +118,13 @@ Matriks input dan method Universal REST Simulator adalah sebagai berikut:
 
 | Method | Content Tpe                       | Sumber Data  | Objek                 |
 | ------ | --------------------------------- | ------------ | --------------------- |
-| `GET`  | applicatiom/x-www-form-urlencoded | Header, URL, <br>Basic Authorization  |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`|
-| `POST` | applicatiom/x-www-form-urlencoded | Header, Body, <br>Basic Authorization |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
-| `POST` | applicatiom/json                  | Header, Body, <br>Basic Authorization |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
-| `POST` | applicatiom/xml                   | Header, Body, <br>Basic Authorization |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
-| `PUT`  | applicatiom/x-www-form-urlencoded | Header, Body, <br>Basic Authorization |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
-| `PUT`  | applicatiom/json                  | Header, Body, <br>Basic Authorization |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
-| `PUT`  | applicatiom/xml                   | Header, Body, <br>Basic Authorization |` $HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
+| `GET`  | applicatiom/x-www-form-urlencoded | Header, URL, <br>Basic Authorization  | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
+| `POST` | applicatiom/x-www-form-urlencoded | Header, Body, <br>Basic Authorization | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
+| `POST` | applicatiom/json                  | Header, Body, <br>Basic Authorization | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
+| `POST` | applicatiom/xml                   | Header, Body, <br>Basic Authorization | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
+| `PUT`  | applicatiom/x-www-form-urlencoded | Header, Body, <br>Basic Authorization | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
+| `PUT`  | applicatiom/json                  | Header, Body, <br>Basic Authorization | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
+| `PUT`  | applicatiom/xml                   | Header, Body, <br>Basic Authorization | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
 
 **Nilai dari UUID**
 
@@ -288,15 +288,15 @@ Simulator akan mengevaluasi ekspresi pada `{[IF]}`. Jika kondisi tersebut bernil
 Beberapa data yang yang dapat dihasikan oleh simulator adalah sebagai berikut:
 
 
-1. `$STATUS` adalah HTTP status code. Nilai default dari `$STATUS` adalah `200`
-2. `$HEADER` adalah response header yang dibuat perbaris.
-3. `$DELAY` adalah waktu tunggu. Server akan menunggu beberapa saat sebelum mengirimkan respon.
-4. `$OUTPUT` adalah response body. 
-5. `$CALLBACK_URL` adalah URL yang dituju pada proses callback.
-6. `$CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
-7. `$CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
-8. `$CALLBACK_HEADER` adalah request header untuk callback.
-9. `$CALLBACK_OUTPUT` adalah request body untuk callback.
+1. `$OUTPUT.STATUS` adalah HTTP status code. Nilai default dari `$OUTPUT.STATUS` adalah `200`
+2. `$OUTPUT.HEADER` adalah response header yang dibuat perbaris.
+3. `$OUTPUT.DELAY` adalah waktu tunggu. Server akan menunggu beberapa saat sebelum mengirimkan respon.
+4. `$OUTPUT.BODY` adalah response body. 
+5. `$OUTPUT.CALLBACK_URL` adalah URL yang dituju pada proses callback.
+6. `$OUTPUT.CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
+7. `$OUTPUT.CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
+8. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback.
+9. `$OUTPUT.CALLBACK_OUTPUT` adalah request body untuk callback.
 
 Penjelasan tentang callback dapat dibaca pada bagian **Callback**.
 
@@ -313,9 +313,9 @@ $INPUT.REF_NUMBER=$REQUEST.data.customer_reference_number
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567890")\
 {[THEN]}\
-$STATUS=200\
-$DELAY=0\
-$OUTPUT=\
+$OUTPUT.STATUS=200\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
 {\
 	"rc":"00",\
 	"sn":"82634862385235365285",\
@@ -328,8 +328,9 @@ $OUTPUT=\
 }\
 {[ENDIF]}\
 {[IF]} ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567891")\
-{[THEN]} $DELAY=20000\
-$OUTPUT=\
+{[THEN]}\
+$OUTPUT.DELAY=20000\
+$OUTPUT.BODY=\
 {\
 	"rc":"00",\
 	"sn":"82634862385235365285",\
@@ -342,8 +343,9 @@ $OUTPUT=\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
-{[THEN]} $DELAY=0\
-$OUTPUT=\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
 {\
 	"rc":"25",\
 	"sn":"82634862385235365285",\
@@ -383,8 +385,9 @@ $INPUT.ACCOUNT=$REQUEST.customer_no\
 $INPUT.REF_NUMBER=$REQUEST.refno
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612126")\
-{[THEN]} $DELAY=0\
-$OUTPUT=\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
 {\
 	"rc":"00",\
 	"sn":"82634862385235365285",\
@@ -397,8 +400,9 @@ $OUTPUT=\
 }\
 {[ENDIF]}\
 {[IF]} ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612127")\
-{[THEN]} $DELAY=20000\
-$OUTPUT=\
+{[THEN]}\
+$OUTPUT.DELAY=20000\
+$OUTPUT.BODY=\
 {\
 	"rc":"00",\
 	"sn":"82634862385235365285",\
@@ -411,8 +415,8 @@ $OUTPUT=\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
-{[THEN]} $DELAY=0\
-$OUTPUT=\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
 {\
 	"rc":"25",\
 	"sn":"82634862385235365285",\
@@ -462,8 +466,9 @@ $INPUT.ACCOUNT=$REQUEST.data.beneficiary_account_number\
 $INPUT.REF_NUMBER=$REQUEST.data.customer_reference_number
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567890")\
-{[THEN]} $DELAY=0\
-$OUTPUT=\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
 {\
 	"rc":"00",\
 	"sn":"82634862385235365285",\
@@ -476,8 +481,8 @@ $OUTPUT=\
 }\
 {[ENDIF]}\
 {[IF]} ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567891")\
-{[THEN]} $DELAY=20000\
-$OUTPUT=\
+{[THEN]} $OUTPUT.DELAY=20000\
+$OUTPUT.BODY=\
 {\
 	"rc":"00",\
 	"sn":"82634862385235365285",\
@@ -490,8 +495,9 @@ $OUTPUT=\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
-{[THEN]} $DELAY=0\
-$OUTPUT=\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
 {\
 	"rc":"25",\
 	"sn":"82634862385235365285",\
@@ -544,8 +550,9 @@ $INPUT.AMOUNT=$REQUEST.amount
 
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612126" && $INPUT.AMOUNT > 0)\
-{[THEN]} $DELAY=0\
-$OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 \
 	<rc>00</rc>\
@@ -559,8 +566,9 @@ $OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 {[ENDIF]}\
 {[IF]} ($INPUT.PRODUCT == "10001" && $INPUT.ACCOUNT == "081266612127")\
-{[THEN]} $DELAY=0\
-$OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 \
 	<rc>00</rc>\
@@ -574,8 +582,8 @@ $OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 {[ENDIF]}\
 {[IF]} (true)\
-{[THEN]} $DELAY=0\
-$OUTPUT=\<?xml version="1.0" encoding="UTF-8"?>\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY=\<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 \
 	<rc>25</rc>\
@@ -596,15 +604,15 @@ Beberapa simulator mengirimkan callback dikarenakan proses asinkron. Universal R
 
 Untuk menambahkan callback, beberapa konfigurasi perlu dibuat pada `TRANSACTION_RULE` yaitu sebagai berikut:
 
-1. `$CALLBACK_URL` adalah URL yang dituju pada proses callback.
-2. `$CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
-3. `$CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
-4. `$CALLBACK_HEADER` adalah request header untuk callback.
-5. `$CALLBACK_OUTPUT` adalah request body untuk callback.
+1. `$OUTPUT.CALLBACK_URL` adalah URL yang dituju pada proses callback.
+2. `$OUTPUT.CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
+3. `$OUTPUT.CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
+4. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback.
+5. `$OUTPUT.CALLBACK_OUTPUT` adalah request body untuk callback.
 
-Method default adalah `GET`. Apabila `$CALLBACK_METHOD` adalah `GET`, maka `$CALLBACK_OUTPUT` tidak akan dikirim dan `Content-length` dan `Content-type` pada header juga tidak akan dikirim.
+Method default adalah `GET`. Apabila `$OUTPUT.CALLBACK_METHOD` adalah `GET`, maka `$OUTPUT.CALLBACK_OUTPUT` tidak akan dikirim dan `Content-length` dan `Content-type` pada header juga tidak akan dikirim.
 
-Perlu diingat bahwa pada method `POST` dan `PUT`, pengguna wajib menjantumkan `$CALLBACK_OUTPUT` karena server yang dituju akan menunggu simulator mengirimkan `body` pada proses callback. `$CALLBACK_TYPE` pada `POST` dan `PUT` juga harus diseting untuk menentukan `Content-type` pada callback. `Content-length` akan dibuat secara otomatis oleh simulator pada saat callback dilakukan. Pengguna dapat menambahkan `User-agent` pada header. Jika pengguna tidak memasukkan `User-agent`, maka simulator akan membuat `User-agent` default karena beberapa server mungkin mewajibkan setiap request mencantumkan `User-agent`.
+Perlu diingat bahwa pada method `POST` dan `PUT`, pengguna wajib menjantumkan `$OUTPUT.CALLBACK_OUTPUT` karena server yang dituju akan menunggu simulator mengirimkan `body` pada proses callback. `$OUTPUT.CALLBACK_TYPE` pada `POST` dan `PUT` juga harus diseting untuk menentukan `Content-type` pada callback. `Content-length` akan dibuat secara otomatis oleh simulator pada saat callback dilakukan. Pengguna dapat menambahkan `User-agent` pada header. Jika pengguna tidak memasukkan `User-agent`, maka simulator akan membuat `User-agent` default karena beberapa server mungkin mewajibkan setiap request mencantumkan `User-agent`.
 
 **Konfigurasi**
 
@@ -626,14 +634,14 @@ $INPUT.AMOUNT=$REQUEST.amount
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612126" && $INPUT.AMOUNT > 0)\
 {[THEN]}\
-$DELAY=0\
-$CALLBACK_URL=http://localhost/test/\
-$CALLBACK_METHOD=POST\
-$CALLBACK_TYPE=application/xml\
-$CALLBACK_HEADER=\X-Server-Name: Universal REST Simulator\
+$OUTPUT.DELAY=0\
+$OUTPUT.CALLBACK_URL=http://localhost/test/\
+$OUTPUT.CALLBACK_METHOD=POST\
+$OUTPUT.CALLBACK_TYPE=application/xml\
+$OUTPUT.CALLBACK_HEADER=\X-Server-Name: Universal REST Simulator\
 X-Response-Code: 00\
 X-Response-Text: Success\
-$CALLBACK_OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
+$OUTPUT.CALLBACK_OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 \
 	<rc>00</rc>\
@@ -648,7 +656,7 @@ $CALLBACK_OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
 $HEADER=\X-Server-Name: Universal REST Simulator\
 X-Response-Code: 00\
 X-Response-Text: Success\
-$OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
+$OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 \
 	<rc>00</rc>\
@@ -662,8 +670,9 @@ $OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 {[ENDIF]}\
 {[IF]} ($INPUT.PRODUCT == "10001" && $INPUT.ACCOUNT == "081266612127")\
-{[THEN]} $DELAY=0\
-$OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 \
 	<rc>00</rc>\
@@ -677,8 +686,9 @@ $OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 {[ENDIF]}\
 {[IF]} (true)\
-{[THEN]} $DELAY=0\
-$OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 \
 	<rc>25</rc>\

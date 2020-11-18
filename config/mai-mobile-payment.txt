@@ -17,8 +17,8 @@ $INPUT.TRANSACTION_ID=$REQUEST.transaction_id
 
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.PRODUCT_CODE == "10000" && $INPUT.ACCOUNT == "081266612126")\
-{[THEN]} $DELAY=0\
-$OUTPUT={\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
 	"rc":"00",\
 	"msg":"Pembelian A5 $INPUT.CUSTOMER_ID pada 23 Jul 2020, 12:32 BERHASIL. SN=0061003426166768. Harga Rp. 5525; ",\
 	"sn":"0061003426166768",\
@@ -27,8 +27,8 @@ $OUTPUT={\
 }\
 {[ENDIF]}\
 {[IF]} ($INPUT.PRODUCT_CODE == "10000" && $INPUT.ACCOUNT == "081266612127")\
-{[THEN]} $DELAY=0\
-$OUTPUT={\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
 	"rc":"00",\
 	"msg":"Pembelian A5 $INPUT.CUSTOMER_ID pada 23 Jul 2020, 12:32 BERHASIL. SN=0061003426166768. Harga Rp. 5525; ",\
 	"sn":"0061003426166768",\
@@ -37,8 +37,8 @@ $OUTPUT={\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
-{[THEN]} $DELAY=0\
-$OUTPUT={\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
 	"rc":"00",\
 	"msg":"Nomor pelanggan tidak ditemukan",\
 	"reffid":"$INPUT.REFERENCE_NUMBER"\

@@ -1,4 +1,4 @@
-PATH=/Universal-REST-Simulator/sepulsa/v3/transaction/pbb/{[TRANSACTION_ID]}
+PATH=/universal-simulator/sepulsa/v3/transaction/pbb/{[TRANSACTION_ID]}
 
 METHOD=GET
 
@@ -7,17 +7,15 @@ REQUEST_TYPE=applicatiom/x-www-form-urlencoded
 RESPONSE_TYPE=application/json
 
 PARSING_RULE=\
-$INPUT.TRANSACTION_ID=$REQUEST.TRANSACTION_ID\
-$INPUT.USER=$AUTHORIZATION_BASIC.USERNAME\
-$INPUT.PASS=$AUTHORIZATION_BASIC.PASSWORD
+$INPUT.TRANSACTION_ID=$REQUEST.TRANSACTION_ID
 
 TRANSACTION_RULE=\
-{[IF]} ($INPUT.TRANSACTION_ID != "" && $INPUT.USER == 'KAMSHORY' && $INPUT.PASS == 'BebekGoreng')\
+{[IF]} ($INPUT.TRANSACTION_ID != "")\
 {[THEN]}\
 $STATUS=200\
-$DELAY=0\
-$HEADER=X-Server-Name: Universal REST Simulator\
-$OUTPUT={\
+$OUTPUT.DELAY=0\
+$OUTPUT.HEADER=X-Server-Name: Universal REST Simulator\
+$OUTPUT.BODY={\
   "changed": $DATE('U'),\
   "transaction_id": $INPUT.TRANSACTION_ID,\
   "response_code": "00",\
@@ -56,8 +54,8 @@ $OUTPUT={\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
-{[THEN]} $DELAY=0\
-$OUTPUT=\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
 {\
   "response_code": "20",\
   "product": {\

@@ -1,0 +1,114 @@
+PATH=/universal-simulator/sepulsa/v3/transaction/pkb
+
+METHOD=POST
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.CUSTOMER_ID=$REQUEST.customer_id\
+$INPUT.PRODUCT_CODE=$REQUEST.product_code\
+$INPUT.REFERENCE_NO=$REQUEST.reference_no\
+$INPUT.ORDER_ID=$REQUEST.order_id
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.PRODUCT_CODE == "335" && $INPUT.CUSTOMER_ID == "357800000003101001")\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.CALLBACK_URL=http://localhost/test/\
+$OUTPUT.CALLBACK_METHOD=POST\
+$OUTPUT.CALLBACK_TYPE=application/json\
+$OUTPUT.CALLBACK_HEADER=X-Server-Name: Universal REST Simulator\
+$OUTPUT.CALLBACK_BODY={\
+    "transaction_id": 1,\
+    "response_code": "00",\
+    "created": "$DATE('U')",\
+    "changed": "$DATE('U')",\
+    "customer_id": "$INPUT.CUSTOMER_ID",\
+    "order_id": "$INPUT.ORDER_ID",\
+    "amount": 450000,\
+    "price": 452500,\
+    "reference_no": "5534766982981118",\
+    "product": {\
+        "code": "$INPUT.PRODUCT_CODE",\
+        "label": "PKB Jawa Barat",\
+        "product_type": "pkb",\
+        "operator": "PKB Jawa Barat",\
+        "nominal": 0\
+    },\
+    "data": {\
+        "reference_no": "40999944535",\
+        "bill_amount": 450000,\
+        "admin_charge": 2500,\
+        "customer": {\
+            "name": "WISHNU EKA SIDHARTA",\
+            "identity_number": "$INPUT.CUSTOMER_ID",\
+            "address": "Simpang Tambora I/9",\
+            "last_date_previous_tax": "20190330",\
+            "last_date_new_tax": "20200402"\
+        },\
+        "vehicle": {\
+            "identity_number": "MH98JK123LO456JKI78901231",\
+            "engine_number": "KJ92319LO456JKI78LO901231",\
+            "registration_number": "N 123 ABC",\
+            "license_plate_color": "Black",\
+            "ownership": "2",\
+            "category": "Motor cycle",\
+            "model": "Motor cycle",\
+            "brand": "Honda",\
+            "manufacture_year": "2008"\
+        },\
+        "bill": {\
+            "bbn_amount": 100000,\
+            "bbn_penalty_fee": 2000,\
+            "pkb_amount": 150000,\
+            "pkb_penalty_fee": 2000,\
+            "swd_amount": 35000,\
+            "swd_penalty_fee": 1000,\
+            "stnk_admin_charge": 100000,\
+            "tnkb_admin_charge": 60000,\
+            "total_penalty_fee": 5000,\
+            "total_amount": 445000\
+        },\
+        "info_text": ""\
+    }\
+}\
+$OUTPUT.BODY=\
+{\
+  "transaction_id": 1,\
+  "response_code": "10",\
+  "customer_id": "$INPUT.CUSTOMER_ID",\
+  "order_id": "$INPUT.ORDER_ID",\
+  "amount": 450000,\
+  "price": 452500,\
+  "created": 1473332820,\
+  "reference_no": "5534766982981118",\
+  "product": {\
+    "code": "$INPUT.PRODUCT_CODE",\
+    "label": "PKB Jawa Barat",\
+    "product_type": "pkb",\
+    "operator": "PKB Jawa Barat",\
+    "nominal": 0\
+  }\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
+{\
+  "response_code": "20",\
+  "product": {\
+    "code": "$INPUT.PRODUCT_CODE",\
+    "product_type": "pbb",\
+    "label": "PKB Jakarta",\
+    "operator": "PKB Jakarta",\
+    "nominal": 0\
+  },\
+  "customer_id": "$INPUT.CUSTOMER_ID",\
+  "amount": 0\
+}\
+{[ENDIF]}\
+
+

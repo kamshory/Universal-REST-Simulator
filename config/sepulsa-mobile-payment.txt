@@ -1,4 +1,4 @@
-PATH=/Universal-REST-Simulator/sepulsa/transaction/mobile.json
+PATH=/universal-simulator/sepulsa/transaction/mobile.json
 
 METHOD=POST
 
@@ -13,13 +13,13 @@ $INPUT.ORDER_ID=$REQUEST.order_id
 
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.PRODUCT_CODE == "99" && $INPUT.CUSTOMER_ID == "08123456789")\
-{[THEN]} $DELAY=0\
-{[THEN]} $DELAY=0\
-$CALLBACK_URL=http://sepulsa-adapter:8080/process-callback/mobile\
-$CALLBACK_METHOD=POST\
-$CALLBACK_TYPE=application/json\
-$CALLBACK_HEADER=X-Server-Name: Universal REST Simulator\
-$CALLBACK_OUTPUT={\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.CALLBACK_URL=http://sepulsa-adapter:8080/process-callback/mobile\
+$OUTPUT.CALLBACK_METHOD=POST\
+$OUTPUT.CALLBACK_TYPE=application/json\
+$OUTPUT.CALLBACK_HEADER=X-Server-Name: Universal REST Simulator\
+$OUTPUT.CALLBACK_BODY={\
   "serial_number":"0041000804201970",\
   "transaction_id":"11",\
   "type":"mobile",\
@@ -34,7 +34,7 @@ $CALLBACK_OUTPUT={\
   "response_code":"00",\
   "key":"this_is_a_secret"\
 }\
-$OUTPUT={\
+$OUTPUT.BODY={\
   "transaction_id": "11",\
   "type": "mobile",\
   "created": "$DATE('U')",\
@@ -60,8 +60,9 @@ $OUTPUT={\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
-{[THEN]} $DELAY=0\
-$OUTPUT=$OUTPUT=\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=$OUTPUT.BODY=\
 {\
   "response_code": "20",\
   "product": {\

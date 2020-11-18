@@ -19,6 +19,7 @@ function parse_config($context_path, $document_root = null)
 	$array = array();
 	$i = 0;
 	$nl = false;
+	$j = 0;
 
 	// If line ended with \, do not explode it as array
 	foreach($lines as $idx=>$line)
@@ -34,16 +35,22 @@ function parse_config($context_path, $document_root = null)
 		if(!isset($array[$i]))
 		{
 			$array[$i] = "";
+			$j = 0;
 		}
 		if($nl)
 		{
 			$line = substr($line, 0, strlen($line) - 1)."\\";
 		}
 		$array[$i] .= $line;
+		if($j > 0)
+		{
+			$array[$i] .= "{[EOL]}";
+		}
 		if(!$nl)
 		{
 			$i++;
 		}
+		$j++;
 	}
 	// Parse raw file to raw configuration with it properties
 	$parsed = array();
@@ -86,7 +93,8 @@ function parse_input($config, $request_headers, $request_data, $context_path)
 	
 	// Parsing input
 	$rule = $config['PARSING_RULE'];
-	$rule = str_replace("\\", "\r\n", $rule);
+	$rule = trim(str_replace("\\{[EOL]}", "\r\n", $rule), " \\ ");
+	
 	$arr = explode("\r\n", $rule);
 	$res = array();
 	foreach($arr as $idx=>$line)
@@ -103,7 +111,7 @@ function parse_input($config, $request_headers, $request_data, $context_path)
 				$res[$key] = isset($value)?$value:'';
 			}
 			
-			// Get UUID from system
+			// Get UUID
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && trim($arr2[1]) == '$SYSTEM.UUID')
 			{
 				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
@@ -196,7 +204,8 @@ function process_transaction($parsed, $request)
 {
 	$content_type = $parsed['RESPONSE_TYPE'];
 	$transaction_rule = $parsed['TRANSACTION_RULE'];
-	$transaction_rule = str_replace('\\$', "\r\n$", $transaction_rule);
+	$transaction_rule = trim($transaction_rule, "\\");
+	$transaction_rule = str_replace("\\{[EOL]}$"."OUTPUT.", "\\{[EOL]}\r\n$"."OUTPUT.", $transaction_rule);
 	$arr = explode('{[ENDIF]}', $transaction_rule);
 	$return_data = array();
 	foreach($arr as $idx=>$data)
@@ -204,7 +213,8 @@ function process_transaction($parsed, $request)
 		if(stripos($data, "{[THEN]}") > 0)
 		{
 			$arr2 = explode("{[THEN]}", $data);
-			$rcondition = str_replace("\\", "\r\n", $arr2[0]);
+			$rcondition = arr2[0];
+			$rcondition = str_replace("\\{[EOL]}", "\r\n", $arr2[0]);
 			$rline = $arr2[1];
 			
 			// TODO Evaluate condition
@@ -230,11 +240,11 @@ function process_transaction($parsed, $request)
 			if($test)
 			{
 				$arr3 = explode("\r\n", $rline);
-				
 				foreach($arr3 as $idx2=>$result)
-				{				
+				{
 					// TODO Parse result
 					$str = preg_replace( '/[^a-z0-9\.\$_]/i', ' ', $result); 
+					$str = str_replace('$INPUT.', ' $INPUT.', $str);
 					$str = preg_replace('/\s\s+/', ' ', $str);
 					$arr5 = explode(" ", $str);
 					foreach($arr5 as $idx3=>$word)
@@ -246,15 +256,16 @@ function process_transaction($parsed, $request)
 						}
 						
 					}
+					$result = trim(str_replace("\\{[EOL]}", "\r\n", $result), " \\\r\n ");
 					$result = replace_date($result);
 					$result = ltrim($result, " \t\r\n ");
 					$arr6 = explode("=", $result, 2);
 					$variable = $arr6[0];
 					$value = $arr6[1];
-					$value = str_replace("\\", "\r\n", $value);
-					if(stripos($variable, '$') === 0)
+					
+					if(stripos($variable, '$OUTPUT.') === 0)
 					{
-						$variable = substr($variable, 1);
+						$variable = substr($variable, 8);
 					}
 					$variable = trim($variable);
 					if(strlen($variable) > 0)
@@ -262,7 +273,8 @@ function process_transaction($parsed, $request)
 						$value = str_ireplace('{[|]}', '', $value);
 						$return_data[$variable] = $value;	
 					}
-				}
+				}		
+				
 				break;
 			}
 		}
@@ -272,19 +284,21 @@ function process_transaction($parsed, $request)
 
 function eval_date($args)
 {
-	$quote = substr_count($args,"'");
-	if($quote == 2)
+	$args = trim(substr($args, 5), " \t\r\n ");
+	$args = substr($args, 1, strlen($args) - 2);
+	$parts = preg_split("/(?:'[^']*'|)\K\s*(,\s*|$)/", $args);
+	$result = array_filter($parts, function ($value) {
+		return ($value !== '');
+	});
+	if(count($result) == 1)
 	{
 		// no time zone
-		$args = str_replace('$', '', $args);
-		return eval("return $args;");
+		return date($result[0]);
 	}
-	else
+	else if(count($result) == 2)
 	{
-		$args = trim(str_replace(array('$DATE', '(', ')'), ' ', $args));
-		$arr = explode(',', $args);
-		$fmt = str_replace("'", "", trim($arr[0]));
-		$tz = str_replace("'", "", trim($arr[1]));
+		$fmt = str_replace("'", "", trim($result[0]));
+		$tz = str_replace("'", "", trim($result[1]));
 		
 		if(stripos($tz, 'UTC') !== false)
 		{
@@ -459,7 +473,7 @@ function send_callback($output)
 	$url = @$output['CALLBACK_URL'];
 	if(stripos($url, "://") !== false)
 	{		
-		$body = @$output['CALLBACK_OUTPUT'];
+		$body = @$output['CALLBACK_BODY'];
 		$content_length = strlen($body);
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -541,7 +555,6 @@ if(!empty($parsed))
 
 	// Parse request
 	$request = parse_input($parsed, $request_headers, $request_data, $context_path);
-
 	// Process the transaction
 	$output = process_transaction($parsed, $request);
 
@@ -569,9 +582,9 @@ if(!empty($parsed))
 			$content_type = $parsed['RESPONSE_TYPE'];
 			header("Content-type: $content_type");
 		}
-		if(isset($output['OUTPUT']))
+		if(isset($output['BODY']))
 		{
-			$response = @$output['OUTPUT'];
+			$response = @$output['BODY'];
 			header("Content-length: ".strlen($response));
 			if(isset($output['STATUS']))
 			{

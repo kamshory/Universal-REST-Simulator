@@ -1,4 +1,4 @@
-PATH=/Universal-REST-Simulator/sepulsa/transaction/mobile/{[TRANSACTION_ID]}
+PATH=/universal-simulator/sepulsa/transaction/mobile/{[TRANSACTION_ID]}
 
 METHOD=GET
 
@@ -13,9 +13,9 @@ TRANSACTION_RULE=\
 {[IF]} ($INPUT.TRANSACTION_ID != "")\
 {[THEN]}\
 $STATUS=200\
-$DELAY=0\
-$HEADER=X-Server-Name: Universal REST Simulator\
-$OUTPUT={\
+$OUTPUT.DELAY=0\
+$OUTPUT.HEADER=X-Server-Name: Universal REST Simulator\
+$OUTPUT.BODY={\
   "transaction_id": "$INPUT.TRANSACTION_ID",\
   "type": "mobile",\
   "created": "$DATE('U')",\
@@ -41,8 +41,9 @@ $OUTPUT={\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
-{[THEN]} $DELAY=0\
-$OUTPUT=\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
 {\
   "response_code": "20",\
   "product": {\

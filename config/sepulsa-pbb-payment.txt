@@ -1,4 +1,4 @@
-PATH=/Universal-REST-Simulator/sepulsa/v3/transaction/pbb
+PATH=/universal-simulator/sepulsa/v3/transaction/pbb
 
 METHOD=POST
 
@@ -14,12 +14,13 @@ $INPUT.ORDER_ID=$REQUEST.order_id
 
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.PRODUCT_CODE == "265" && $INPUT.CUSTOMER_ID == "357800000003101001")\
-{[THEN]} $DELAY=0\
-$CALLBACK_URL=http://localhost/test/\
-$CALLBACK_METHOD=POST\
-$CALLBACK_TYPE=application/json\
-$CALLBACK_HEADER=X-Server-Name: Universal REST Simulator\
-$CALLBACK_OUTPUT={\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.CALLBACK_URL=http://localhost/test/\
+$OUTPUT.CALLBACK_METHOD=POST\
+$OUTPUT.CALLBACK_TYPE=application/json\
+$OUTPUT.CALLBACK_HEADER=X-Server-Name: Universal REST Simulator\
+$OUTPUT.CALLBACK_BODY={\
     "transaction_id": $DATE('U'),\
     "response_code": "00",\
     "product": {\
@@ -60,7 +61,7 @@ $CALLBACK_OUTPUT={\
         "total_amount": "192500"\
     }\
 }\
-$OUTPUT=\
+$OUTPUT.BODY=\
 {\
   "transaction_id": $DATE('U'),\
   "response_code": "10",\
@@ -80,8 +81,9 @@ $OUTPUT=\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
-{[THEN]} $DELAY=0\
-$OUTPUT=\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
 {\
   "response_code": "20",\
   "product": {\

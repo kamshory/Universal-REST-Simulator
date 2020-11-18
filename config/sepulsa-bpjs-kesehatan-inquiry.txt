@@ -1,0 +1,54 @@
+PATH=/universal-simulator/sepulsa/inquire/bpjs_kesehatan.json
+
+METHOD=POST
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.CUSTOMER_ID=$REQUEST.customer_number\
+$INPUT.PRODUCT_CODE=$REQUEST.product_id\
+$INPUT.PAYMENT_PERIOD=$REQUEST.payment_period
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.PRODUCT_CODE == "34" && $INPUT.CUSTOMER_ID == "0000001430071801")\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+  "trx_type": "2100",\
+  "product_type": "BPJS-KESEHATAN",\
+  "stan": "90518024",\
+  "premi": "51000",\
+  "admin_charge": "2500",\
+  "amount": "53500",\
+  "datetime": "$DATE('YmdHis')",\
+  "merchant_code": "6012",\
+  "rc": "0000",\
+  "no_va": "$INPUT.CUSTOMER_ID",\
+  "periode": "01",\
+  "name": "ANISA KARTIKA INDIARTI",\
+  "kode_cabang": "1101",\
+  "nama_cabang": "SEMARANG",\
+  "sisa": "000000000000",\
+  "va_count": "1",\
+  "no_va_kk": "0000001430071801",\
+  "trx_id": "",\
+  "status": true,\
+  "response_code": "00"\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+  "trx_id": "",\
+  "rc": "0014",\
+  "status": false,\
+  "response_code": "20",\
+  "desc": "NOMOR VIRTUAL ACCOUNT SALAH, MOHON TELITI KEMBALI",\
+  "message": "Nomor virtual account salah, mohon teliti kembali"\
+}\
+{[ENDIF]}\
+
+

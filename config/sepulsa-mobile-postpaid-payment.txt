@@ -16,12 +16,12 @@ $INPUT.ORDER_ID=$REQUEST.order_id
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.PRODUCT_CODE == "113" && $INPUT.CUSTOMER_ID == "081234000001")\
 {[THEN]}\
-$DELAY=0\
-$CALLBACK_URL=http://sepulsa-adapter:8080/callback-process/mobile-postpaid\
-$CALLBACK_METHOD=POST\
-$CALLBACK_TYPE=application/json\
-$CALLBACK_HEADER=X-Server-Name: Universal REST Simulator\
-$CALLBACK_OUTPUT={\
+$OUTPUT.DELAY=0\
+$OUTPUT.CALLBACK_URL=http://sepulsa-adapter:8080/callback-process/mobile-postpaid\
+$OUTPUT.CALLBACK_METHOD=POST\
+$OUTPUT.CALLBACK_TYPE=application/json\
+$OUTPUT.CALLBACK_HEADER=X-Server-Name: Universal REST Simulator\
+$OUTPUT.CALLBACK_OUTPUT={\
   "data": {\
 		"reference_no": "2203267",\
 		"customer_no": "$INPUT.CUSTOMER_ID",\
@@ -46,7 +46,7 @@ $CALLBACK_OUTPUT={\
 	"product_id": "105",\
 	"serial_number": "1234567890"\
 }\
-$OUTPUT={\
+$OUTPUT.BODY={\
 	"transaction_id": "1",\
 	"type": "mobile_postpaid",\
 	"created": "$DATE('U')",\
@@ -71,8 +71,8 @@ $OUTPUT={\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
-{[THEN]} $DELAY=0\
-$OUTPUT={\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
   "response_code": "20",\
   "message": "Id pelanggan tidak ditemukan"\
 }\

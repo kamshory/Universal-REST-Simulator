@@ -1,0 +1,86 @@
+PATH=/universal-simulator/sepulsa/transaction/bpjs_kesehatan/{[TRANSACTION_ID].json}
+
+METHOD=GET
+
+REQUEST_TYPE=applicatiom/x-www-form-urlencoded
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.TRANSACTION_ID=$REQUEST.TRANSACTION_ID
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.TRANSACTION_ID != "")\
+{[THEN]}\
+$STATUS=200\
+$OUTPUT.DELAY=0\
+$OUTPUT.HEADER=X-Server-Name: Universal REST Simulator\
+$OUTPUT.BODY={\
+  "transaction_id": "1",\
+  "type": "bpjs_kesehatan",\
+  "created": "$DTATE('U')",\
+  "changed": "$DTATE('U')",\
+  "customer_number": "0000001430071801",\
+  "order_id": "ORDER-001",\
+  "price": "5000",\
+  "status": "success",\
+  "response_code": "00",\
+  "serial_number": "1234567890",\
+  "amount": "0",\
+  "product_id": {\
+    "product_id": "34",\
+    "type": "bpjs_kesehatan",\
+    "label": "BPJS Kesehatan",\
+    "operator": "BPJS",\
+    "nominal": "0",\
+    "price": 2000,\
+    "enabled": "1"\
+  },\
+  "payment_period": "01",\
+  "data": {\
+    "trx_type": "2100",\
+    "product_type": "BPJS-KESEHATAN",\
+    "stan": "90518024",\
+    "premi": "51000",\
+    "admin_charge": "2500",\
+    "amount": "53500",\
+    "datetime": "$DATE('",\
+    "merchant_code": "6012",\
+    "rc": "0000",\
+    "no_va": "0000001430071801",\
+    "periode": "01",\
+    "name": "ANISA KARTIKA INDIARTI",\
+    "kode_cabang": "1101",\
+    "nama_cabang": "SEMARANG",\
+    "sisa": "000000000000",\
+    "va_count": "1",\
+    "no_va_kk": "0000001430071801",\
+    "trx_id": "",\
+    "info_text": "Rincian tagihan dapat diakses di www.bpjs- kesehatan.go.id",\
+    "sw_reff": "29C71807819B3BAC5D04554320FE834D",\
+    "waktu_lunas": "20151228135614",\
+    "kode_loket": "HTH16010028",\
+    "nama_loket": "PT SEPULSA TEKNOLOGI INDONESIA",\
+    "alamat_loket": "Jakarta",\
+    "phone_loket": "021912345",\
+    "kode_kab_kota": "2122"\
+  }\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
+{\
+  "response_code": "20",\
+  "product": {\
+    "code": "34",\
+    "product_type": "bpjs_kesehatan",\
+    "label": "BPJS Kesehatan",\
+    "operator": "BPJS",\
+    "nominal": 0\
+  },\
+  "amount": 0\
+}\
+{[ENDIF]}\
+
+
