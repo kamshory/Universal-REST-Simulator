@@ -87,9 +87,11 @@ function fix_header_key($request_headers)
 	return $headers;
 }
 
-function parse_input($config, $request_headers, $request_data, $context_path)
+function parse_input($config, $request_headers, $request_data, $context_path, $query)
 {
 	$headers = fix_header_key($request_headers);
+	
+	parse_str($query, $get_data);
 	
 	// Parsing input
 	$rule = $config['PARSING_RULE'];
@@ -147,6 +149,31 @@ function parse_input($config, $request_headers, $request_data, $context_path)
 					}
 				}
 			}
+
+			// Parse from GET (also applied on POST and PUT)
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$GET.') === 0)
+			{
+				
+				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+				$value = trim(substr(trim($arr2[1]), strlen('$GET.')));
+				$res[$key] = isset($get_data[$value])?$get_data[$value]:'';
+			}	
+			// Parse from POST
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$POST.') === 0 && $config['METHOD'] == 'POST')
+			{
+				
+				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+				$value = trim(substr(trim($arr2[1]), strlen('$POST.')));
+				$res[$key] = isset($request_data[$value])?$request_data[$value]:'';
+			}	
+			// Parse from PUT
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$PUT.') === 0 && $config['METHOD'] == 'PUT')
+			{
+				
+				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+				$value = trim(substr(trim($arr2[1]), strlen('$POST.')));
+				$res[$key] = isset($request_data[$value])?$request_data[$value]:'';
+			}	
 			
 			// Parse from request
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$REQUEST.') === 0)
@@ -302,8 +329,9 @@ function eval_date($args)
 		
 		if(stripos($tz, 'UTC') !== false)
 		{
-			$tz1 = (str_replace("UTC", "", $tz) * 1);			
-			return date($fmt, time(0) + ($tz1 * 3600));			
+			$tz1 = (str_replace("UTC", "", $tz) * 1);	
+			$tz2 = date('Z')/3600;		
+			return date($fmt, time(0) + (($tz1 - $tz2) * 3600));			
 		}
 		else
 		{
@@ -332,11 +360,16 @@ function replace_date($string)
 	return $string;
 }
 
+function get_query($url)
+{
+	return parse_url($url, PHP_URL_QUERY);
+}
+
 function get_request_body($parsed, $url)
 {
 	if($parsed['METHOD'] == 'GET')
 	{
-		$query = parse_url($url, PHP_URL_QUERY);
+		$query = get_query($url);
 		parse_str($query, $request_data);
 	}
 	else if($parsed['METHOD'] == 'POST' || $parsed['METHOD'] == 'PUT')
@@ -549,12 +582,15 @@ if(!empty($parsed))
 {
 	// Get request headers
 	$request_headers = get_request_headers();
+	
+	// Get query
+	$query = get_query($url);
 
 	// Get request body
 	$request_data = get_request_body($parsed, $url);
 
 	// Parse request
-	$request = parse_input($parsed, $request_headers, $request_data, $context_path);
+	$request = parse_input($parsed, $request_headers, $request_data, $context_path, $query);
 	// Process the transaction
 	$output = process_transaction($parsed, $request);
 

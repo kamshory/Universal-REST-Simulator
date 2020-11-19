@@ -116,15 +116,15 @@ Simulator membaca input tergantung dari `content type` request. Untuk `content t
 
 Matriks input dan method Universal REST Simulator adalah sebagai berikut:
 
-| Method | Content Tpe                       | Sumber Data  | Objek                 |
+| Method | Content Tpe                       | Sumber Data  | Alternatif Objek                 |
 | ------ | --------------------------------- | ------------ | --------------------- |
-| `GET`  | applicatiom/x-www-form-urlencoded | Header, URL, <br>Basic Authorization  | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
-| `POST` | applicatiom/x-www-form-urlencoded | Header, Body, <br>Basic Authorization | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
-| `POST` | applicatiom/json                  | Header, Body, <br>Basic Authorization | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
-| `POST` | applicatiom/xml                   | Header, Body, <br>Basic Authorization | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
-| `PUT`  | applicatiom/x-www-form-urlencoded | Header, Body, <br>Basic Authorization | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
-| `PUT`  | applicatiom/json                  | Header, Body, <br>Basic Authorization | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
-| `PUT`  | applicatiom/xml                   | Header, Body, <br>Basic Authorization | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC` |
+| `GET`  | applicatiom/x-www-form-urlencoded | Header, URL, <br>Basic Authorization, <br>GET  | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `POST` | applicatiom/x-www-form-urlencoded | Header, Body, <br>Basic Authorization, <br>GET, POST | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$POST` |
+| `POST` | applicatiom/json                  | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `POST` | applicatiom/xml                   | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `PUT`  | applicatiom/x-www-form-urlencoded | Header, Body, <br>Basic Authorization, <br>GET, PUT | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$PUT` |
+| `PUT`  | applicatiom/json                  | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `PUT`  | applicatiom/xml                   | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
 
 **Nilai dari UUID**
 
@@ -222,6 +222,81 @@ Content-length: 196
 ```
 
 maka `$INPUT.PRODUCT` akan bernilai `10001`, demikian pula `$INPUT.ACCOUNT` akan bernilai `081266612127` dan seterusnya.
+
+## Kombinasi GET+POST dan GET+PUT
+
+Universal REST Simulator dapat mengkombinasikan input `GET` dengan `POST` atau `PUT`. Untuk mengkombinasikan `GET` dengan `POST`, gunakan method `POST`. Untuk mengkombinasikan `GET` dengan `PUT`, gunakan method `PUT`.
+
+`POST` dan `PUT` hanya berlaku untuk `REQUEST_TYPE=application/x-www-form-urlencoded` . Dalam hal ini, client juga harus mengirim `Content-type: application/x-www-form-urlencoded`. Pengambilan input dari `GET`, `POST`, dan `PUT` sama dengan `REQUEST` seperti contoh sebagai berikut:
+
+```ini
+PATH=/universal-simulator/token
+
+METHOD=POST
+
+REQUEST_TYPE=application/x-www-form-urlencoded
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.USERNAME=$AUTHORIZATION_BASIC.USERNAME\
+$INPUT.PASSWORD=$AUTHORIZATION_BASIC.PASSWORD\
+$INPUT.GRANT_TYPE=$POST.grant_type\
+$INPUT.DETAIL=$GET.detail\
+$INPUT.UUID1=$SYSTEM.UUID\
+$INPUT.UUID2=$SYSTEM.UUID\
+$INPUT.UUID3=$SYSTEM.UUID\
+$INPUT.UUID4=$SYSTEM.UUID
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.GRANT_TYPE == 'client_credentials' && $INPUT.USERNAME == "username" && $INPUT.PASSWORD == "password" && $INPUT.DETAIL == "yes")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"token_type": "Bearer",\
+	"access_token": "$INPUT.UUID1$INPUT.UUID2$INPUT.UUID3$INPUT.UUID4",\
+	"expires_in": 3600,\
+	"email": "token@domain.tld",\
+	"expire_at": $DATE('U', 'UTC')\
+}\
+{[ENDIF]}\
+{[IF]} ($INPUT.GRANT_TYPE == 'client_credentials' && $INPUT.USERNAME == "username" && $INPUT.PASSWORD == "password")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"token_type": "Bearer",\
+	"access_token": "$INPUT.UUID1$INPUT.UUID2$INPUT.UUID3$INPUT.UUID4",\
+	"expires_in": 3600,\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"token_type": "Bearer",\
+	"access_token": "$INPUT.UUID1$INPUT.UUID2$INPUT.UUID3$INPUT.UUID4",\
+	"expires_in": 3600,\
+	"email": "token@domain.tld",\
+	"expire_at": $DATE('U', 'UTC')\
+}\
+{[ENDIF]}\
+```
+Konfigurasi di atas menunjukkan bahwa path tersebut menghendaki method `POST` dan yang lain. Akan tetapi, pengguna tetap dapat mengambil nilai dari query pada `URL` menggunakan `$GET`.
+
+> Contoh Request
+
+```http
+POST /universal-simulator/token?detail=yes HTTP/1.1 
+Host: 10.16.1.235
+Content-type: application/x-www-form-urlencoded
+Content-length: 29
+
+grant_type=client_credentials
+```
+
+Dari contoh di atas, input dari URL `/universal-simulator/token?detail=yes` diambil dengan `$GET.detail`. Nilai ini akan sama dengan `$REQUEST.detail` jika menggunakan method `GET`. Karena pada konfigurasi telah didefinisikan`METHOD=POST`, maka nilai ini hanya bisa diambil dengan `$GET.detail` karena `$REQUEST` hanya mengacu kepada request body yang dikirim.
+
+Pengambilan data dari body dapat dilakukan dengan dua cara yaitu `$REQUEST` dan `$POST`. Ingat bahwa `$POST` hanya bisa digunakan jika `REQUEST_TYPE=application/x-www-form-urlencoded` dan `Content-type: application/x-www-form-urlencoded`. Untuk content type lain, harus menggunakan `$RQUEST`.
 
 ## Format $DATE()
 

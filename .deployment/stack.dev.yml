@@ -1,0 +1,46 @@
+version: "3.4"
+
+networks:
+  net:
+    external: true
+
+volumes:
+  simulator_data:
+
+secrets:
+  global-secret-slave:
+    external: true
+
+services:
+  universal-simulator:
+    image: "nexus.altopay.id/universal-simulator:${IMAGE_VERSION}"
+    networks:
+      - net
+    env_file: 
+      - ${ENV_FILE}
+    secrets:
+      - global-secret-slave
+    environment:
+      SECRET_NAME: global-secret-slave
+    ports:
+      - "9090:8080"
+    volumes:
+      - simulator_data:/var/www/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 1024M
+        reservations:
+          memory: 256M
+      labels:
+      - "traefik.enable=true"
+      - "traefik.backend=universal-simulator"
+      - "traefik.frontend.rule=Host:universal-simulator-dev.altopay.id"
+      - "traefik.port=8080"
+      - "traefik.docker.network=net"

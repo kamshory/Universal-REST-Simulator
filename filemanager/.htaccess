@@ -1,0 +1,21 @@
+Options -Indexes
+
+
+<IfModule mod_rewrite.c>
+RewriteEngine on
+
+RewriteRule forcedownload/(.*)$  tool-download-file.php?filepath=$1 [L,NC,QSA]
+
+
+
+</IfModule>
+
+<FilesMatch "data\/.*\.php">
+Order allow,deny
+Deny from all
+</FilesMatch>
+
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^nas\.albasiko-2\.com [NC]
+RewriteCond %{SERVER_PORT} 80
+RewriteRule ^(.*)$ https://nas.albasiko-2.com/$1 [R,L]
