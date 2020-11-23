@@ -96,6 +96,10 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 	// Parsing input
 	$rule = $config['PARSING_RULE'];
 	$rule = trim(str_replace("\\{[EOL]}", "\r\n", $rule), " \\ ");
+	if(endsWith($rule, '{[EOL]}'))
+	{
+		$rule = substr($rule, 0, strlen($rule) - strlen('{[EOL]}'));
+	}
 	
 	$arr = explode("\r\n", $rule);
 	$res = array();
@@ -224,6 +228,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 			}
 		}	
 	}
+	
 	return $res;
 }
 
@@ -233,6 +238,10 @@ function process_transaction($parsed, $request)
 	$transaction_rule = $parsed['TRANSACTION_RULE'];
 	$transaction_rule = trim($transaction_rule, "\\");
 	$transaction_rule = str_replace("\\{[EOL]}$"."OUTPUT.", "\\{[EOL]}\r\n$"."OUTPUT.", $transaction_rule);
+	if(endsWith($transaction_rule, '{[EOL]}'))
+	{
+		$transaction_rule = substr($transaction_rule, 0, strlen($transaction_rule) - strlen('{[EOL]}'));
+	}
 	$arr = explode('{[ENDIF]}', $transaction_rule);
 	$return_data = array();
 	foreach($arr as $idx=>$data)
@@ -577,7 +586,6 @@ $url = get_url();
 	
 // Select configuration file
 $parsed = get_config_file($config_dir, $context_path);
-
 if(!empty($parsed))
 {
 	// Get request headers
