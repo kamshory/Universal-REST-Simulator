@@ -326,13 +326,38 @@ function eval_date($args)
 	$result = array_filter($parts, function ($value) {
 		return ($value !== '');
 	});
+	
 	if(count($result) == 1)
 	{
 		// no time zone
+		if(startsWith($result[0], "'"))
+		{
+			$result[0] = substr($result[0], 1);
+		}
+		if(endsWith($result[0], "'"))
+		{
+			$result[0] = substr($result[0], 0, strlen($result[0]) - 1);
+		}
 		return date($result[0]);
 	}
 	else if(count($result) == 2)
 	{
+		if(startsWith($result[0], "'"))
+		{
+			$result[0] = substr($result[0], 1);
+		}
+		if(endsWith($result[0], "'"))
+		{
+			$result[0] = substr($result[0], 0, strlen($result[0]) - 1);
+		}
+		if(startsWith($result[1], "'"))
+		{
+			$result[1] = substr($result[1], 1);
+		}
+		if(endsWith($result[1], "'"))
+		{
+			$result[1] = substr($result[1], 0, strlen($result[1]) - 1);
+		}
 		$fmt = str_replace("'", "", trim($result[0]));
 		$tz = str_replace("'", "", trim($result[1]));
 		
