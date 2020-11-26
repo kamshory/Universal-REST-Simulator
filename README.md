@@ -116,7 +116,7 @@ Simulator membaca input tergantung dari `content type` request. Untuk `content t
 
 Matriks input dan method Universal REST Simulator adalah sebagai berikut:
 
-| Method | Content Tpe                       | Sumber Data  | Alternatif Objek                 |
+| Method | Content Tpe                       | Sumber Data  | Alternatif Objek                |
 | ------ | --------------------------------- | ------------ | --------------------- |
 | `GET`  | applicatiom/x-www-form-urlencoded | Header, URL, <br>Basic Authorization, <br>GET  | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
 | `POST` | applicatiom/x-www-form-urlencoded | Header, Body, <br>Basic Authorization, <br>GET, POST | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$POST` |
@@ -777,3 +777,16 @@ $OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 {[ENDIF]}\
 ```
+
+## File Manager
+
+Universal REST Simulator dilengkapi dengan file manager untuk membuat, mengubah dan menghapus file konfigurasi. File manager tersebut dilengkapi dengan username dan password untuk masuk ke dalamnya. File manager dapat diakses dengan path `/filemanager/` dari document root simulator.
+
+Username dan password file manager disimpan di dalam file `.htpasswd` dalam direktori `filemanager`. Username dan password dapat ditambah dengan cara menambahkan baris di bagian akhir file tersebut. Metode enkripsi password yang didukung adalah:
+
+1.  SHA dengan awalan `{SHA}`
+2. APR1 dengan awalan `$apr1$`
+
+Username dan password dapat dibuat dengan menggunakan Htpasswd Generator yang banyak tersedia secara online.
+
+Panduan lengkap untuk menggunakan file manager dapat dilihat di halaman https://github.com/kamshory/PlanetbiruFileManager
