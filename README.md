@@ -298,13 +298,13 @@ Dari contoh di atas, input dari URL `/universal-simulator/token?detail=yes` diam
 
 Pengambilan data dari body dapat dilakukan dengan dua cara yaitu `$REQUEST` dan `$POST`. Ingat bahwa `$POST` hanya bisa digunakan jika `REQUEST_TYPE=application/x-www-form-urlencoded` dan `Content-type: application/x-www-form-urlencoded`. Untuk content type lain, harus menggunakan `$RQUEST`.
 
-## Fungsi $CALC
+## Fungsi $CALC()
 
-Fungsi `$CALC` sangan berguna untuk melakukan operasi matematika di mana `$INPUT` menjadi salah satu operannya.
+Fungsi `$CALC()` sangan berguna untuk melakukan operasi matematika di mana `$INPUT` menjadi salah satu operannya.
 
 Sebagai contoh: pengguna akan menambahkan jumlah tagihan dengan admin fee. Jika tagihan disimpan di dalam variabel `$INPUT.AMOUNT` dan admin fee disimpan dalam variabel `$INPUT.FEE`, maka dapat ditulis dengan `$CALC($INPUT.AMOUNT + $INPUT.FEE)`. Jika admin fee adalah nilai tetap yaitu 2500, maka dapat ditulis dengan `$CALC($INPUT.AMOUNT + 2500)`.
 
-Fungsi `$CALC` juga dapat menghitung rumus dalam pasangan kurung. Contoh: `$CALC($INPUT.AMOUNT + $INPUT.FEE + ($INPUT.AMOUNT * 10/100))` dan sebagainya. 
+Fungsi `$CALC()` juga dapat menghitung rumus dalam pasangan kurung. Contoh: `$CALC($INPUT.AMOUNT + $INPUT.FEE + ($INPUT.AMOUNT * 10/100))` dan sebagainya. Perhatikan bahwa jumlah kurung buka harus sama dengan jumlah kurung tutup. 
 
 ```ini
 PATH=/biller/post/json
@@ -386,6 +386,8 @@ $OUTPUT.BODY={\
 ```
 
 ## Fungsi $DATE()
+
+Fungsi `$DATE()` berguna untuk membuat tanggal dan jam secara otomatis. Tanggal dan jam akan mengikuti waktu server. Pengguna dapat menggunakan daerah waktu.
 
 Format `$DATE()` mengikuti format pada bahasa pemrograman PHP. Berikut ini merupakan penjelasan dari format `$DATE()` pada bahasa pemrograman PHP. Untuk menyisipkan karakter konstan pada fungsi `$DATE()`, awali dengan `\`. Misalnya `$DATE('Y-m-d\TH:i:s.000\Z', 'UTC+7')` akan menampilkan `2020-10:10T20:20:20.000Z`. Perhatikan bahwa `\T` akan menjadi `T` dan `\Z` akan menjadi `Z`.
 
