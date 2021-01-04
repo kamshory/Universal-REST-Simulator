@@ -294,6 +294,7 @@ function process_transaction($parsed, $request)
 					}
 					$result = trim(str_replace("\\{[EOL]}", "\r\n", $result), " \\\r\n ");
 					$result = replace_date($result);
+					$result = replace_calc($result);
 					$result = ltrim($result, " \t\r\n ");
 					$arr6 = explode("=", $result, 2);
 					$variable = $arr6[0];
@@ -393,6 +394,51 @@ function replace_date($string)
 	}
 	return $string;
 }
+function replace_calc($string)
+{
+	
+	if(stripos($string, '$CALC') !== false)
+	{
+		do
+		{
+			$total_length = strlen($string);
+			$start = stripos($string, '$CALC');
+			$p1 = 0;
+			$rem = 0;
+			$found = false;
+			do
+			{
+				$f1 = substr($string, $start+$p1, 1);
+				$f2 = substr($string, $start+$p1, 1);
+				if($f1 == "(")
+				{
+					$rem++;
+					$found = true;
+				}
+				if($f2 == ")")
+				{
+					$rem--;
+					$found = true;
+				}
+				$p1++;
+			}
+			while($rem > 0 || !$found); 
+			$formula = substr($string, $start, $p1);
+			$fm1 = trim($formula, " \r\n\t ");
+			$fm1 = substr($fm1, 6, strlen($fm1)-7);
+			$fm1 = trim($fm1, " \r\n\t ");
+			$fm1 = substr($fm1, 1, strlen($fm1)-2);
+			$result = eval("return $fm1;");	
+			$string = str_ireplace($formula, $result, $string);
+			if($start + $p1 >= $total_length)
+			{
+				break;
+			}
+		}
+		while(stripos($string, '$CALC') !== false);
+	}
+	return $string;
+}
 
 function get_query($url)
 {
@@ -441,14 +487,7 @@ function is_match_path($config_path, $request_path)
 	{
 		$base_path = substr($config_path, 0, $start);
 	}
-	if(stripos($request_path, $base_path) === 0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return (stripos($request_path, $base_path) === 0);
 }
 
 function get_config_file($dir, $context_path)
@@ -457,8 +496,10 @@ function get_config_file($dir, $context_path)
 	{
 		while (false !== ($file = readdir($handle))) 
 		{
-			if ('.' === $file) continue;
-			if ('..' === $file) continue;
+			if ('.' === $file || '..' === $file)
+			{
+				continue;
+			}
 			$filepath = rtrim($dir, "/")."/".$file;	
 			$prsd = parse_config($filepath);
 			if(is_match_path($prsd['PATH'], $context_path) && $prsd['METHOD'] == $_SERVER["REQUEST_METHOD"])
