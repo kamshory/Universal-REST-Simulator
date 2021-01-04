@@ -381,13 +381,38 @@ function replace_date($string)
 	if(stripos($string, '$DATE') !== false)
 	{
 		do{
+			$total_length = strlen($string);
 			$start = stripos($string, '$DATE');
-			$stop = stripos($string, ")");
-			if($stop !== false)
+			$p1 = 0;
+			$rem = 0;
+			$found = false;
+			do
 			{
-				$src = substr($string, $start, $stop + 1 - $start);
-				$date = eval_date($src);
-				$string = str_replace($src, $date, $string);
+				$f1 = substr($string, $start+$p1, 1);
+				$f2 = substr($string, $start+$p1, 1);
+				if($f1 == "(")
+				{
+					$rem++;
+					$found = true;
+				}
+				if($f2 == ")")
+				{
+					$rem--;
+					$found = true;
+				}
+				$p1++;
+			}
+			while($rem > 0 || !$found); 
+			$formula = substr($string, $start, $p1);
+			$fm1 = trim($formula, " \r\n\t ");
+			$fm1 = substr($fm1, 6, strlen($fm1)-7);
+			$fm1 = trim($fm1, " \r\n\t ");
+			$result = eval_date('date('.$fm1.')');
+			
+			$string = str_ireplace($formula, $result, $string);
+			if($start + $p1 >= $total_length)
+			{
+				break;
 			}
 		}
 		while(stripos($string, '$DATE') !== false);
