@@ -298,7 +298,94 @@ Dari contoh di atas, input dari URL `/universal-simulator/token?detail=yes` diam
 
 Pengambilan data dari body dapat dilakukan dengan dua cara yaitu `$REQUEST` dan `$POST`. Ingat bahwa `$POST` hanya bisa digunakan jika `REQUEST_TYPE=application/x-www-form-urlencoded` dan `Content-type: application/x-www-form-urlencoded`. Untuk content type lain, harus menggunakan `$RQUEST`.
 
-## Format $DATE()
+## Fungsi $CALC
+
+Fungsi `$CALC` sangan berguna untuk melakukan operasi matematika di mana `$INPUT` menjadi salah satu operannya.
+
+Sebagai contoh: pengguna akan menambahkan jumlah tagihan dengan admin fee. Jika tagihan disimpan di dalam variabel `$INPUT.AMOUNT` dan admin fee disimpan dalam variabel `$INPUT.FEE`, maka dapat ditulis dengan `$CALC($INPUT.AMOUNT + $INPUT.FEE)`. Jika admin fee adalah nilai tetap yaitu 2500, maka dapat ditulis dengan `$CALC($INPUT.AMOUNT + 2500)`.
+
+Fungsi `$CALC` juga dapat menghitung rumus dalam pasangan kurung. Contoh: `$CALC($INPUT.AMOUNT + 2500 + ($INPUT.AMOUNT * 10/100))` dan sebagainya. 
+
+```ini
+PATH=/biller/post/json
+
+METHOD=POST
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.PRODUCT=$REQUEST.product_code\
+$INPUT.ACCOUNT=$REQUEST.customer_no\
+$INPUT.REF_NUMBER=$REQUEST.refno\
+$INPUT.AMOUNT=$REQUEST.amount\
+$INPUT.FEE=$REQUEST.admin_fee
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.PRODUCT == "322112" && $INPUT.FEE > 0)\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+   "rc": "00",\
+   "description": "Success",\
+   "mitra_code": "904",\
+   "product_code": "322112",\
+   "merchant_type": "5612",\
+   "customer_no": "$INPUT.ACCOUNT",\
+   "product_name": "GOPAY",\
+   "phone_number": "$INPUT.ACCOUNT",\
+   "name": "GOPAY GP-$INPUT.ACCOUNT",\
+   "amount": $INPUT.AMOUNT,\
+   "admin": 2500,\
+   "total": $CALC($INPUT.AMOUNT + $INPUT.FEE),\
+   "transaction_date": "$DATE('d-m-Y H:i:s', 'UTC+9')",\
+   "transaction_code": "000002873147"\
+}\
+{[ENDIF]}\
+{[IF]} ($INPUT.PRODUCT == "322112")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+   "rc": "00",\
+   "description": "Success",\
+   "mitra_code": "904",\
+   "product_code": "322112",\
+   "merchant_type": "5612",\
+   "customer_no": "$INPUT.ACCOUNT",\
+   "product_name": "GOPAY",\
+   "phone_number": "$INPUT.ACCOUNT",\
+   "name": "GOPAY GP-$INPUT.ACCOUNT",\
+   "amount": $INPUT.AMOUNT,\
+   "admin": 2500,\
+   "total": $CALC($INPUT.AMOUNT + 2500),\
+   "transaction_date": "$DATE('d-m-Y H:i:s', 'UTC+9')",\
+   "transaction_code": "000002873147"\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+   "rc": "00",\
+   "description": "Success",\
+   "mitra_code": "904",\
+   "product_code": "322112",\
+   "merchant_type": "5612",\
+   "customer_no": "$INPUT.ACCOUNT",\
+   "product_name": "GOPAY",\
+   "phone_number": "$INPUT.ACCOUNT",\
+   "name": "GOPAY GP-$INPUT.ACCOUNT",\
+   "amount": $INPUT.AMOUNT,\
+   "admin": 2500,\
+   "total": $CALC('$INPUT.AMOUNT + 2500'),\
+   "transaction_date": "$DATE('d-m-Y H:i:s')",\
+   "transaction_code": "000002873147"\
+}\
+{[ENDIF]}\
+```
+
+## Fungsi $DATE()
 
 Format `$DATE()` mengikuti format pada bahasa pemrograman PHP. Berikut ini merupakan penjelasan dari format `$DATE()` pada bahasa pemrograman PHP. Untuk menyisipkan karakter konstan pada fungsi `$DATE()`, awali dengan `\`. Misalnya `$DATE('Y-m-d\TH:i:s.000\Z', 'UTC+7')` akan menampilkan `2020-10:10T20:20:20.000Z`. Perhatikan bahwa `\T` akan menjadi `T` dan `\Z` akan menjadi `Z`.
 
