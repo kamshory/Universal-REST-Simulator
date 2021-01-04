@@ -427,7 +427,10 @@ function replace_calc($string)
 			$fm1 = trim($formula, " \r\n\t ");
 			$fm1 = substr($fm1, 6, strlen($fm1)-7);
 			$fm1 = trim($fm1, " \r\n\t ");
-			$fm1 = substr($fm1, 1, strlen($fm1)-2);
+			if((startsWith($fm1, "'") && endsWith($fm1, "'")) || (startsWith($fm1, '"') && endsWith($fm1, '"')))
+			{
+				$fm1 = substr($fm1, 1, strlen($fm1)-2);
+			}
 			$result = eval("return $fm1;");	
 			$string = str_ireplace($formula, $result, $string);
 			if($start + $p1 >= $total_length)
