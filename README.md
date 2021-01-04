@@ -304,7 +304,7 @@ Fungsi `$CALC` sangan berguna untuk melakukan operasi matematika di mana `$INPUT
 
 Sebagai contoh: pengguna akan menambahkan jumlah tagihan dengan admin fee. Jika tagihan disimpan di dalam variabel `$INPUT.AMOUNT` dan admin fee disimpan dalam variabel `$INPUT.FEE`, maka dapat ditulis dengan `$CALC($INPUT.AMOUNT + $INPUT.FEE)`. Jika admin fee adalah nilai tetap yaitu 2500, maka dapat ditulis dengan `$CALC($INPUT.AMOUNT + 2500)`.
 
-Fungsi `$CALC` juga dapat menghitung rumus dalam pasangan kurung. Contoh: `$CALC($INPUT.AMOUNT + 2500 + ($INPUT.AMOUNT * 10/100))` dan sebagainya. 
+Fungsi `$CALC` juga dapat menghitung rumus dalam pasangan kurung. Contoh: `$CALC($INPUT.AMOUNT + $INPUT.FEE + ($INPUT.AMOUNT * 10/100))` dan sebagainya. 
 
 ```ini
 PATH=/biller/post/json
@@ -337,7 +337,7 @@ $OUTPUT.BODY={\
    "phone_number": "$INPUT.ACCOUNT",\
    "name": "GOPAY GP-$INPUT.ACCOUNT",\
    "amount": $INPUT.AMOUNT,\
-   "admin": 2500,\
+   "admin": $INPUT.FEE,\
    "total": $CALC($INPUT.AMOUNT + $INPUT.FEE),\
    "transaction_date": "$DATE('d-m-Y H:i:s', 'UTC+9')",\
    "transaction_code": "000002873147"\
