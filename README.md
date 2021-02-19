@@ -879,3 +879,9 @@ Username dan password file manager disimpan di dalam file `.htpasswd` dalam dire
 Username dan password dapat dibuat dengan menggunakan Htpasswd Generator yang banyak tersedia secara online.
 
 Panduan lengkap untuk menggunakan file manager dapat dilihat di halaman https://github.com/kamshory/PlanetbiruFileManager
+
+## Check Path
+
+Universal REST Simulator menggunakan `path` dan `method` untuk menentukan konfigurasi mana yang akan digunakan. Apabila terdapat dua atau lebih pasangan `path` dan `method` yang sama, maka file konfigurasi yang pertama kali ditemukan yang akan digunakan. 
+
+Pengguna perlu mengetahui apakah `path` dan `method` tersebut sudah digunakan atau belum atau apakah terjadi duplikasi atau tidak. Untuk memeriksa `path` dan `method` yang digunakan, pengguna cukup mengakses /checkpath/ dari document root simulator menggunakan browser.
