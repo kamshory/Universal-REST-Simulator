@@ -47,16 +47,16 @@ Contoh struktur file konfigurasi:
 ```
 [root]
     [config]
-        mai.txt
-        bni.txt
-        mandiri.txt
+        config1.txt
+        config2.txt
+        config3.txt
 ```
 
 `root` adalah document root dari simulator
 `config` adalah direktori di bawah document root
-File `mai.txt`, `bni.txt`, `mandiri.txt` berada di dalam direktori `config`.
+File `config1.txt`, `config2.txt`, `config3.txt` berada di dalam direktori `config`.
 
-Jika `PATH` pada file `mai.txt` adalah `/biller/mai`, maka file tersebut akan dipilih hanya jika path pada URL request adalah `/biller/mai`.  Jika `PATH` pada file `bni.txt` adalah `/bank/bni`, maka file tersebut akan dipilih hanya jika path pada URL request adalah `/bank/bni`.  Jika tidak ada satu pun file dengan `path` yang cocok, maka simulator tidak akan memberikan response apa-apa.
+Jika `PATH` pada file `config1.txt` adalah `/biller/config1`, maka file tersebut akan dipilih hanya jika path pada URL request adalah `/biller/config1`.  Jika `PATH` pada file `config2.txt` adalah `/bank/config2`, maka file tersebut akan dipilih hanya jika path pada URL request adalah `/bank/config2`.  Jika tidak ada satu pun file dengan `path` yang cocok, maka simulator tidak akan memberikan response apa-apa.
 
 ## Method
 
@@ -142,7 +142,7 @@ Dari contoh di atas, `$INPUT.UUID`, `$INPUT.RANDOM_ID`, dan `$INPUT.UNIQ_ID` aka
 **Contoh Konfigurasi Input URL Encoded**
 
 ```ini
-PATH=/biller/mai
+PATH=/biller/config1
 METHOD=POST
 REQUEST_TYPE=application/x-www-form-urlencoded
 RESPONSE_TYPE=application/json
@@ -152,12 +152,12 @@ $INPUT.ACCOUNT=$REQUEST.customer_no\
 $INPUT.REF_NUMBER=$REQUEST.refno
 ```
 
-Pada kunfigurasi di atas, `$INPUT.PRODUCT` akan mengambil nilai dari `$REQUEST.product_code`. Dengan demikian, saat pengguna melakukan request dengan URL `/biller/mai?product_code=10000&customer_no=081266612126&refno=5473248234`, maka `$INPUT.PRODUCT` akan bernilai `10000`, demikian pula `$INPUT.ACCOUNT` akan bernilai `081266612126` dan seterusnya.
+Pada kunfigurasi di atas, `$INPUT.PRODUCT` akan mengambil nilai dari `$REQUEST.product_code`. Dengan demikian, saat pengguna melakukan request dengan URL `/biller/config1?product_code=10000&customer_no=081266612126&refno=5473248234`, maka `$INPUT.PRODUCT` akan bernilai `10000`, demikian pula `$INPUT.ACCOUNT` akan bernilai `081266612126` dan seterusnya.
 
 **Contoh Konfigurasi Input JSON**
 
 ```ini
-PATH=/bank/bni
+PATH=/bank/config2
 METHOD=POST
 REQUEST_TYPE=application/json
 RESPONSE_TYPE=application/json
@@ -171,7 +171,7 @@ $INPUT.REF_NUMBER=$REQUEST.data.customer_reference_number
 JSON biasanya digunakan pada method `POST` atau `PUT`. Pada kunfigurasi di atas, `$INPUT.PRODUCT` akan mengambil nilai dari `$REQUEST.data.destination_bank_code` yaitu `ROOT.data.destination_bank_code`. dengan `ROOT` adalah objek JSON. Dengan demikian, saat pengguna melakukan request dengan 
 
 ```http
-POST /bank/bni HTTP/1.1 
+POST /bank/config2 HTTP/1.1 
 Host: 10.16.1.235
 Content-type: application/json
 Content-length: 166
@@ -191,7 +191,7 @@ maka `$INPUT.PRODUCT` akan bernilai `002`, demikian pula `$INPUT.ACCOUNT` akan b
 **Contoh Konfigurasi Input XML**
 
 ```ini
-PATH=/bank/mandiri
+PATH=/bank/config3
 METHOD=POST
 REQUEST_TYPE=application/xml
 RESPONSE_TYPE=application/xml
@@ -206,7 +206,7 @@ $INPUT.REF_NUMBER=$REQUEST.refno
 XML biasanya digunakan pada method `POST` atau `PUT`. Pada kunfigurasi di atas, `$INPUT.PRODUCT` akan mengambil nilai dari `$REQUEST.product_code` yaitu `ROOT.product_code`. dengan `ROOT` adalah tag level pertama dari XML. Dengan demikian, saat pengguna melakukan request dengan 
 
 ```http
-POST /bank/mandiri HTTP/1.1 
+POST /bank/config3 HTTP/1.1 
 Host: 10.16.1.235
 Content-type: application/xml
 Content-length: 196
@@ -256,7 +256,7 @@ $OUTPUT.BODY={\
 	"token_type": "Bearer",\
 	"access_token": "$INPUT.UUID1$INPUT.UUID2$INPUT.UUID3$INPUT.UUID4",\
 	"expires_in": 3600,\
-	"email": "token@domain.tld",\
+	"econfig1l": "token@doconfig1n.tld",\
 	"expire_at": $DATE('U', 'UTC')\
 }\
 {[ENDIF]}\
@@ -276,7 +276,7 @@ $OUTPUT.BODY={\
 	"token_type": "Bearer",\
 	"access_token": "$INPUT.UUID1$INPUT.UUID2$INPUT.UUID3$INPUT.UUID4",\
 	"expires_in": 3600,\
-	"email": "token@domain.tld",\
+	"econfig1l": "token@doconfig1n.tld",\
 	"expire_at": $DATE('U', 'UTC')\
 }\
 {[ENDIF]}\
@@ -465,7 +465,7 @@ Beberapa data yang yang dapat dihasikan oleh simulator adalah sebagai berikut:
 Penjelasan tentang callback dapat dibaca pada bagian **Callback**.
 
 ```ini
-PATH=/bank/bni
+PATH=/bank/config2
 METHOD=POST
 REQUEST_TYPE=application/json
 RESPONSE_TYPE=application/json
@@ -483,7 +483,7 @@ $OUTPUT.BODY=\
 {\
 	"rc":"00",\
 	"sn":"82634862385235365285",\
-	"nama":"BNI",\
+	"nama":"config2",\
 	"customer_no":"$INPUT.ACCOUNT",\
 	"product_code":"$INPUT.PRODUCT",\
 	"time_stamp":"$DATE('j F Y H:i:s', 'UTC+7')",\
@@ -530,7 +530,7 @@ Simulator akan mengevaluasi kondisi yang sesuai. Jika ada dua buah kondisi
 > Contoh Request
 
 ```http
-GET /biller/mai?product_code=10000&customer_no=081266612126&refno=5473248234 HTTP/1.1 
+GET /biller/config1?product_code=10000&customer_no=081266612126&refno=5473248234 HTTP/1.1 
 Host: 10.16.1.235
 Content-type: application/json
 Content-length: 166
@@ -539,7 +539,7 @@ Content-length: 166
 **Konfigurasi**
 
 ```ini
-PATH=/biller/mai
+PATH=/biller/config1
 METHOD=POST
 REQUEST_TYPE=application/x-www-form-urlencoded
 RESPONSE_TYPE=application/json
@@ -555,7 +555,7 @@ $OUTPUT.BODY=\
 {\
 	"rc":"00",\
 	"sn":"82634862385235365285",\
-	"nama":"BNI",\
+	"nama":"config2",\
 	"customer_no":"$INPUT.ACCOUNT",\
 	"product_code":"$INPUT.PRODUCT",\
 	"time_stamp":"$DATE('j F Y H:i:s', 'UTC+7')",\
@@ -601,7 +601,7 @@ Pada reqquest JSON, mungkin `key` dari JSON mengandung karakter selain `alpha nu
 > Contoh Request
 
 ```http
-POST /bank/bni HTTP/1.1 
+POST /bank/config2 HTTP/1.1 
 Host: 10.16.1.235
 Content-type: application/json
 Content-length: 166
@@ -619,7 +619,7 @@ Content-length: 166
 **Konfigurasi**
 
 ```ini
-PATH=/bank/bni
+PATH=/bank/config2
 METHOD=POST
 REQUEST_TYPE=application/json
 RESPONSE_TYPE=application/json
@@ -636,7 +636,7 @@ $OUTPUT.BODY=\
 {\
 	"rc":"00",\
 	"sn":"82634862385235365285",\
-	"nama":"BNI",\
+	"nama":"config2",\
 	"customer_no":"$INPUT.ACCOUNT",\
 	"product_code":"$INPUT.PRODUCT",\
 	"time_stamp":"$DATE('j F Y H:i:s', 'UTC+7')",\
@@ -680,7 +680,7 @@ $OUTPUT.BODY=\
 > Contoh Request
 
 ```http
-POST /bank/mandiri HTTP/1.1 
+POST /bank/config3 HTTP/1.1 
 Host: 10.16.1.235
 Content-type: application/xml
 Content-length: 196
@@ -698,7 +698,7 @@ Content-length: 196
 **Konfigurasi**
 
 ```ini
-PATH=/bank/mandiri
+PATH=/bank/config3
 
 METHOD=POST
 
@@ -721,7 +721,7 @@ $OUTPUT.BODY=\<?xml version="1.0" encoding="UTF-8"?>\
 \
 	<rc>00</rc>\
 	<sn>82634862385235365285</sn>\
-	<nama>BNI</nama>\
+	<nama>config2</nama>\
 	<customer_no>$INPUT.ACCOUNT</customer_no>\
 	<product_code>$INPUT.PRODUCT</product_code>\
 	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
@@ -737,7 +737,7 @@ $OUTPUT.BODY=\<?xml version="1.0" encoding="UTF-8"?>\
 \
 	<rc>00</rc>\
 	<sn>82634862385235365285</sn>\
-	<nama>BNI</nama>\
+	<nama>config2</nama>\
 	<customer_no>$INPUT.ACCOUNT</customer_no>\
 	<product_code>$INPUT.PRODUCT</product_code>\
 	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
@@ -752,7 +752,7 @@ $OUTPUT.BODY=\<?xml version="1.0" encoding="UTF-8"?>\
 \
 	<rc>25</rc>\
 	<sn>82634862385235365285</sn>\
-	<nama>BNI</nama>\
+	<nama>config2</nama>\
 	<customer_no>$INPUT.ACCOUNT</customer_no>\
 	<product_code>$INPUT.PRODUCT</product_code>\
 	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
@@ -810,7 +810,7 @@ $OUTPUT.CALLBACK_OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
 \
 	<rc>00</rc>\
 	<sn>82634862385235365285</sn>\
-	<nama>BNI</nama>\
+	<nama>config2</nama>\
 	<customer_no>$INPUT.ACCOUNT</customer_no>\
 	<product_code>$INPUT.PRODUCT</product_code>\
 	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
@@ -825,7 +825,7 @@ $OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
 \
 	<rc>00</rc>\
 	<sn>82634862385235365285</sn>\
-	<nama>BNI</nama>\
+	<nama>config2</nama>\
 	<customer_no>$INPUT.ACCOUNT</customer_no>\
 	<product_code>$INPUT.PRODUCT</product_code>\
 	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
@@ -841,7 +841,7 @@ $OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
 \
 	<rc>00</rc>\
 	<sn>82634862385235365285</sn>\
-	<nama>BNI</nama>\
+	<nama>config2</nama>\
 	<customer_no>$INPUT.ACCOUNT</customer_no>\
 	<product_code>$INPUT.PRODUCT</product_code>\
 	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
@@ -857,7 +857,7 @@ $OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
 \
 	<rc>25</rc>\
 	<sn>82634862385235365285</sn>\
-	<nama>BNI</nama>\
+	<nama>config2</nama>\
 	<customer_no>$INPUT.ACCOUNT</customer_no>\
 	<product_code>$INPUT.PRODUCT</product_code>\
 	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
