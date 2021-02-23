@@ -257,7 +257,7 @@ $OUTPUT.BODY={\
     "access_token": "$TOKEN.JWT",\
     "expire_at": $TOKEN.EXPIRE_AT,\
     "expires_in": $TOKEN.EXPIRE_IN,\
-	"econfig1l": "token@doconfig1n.tld"\
+    "econfig1l": "token@doconfig1n.tld"\
 }\
 {[ENDIF]}\
 {[IF]} ($INPUT.GRANT_TYPE == 'client_credentials' && $INPUT.USERNAME == "username" && $INPUT.PASSWORD == "password")\
