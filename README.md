@@ -256,7 +256,7 @@ $OUTPUT.BODY={\
     "token_type": "Bearer",\
     "access_token": "$TOKEN.JWT",\
     "expire_at": $TOKEN.EXPIRE_AT,\
-    "expires_in": $TOKEN.EXPIRE_IN\
+    "expires_in": $TOKEN.EXPIRE_IN,\
 	"econfig1l": "token@doconfig1n.tld"\
 }\
 {[ENDIF]}\
