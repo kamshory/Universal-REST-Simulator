@@ -172,7 +172,7 @@ JSON biasanya digunakan pada method `POST` atau `PUT`. Pada kunfigurasi di atas,
 
 ```http
 POST /bank/config2 HTTP/1.1 
-Host: 10.16.1.235
+Host: 127.0.0.1
 Content-type: application/json
 Content-length: 166
 
@@ -207,7 +207,7 @@ XML biasanya digunakan pada method `POST` atau `PUT`. Pada kunfigurasi di atas, 
 
 ```http
 POST /bank/config3 HTTP/1.1 
-Host: 10.16.1.235
+Host: 127.0.0.1
 Content-type: application/xml
 Content-length: 196
 
@@ -287,7 +287,8 @@ Konfigurasi di atas menunjukkan bahwa path tersebut menghendaki method `POST` da
 
 ```http
 POST /universal-simulator/token?detail=yes HTTP/1.1 
-Host: 10.16.1.235
+Host: 127.0.0.1
+Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=
 Content-type: application/x-www-form-urlencoded
 Content-length: 29
 
@@ -723,7 +724,7 @@ Simulator akan mengevaluasi kondisi yang sesuai. Jika ada dua buah kondisi
 
 ```http
 GET /biller/config1?product_code=10000&customer_no=081266612126&refno=5473248234 HTTP/1.1 
-Host: 10.16.1.235
+Host: 127.0.0.1
 Content-type: application/json
 Content-length: 166
 ```
@@ -794,7 +795,7 @@ Pada reqquest JSON, mungkin `key` dari JSON mengandung karakter selain `alpha nu
 
 ```http
 POST /bank/config2 HTTP/1.1 
-Host: 10.16.1.235
+Host: 127.0.0.1
 Content-type: application/json
 Content-length: 166
 
@@ -873,7 +874,7 @@ $OUTPUT.BODY=\
 
 ```http
 POST /bank/config3 HTTP/1.1 
-Host: 10.16.1.235
+Host: 127.0.0.1
 Content-type: application/xml
 Content-length: 196
 
