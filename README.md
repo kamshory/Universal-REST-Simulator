@@ -441,90 +441,6 @@ Format `$DATE()` mengikuti format pada bahasa pemrograman PHP. Berikut ini merup
 
 **Sumber**: https://www.php.net/manual/en/datetime.format.php 
 
-## Pemilihan Kondisi
-
-**Propety: `TRANSACTION_RULE`**
-
-Simulator hanya mendukung kondisi `IF` dan tidak `ELSE`.  Semua data yang dihasilkan adalah data yang berada di antara `{[THEN]}` dan `{[ENDIF]}`. `IF` ditulis dengan `{[IF]}`, `THEN` ditulis dengan `{[THEN]}`, dan `ENDIF` ditulis dengan `{[ENDIF]}`. Hal ini untuk membedakan antara kata tercadang dengan kata yang mungkin muncul dalam data konfigurasi.
-
-Simulator akan mengevaluasi ekspresi pada `{[IF]}`. Jika kondisi tersebut bernilai `true`, maka simulator akan mengambil semua data pada blok tersebut tidak peduli apakah kondisi pada blok berikutnya bernilai `true` atau `false`.
-
-Beberapa data yang yang dapat dihasikan oleh simulator adalah sebagai berikut:
-
-
-1. `$OUTPUT.STATUS` adalah HTTP status code. Nilai default dari `$OUTPUT.STATUS` adalah `200`
-2. `$OUTPUT.HEADER` adalah response header yang dibuat perbaris.
-3. `$OUTPUT.DELAY` adalah waktu tunggu. Server akan menunggu beberapa saat sebelum mengirimkan respon.
-4. `$OUTPUT.BODY` adalah response body. 
-5. `$OUTPUT.CALLBACK_URL` adalah URL yang dituju pada proses callback.
-6. `$OUTPUT.CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
-7. `$OUTPUT.CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
-8. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback.
-9. `$OUTPUT.CALLBACK_OUTPUT` adalah request body untuk callback.
-
-Penjelasan tentang callback dapat dibaca pada bagian **Callback**.
-
-```ini
-PATH=/bank/config2
-METHOD=POST
-REQUEST_TYPE=application/json
-RESPONSE_TYPE=application/json
-PARSING_RULE=\
-$INPUT.COMMAND=$REQUEST.command\
-$INPUT.PRODUCT=$REQUEST.data.destination_bank_code\
-$INPUT.ACCOUNT=$REQUEST.data.beneficiary_account_number\
-$INPUT.REF_NUMBER=$REQUEST.data.customer_reference_number
-TRANSACTION_RULE=\
-{[IF]} ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567890")\
-{[THEN]}\
-$OUTPUT.STATUS=200\
-$OUTPUT.DELAY=0\
-$OUTPUT.BODY=\
-{\
-	"rc":"00",\
-	"sn":"82634862385235365285",\
-	"nama":"config2",\
-	"customer_no":"$INPUT.ACCOUNT",\
-	"product_code":"$INPUT.PRODUCT",\
-	"time_stamp":"$DATE('j F Y H:i:s', 'UTC+7')",\
-	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
-	"refid":"$INPUT.REF_NUMBER"\
-}\
-{[ENDIF]}\
-{[IF]} ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567891")\
-{[THEN]}\
-$OUTPUT.DELAY=20000\
-$OUTPUT.BODY=\
-{\
-	"rc":"00",\
-	"sn":"82634862385235365285",\
-	"nama":"Budi",\
-	"customer_no":$INPUT.ACCOUNT,\
-	"product_code":$INPUT.PRODUCT,\
-	"time_stamp":"$DATE('Y-m-d H:i:s')",\
-	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
-	"refid":"873264832658723585"\
-}\
-{[ENDIF]}\
-{[IF]} (true)\
-{[THEN]}\
-$OUTPUT.DELAY=0\
-$OUTPUT.BODY=\
-{\
-	"rc":"25",\
-	"sn":"82634862385235365285",\
-	"nama":"Budi",\
-	"customer_no":$INPUT.ACCOUNT,\
-	"product_code":$INPUT.PRODUCT,\
-	"time_stamp":"$DATE('Y-m-d H:i:s')",\
-	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
-	"refid":"873264832658723585"\
-}\
-{[ENDIF]}\
-```
-
-Simulator akan mengevaluasi kondisi yang sesuai. Jika ada dua buah kondisi
-
 ## Fungsi $ISVALIDTOKEN()
 
 Fungsi ini digunakan pada kondisi untuk memvalidasi token yang dikirimkan melalui `Authorization: Bearer`. Simulator akan mengambil token yang dikirimkan melalui header dengan key `Autorization`. Token ini kemudian akan divalidasi sesuai dengan konfigurasi server. Apabila token tersebut benar, `$ISVALIDTOKEN()` akan bernilai `true`. Sebaliknya, apabila token tersebut salah, `$ISVALIDTOKEN()` akan bernilai `false`. Simulator hanya akan memvalidasi token yang dibuat oleh simulator itu sendiri.
@@ -717,6 +633,89 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
+## Pemilihan Kondisi
+
+**Propety: `TRANSACTION_RULE`**
+
+Simulator hanya mendukung kondisi `IF` dan tidak `ELSE`.  Semua data yang dihasilkan adalah data yang berada di antara `{[THEN]}` dan `{[ENDIF]}`. `IF` ditulis dengan `{[IF]}`, `THEN` ditulis dengan `{[THEN]}`, dan `ENDIF` ditulis dengan `{[ENDIF]}`. Hal ini untuk membedakan antara kata tercadang dengan kata yang mungkin muncul dalam data konfigurasi.
+
+Simulator akan mengevaluasi ekspresi pada `{[IF]}`. Jika kondisi tersebut bernilai `true`, maka simulator akan mengambil semua data pada blok tersebut tidak peduli apakah kondisi pada blok berikutnya bernilai `true` atau `false`.
+
+Beberapa data yang yang dapat dihasikan oleh simulator adalah sebagai berikut:
+
+
+1. `$OUTPUT.STATUS` adalah HTTP status code. Nilai default dari `$OUTPUT.STATUS` adalah `200`
+2. `$OUTPUT.HEADER` adalah response header yang dibuat perbaris.
+3. `$OUTPUT.DELAY` adalah waktu tunggu. Server akan menunggu beberapa saat sebelum mengirimkan respon.
+4. `$OUTPUT.BODY` adalah response body. 
+5. `$OUTPUT.CALLBACK_URL` adalah URL yang dituju pada proses callback.
+6. `$OUTPUT.CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
+7. `$OUTPUT.CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
+8. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback.
+9. `$OUTPUT.CALLBACK_OUTPUT` adalah request body untuk callback.
+
+Penjelasan tentang callback dapat dibaca pada bagian **Callback**.
+
+```ini
+PATH=/bank/config2
+METHOD=POST
+REQUEST_TYPE=application/json
+RESPONSE_TYPE=application/json
+PARSING_RULE=\
+$INPUT.COMMAND=$REQUEST.command\
+$INPUT.PRODUCT=$REQUEST.data.destination_bank_code\
+$INPUT.ACCOUNT=$REQUEST.data.beneficiary_account_number\
+$INPUT.REF_NUMBER=$REQUEST.data.customer_reference_number
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567890")\
+{[THEN]}\
+$OUTPUT.STATUS=200\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
+{\
+	"rc":"00",\
+	"sn":"82634862385235365285",\
+	"nama":"config2",\
+	"customer_no":"$INPUT.ACCOUNT",\
+	"product_code":"$INPUT.PRODUCT",\
+	"time_stamp":"$DATE('j F Y H:i:s', 'UTC+7')",\
+	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
+	"refid":"$INPUT.REF_NUMBER"\
+}\
+{[ENDIF]}\
+{[IF]} ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567891")\
+{[THEN]}\
+$OUTPUT.DELAY=20000\
+$OUTPUT.BODY=\
+{\
+	"rc":"00",\
+	"sn":"82634862385235365285",\
+	"nama":"Budi",\
+	"customer_no":$INPUT.ACCOUNT,\
+	"product_code":$INPUT.PRODUCT,\
+	"time_stamp":"$DATE('Y-m-d H:i:s')",\
+	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
+	"refid":"873264832658723585"\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
+{\
+	"rc":"25",\
+	"sn":"82634862385235365285",\
+	"nama":"Budi",\
+	"customer_no":$INPUT.ACCOUNT,\
+	"product_code":$INPUT.PRODUCT,\
+	"time_stamp":"$DATE('Y-m-d H:i:s')",\
+	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
+	"refid":"873264832658723585"\
+}\
+{[ENDIF]}\
+```
+
+Simulator akan mengevaluasi kondisi yang sesuai. Jika ada dua buah kondisi
 
 ## Contoh Konfigurasi Request URL-Encoded
 
