@@ -253,31 +253,31 @@ TRANSACTION_RULE=\
 {[THEN]} $OUTPUT.DELAY=0\
 $OUTPUT.DELAY=0\
 $OUTPUT.BODY={\
-	"token_type": "Bearer",\
-	"access_token": "$INPUT.UUID1$INPUT.UUID2$INPUT.UUID3$INPUT.UUID4",\
-	"expires_in": 3600,\
-	"econfig1l": "token@doconfig1n.tld",\
-	"expire_at": $DATE('U', 'UTC')\
+    "token_type": "Bearer",\
+    "access_token": "$TOKEN.JWT",\
+    "expire_at": $TOKEN.EXPIRE_AT,\
+    "expires_in": $TOKEN.EXPIRE_IN\
+	"econfig1l": "token@doconfig1n.tld"\
 }\
 {[ENDIF]}\
 {[IF]} ($INPUT.GRANT_TYPE == 'client_credentials' && $INPUT.USERNAME == "username" && $INPUT.PASSWORD == "password")\
 {[THEN]} $OUTPUT.DELAY=0\
 $OUTPUT.DELAY=0\
 $OUTPUT.BODY={\
-	"token_type": "Bearer",\
-	"access_token": "$INPUT.UUID1$INPUT.UUID2$INPUT.UUID3$INPUT.UUID4",\
-	"expires_in": 3600,\
+    "token_type": "Bearer",\
+    "access_token": "$TOKEN.JWT",\
+    "expire_at": $TOKEN.EXPIRE_AT,\
+    "expires_in": $TOKEN.EXPIRE_IN\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
 {[THEN]}\
 $OUTPUT.DELAY=0\
 $OUTPUT.BODY={\
-	"token_type": "Bearer",\
-	"access_token": "$INPUT.UUID1$INPUT.UUID2$INPUT.UUID3$INPUT.UUID4",\
-	"expires_in": 3600,\
-	"econfig1l": "token@doconfig1n.tld",\
-	"expire_at": $DATE('U', 'UTC')\
+    "token_type": "Bearer",\
+    "access_token": "$TOKEN.JWT",\
+    "expire_at": $TOKEN.EXPIRE_AT,\
+    "expires_in": $TOKEN.EXPIRE_IN\
 }\
 {[ENDIF]}\
 ```
