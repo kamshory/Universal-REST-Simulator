@@ -1,4 +1,11 @@
 <?php
+
+require dirname(__FILE__)."/lib.inc/config.php";
+require dirname(__FILE__)."/lib.inc/vendor/autoload.php";
+use \Firebase\JWT\JWT;
+
+
+error_reporting(E_ALL);
 // Functions
 function parse_config($context_path, $document_root = null)
 {
@@ -232,8 +239,115 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 	return $res;
 }
 
+function is_valid_jwt($token_sent)
+{
+	global $appConfig;
+	$secret_key = $appConfig->jwtSecret;
+	try 
+	{
+		$decoded = JWT::decode($token_sent, $secret_key, array('HS256'));
+		return true;
+	}
+	catch(Exception $e)
+	{
+		return false;
+	}
+}
+
+function validate_token($string, $token_sent)
+{
+	if(stripos($string, '$ISVALIDTOKEN') !== false)
+	{
+		do
+		{
+			$total_length = strlen($string);
+			$start = stripos($string, '$string');
+			$p1 = 0;
+			$rem = 0;
+			$found = false;
+			do
+			{
+				$f1 = substr($string, $start+$p1, 1);
+				$f2 = substr($string, $start+$p1, 1);
+				if($f1 == "(")
+				{
+					$rem++;
+					$found = true;
+				}
+				if($f2 == ")")
+				{
+					$rem--;
+					$found = true;
+				}
+				$p1++;
+			}
+			while($rem > 0 || !$found); 
+			$formula = substr($string, $start, $p1);
+			$fm1 = trim($formula, " \r\n\t ");
+			$fm1 = substr($fm1, 6, strlen($fm1)-7);
+			$fm1 = trim($fm1, " \r\n\t ");
+			if((startsWith($fm1, "'") && endsWith($fm1, "'")) || (startsWith($fm1, '"') && endsWith($fm1, '"')))
+			{
+				$fm1 = substr($fm1, 1, strlen($fm1)-2);
+			}
+			
+			if(is_valid_jwt($token_sent))
+			{
+				$result = "true";	
+			}
+			else
+			{
+				$result = "false";	
+			}
+			$string = str_ireplace($formula, $result, $string);
+			if($start + $p1 >= $total_length)
+			{
+				break;
+			}
+		}
+		while(stripos($string, '$ISVALIDTOKEN') !== false);
+	}
+	return $string;
+}
+
+function generate_token()
+{
+	global $appConfig;
+	$id = $appConfig->jwtUserID;
+	$firstname = $appConfig->jwtUserFirstName;
+	$lastname = $appConfig->jwtUserLastName;
+	$email = $appConfig->jwtUserEmail;
+
+
+	$lifetime = $appConfig->jwtNotValidAfter;
+
+	$secret_key = $appConfig->jwtSecret;
+	$issuer_claim = $appConfig->jwtIssuer; // this can be the servername
+	$audience_claim = $appConfig->jwtAudience;
+	$issuedat_claim = time(); // issued at
+	$notbefore_claim = $issuedat_claim + $appConfig->jwtNotValidBefore; //not before in seconds
+	$expire_claim = $issuedat_claim + $lifetime; // expire time in seconds
+	$token = array(
+		"iss" => $issuer_claim,
+		"aud" => $audience_claim,
+		"iat" => $issuedat_claim,
+		"nbf" => $notbefore_claim,
+		"exp" => $expire_claim,
+		"data" => array(
+	));
+
+
+	$jwt = JWT::encode($token, $secret_key);
+	return array(
+		"JWT"=>$jwt,
+		"EXPIRE_AT"=>$expire_claim,
+		"EXPIRE_IN"=>$lifetime
+	);
+}
+
 function process_transaction($parsed, $request)
 {
+	$token_sent = get_token();
 	$content_type = $parsed['RESPONSE_TYPE'];
 	$transaction_rule = $parsed['TRANSACTION_RULE'];
 	$transaction_rule = trim($transaction_rule, "\\");
@@ -244,13 +358,15 @@ function process_transaction($parsed, $request)
 	}
 	$arr = explode('{[ENDIF]}', $transaction_rule);
 	$return_data = array();
+	$token_generated = null;
 	foreach($arr as $idx=>$data)
 	{
 		if(stripos($data, "{[THEN]}") > 0)
 		{
 			$arr2 = explode("{[THEN]}", $data);
-			$rcondition = arr2[0];
-			$rcondition = str_replace("\\{[EOL]}", "\r\n", $arr2[0]);
+			$rcondition = $arr2[0];
+			$rcondition = str_replace("\\{[EOL]}", "\r\n", $rcondition);
+			$rcondition = validate_token($rcondition, $token_sent);
 			$rline = $arr2[1];
 			
 			// TODO Evaluate condition
@@ -264,6 +380,8 @@ function process_transaction($parsed, $request)
 					$var = substr($word, strlen('$INPUT.'));
 					$rcondition = str_replace($word, '$request[\''.$var.'\']', $rcondition);
 				}
+				
+				
 			}
 			$rcondition = trim($rcondition, " \t\r\n ");
 			if(stripos($rcondition, '{[IF]}') === 0)
@@ -289,6 +407,15 @@ function process_transaction($parsed, $request)
 						{
 							$var = substr($word, strlen('$INPUT.'));
 							$result = str_replace($word, $request[$var], $result);
+						}
+						if(stripos($word, '$TOKEN.') === 0)
+						{
+							if($token_generated === null)
+							{
+								$token_generated = generate_token();
+							}
+							$var = substr($word, strlen('$TOKEN.'));
+							$result = str_replace($word, $token_generated[$var], $result);
 						}
 						
 					}
@@ -380,7 +507,8 @@ function replace_date($string)
 {
 	if(stripos($string, '$DATE') !== false)
 	{
-		do{
+		do
+		{
 			$total_length = strlen($string);
 			$start = stripos($string, '$DATE');
 			$p1 = 0;
@@ -581,8 +709,7 @@ function endsWith( $haystack, $needle )
 function get_context_path()
 {
 	$url = $_SERVER['REQUEST_URI'];
-	$context_path = parse_url($url, PHP_URL_PATH);
-	return $context_path;
+	return parse_url($url, PHP_URL_PATH);
 }
 
 function get_url()
@@ -601,6 +728,20 @@ function send_response_header($headers)
 			header($header);
 		}
 	}
+}
+function get_token()
+{
+	$token_sent = "";
+	$headers = get_request_headers();
+	if(isset($headers['Authorization']))
+	{
+		$auth = $headers['Authorization'];
+		if(stripos($auth, 'Bearer ') === 0)
+		{
+			$token_sent = substr($auth, 7);
+		}
+	}
+	return $token_sent;
 }
 
 function send_callback($output)
@@ -680,6 +821,7 @@ $url = get_url();
 	
 // Select configuration file
 $parsed = get_config_file($config_dir, $context_path);
+
 if(!empty($parsed))
 {
 	// Get request headers
