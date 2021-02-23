@@ -525,6 +525,199 @@ $OUTPUT.BODY=\
 
 Simulator akan mengevaluasi kondisi yang sesuai. Jika ada dua buah kondisi
 
+## Fungsi $ISVALIDTOKEN()
+
+Fungsi ini digunakan pada kondisi untuk memvalidasi token yang dikirimkan melalui `Authorization: Bearer`. Simulator akan mengambil token yang dikirimkan melalui header dengan key `Autorization`. Token ini kemudian akan divalidasi sesuai dengan konfigurasi server. Apabila token tersebut benar, `$ISVALIDTOKEN()` akan bernilai `true`. Sebaliknya, apabila token tersebut salah, `$ISVALIDTOKEN()` akan bernilai `false`. Simulator hanya akan memvalidasi token yang dibuat oleh simulator itu sendiri.
+
+**Cara Membuat Token**
+
+Agar simulator dapat membuat token, buatlah sebuah file konfigurasi. Output dari konfigurasi harus mengandung `$TOKEN.JWT`. Informasi lain seperti `$TOKEN.EXPIRE_AT` dan `$TOKEN.EXPIRE_IN` dapat pula ditambahkan.
+
+**Konfigurasi Request Token**
+
+```ini
+PATH=/auth
+
+METHOD=POST
+
+REQUEST_TYPE=application/x-www-form-urlencoded
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.USERNAME=$AUTHORIZATION_BASIC.USERNAME\
+$INPUT.PASSWORD=$AUTHORIZATION_BASIC.PASSWORD\
+$INPUT.GRANT_TYPE=$REQUEST.grant_type
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.USERNAME == 'username' && $INPUT.PASSWORD == 'userpassword' && $INPUT.GRANT_TYPE == 'client_credentials')\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+    "token_type": "Bearer",\
+    "access_token": "$TOKEN.JWT",\
+    "expire_at": $TOKEN.EXPIRE_AT,\
+    "expires_in": $TOKEN.EXPIRE_IN\
+}\
+{[ENDIF]}\
+```
+
+**Cara Memvalidasi Token**
+
+Untuk melakukan validasi token, caranya sangat mudah. Cukup dengan membuat kondisi `$ISVALIDTOKEN()`. Simulator akan mengambil token yang dikirim dan memvalidasi token tersebut. 
+
+**Konfigurasi Validasi Token**
+
+```ini
+PATH=/Universal-REST-Simulator/va-status
+
+METHOD=POST
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.COMMAND=$REQUEST.command\
+$INPUT.VA_NUMBER=$REQUEST.data.virtual_account_number\
+$INPUT.REQUEST_ID=$REQUEST.data.request_id\
+$INPUT.PG_CODE=$REQUEST.data.pg_code\
+$INPUT.REF_NUMBER=$REQUEST.data.reference_number\
+$INPUT.CUST_NUMBER=$REQUEST.data.customer_number\
+$INPUT.CUST_NAME=$REQUEST.data.customer_name\
+$INPUT.BANK_CODE=$REQUEST.data.bank_code\
+$INPUT.CHANNEL_TYPE=$REQUEST.data.channel_type\
+$INPUT.TOTAL_AMOUNT=$REQUEST.data.total_amount\
+$INPUT.PAID_AMOUNT=$REQUEST.data.paid_amount
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.CUST_NUMBER == "1571200004" && $ISVALIDTOKEN())\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+    "command": "$INPUT.COMMAND",\
+    "response_code": "00",\
+    "response_text": "Success",\
+    "message": {\
+        "id": "Sukses",\
+        "en": "Success"\
+    },\
+    "data": {\
+        "bank_code": "$INPUT.BANK_CODE",\
+        "channel_type": "$INPUT.CHANNEL_TYPE",\
+        "pg_code": "$INPUT.PG_CODE",\
+        "merchant_code": "030",\
+        "merchant_name": "Arta Pay",\
+        "virtual_account_number": "$INPUT.VA_NUMBER",\
+        "customer_name": "$INPUT.CUST_NAME",\
+        "request_id": "$INPUT.REQUEST_ID",\
+        "reference_number": "$INPUT.REF_NUMBER",\
+        "time_stamp": "$DATE('Y-m-d\TH:i:s', 'UTC').000Z",\
+        "customer_number": "$INPUT.CUST_NUMBER",\
+        "currency_code": "IDR",\
+        "total_amount": $INPUT.TOTAL_AMOUNT,\
+        "paid_amount": $INPUT.PAID_AMOUNT,\
+        "bill_list": []\
+    }\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+    "command": "$INPUT.COMMAND",\
+    "response_code": "05",\
+    "response_text": "Invalid Token",\
+    "message": {\
+        "id": "Sukses",\
+        "en": "Success"\
+    },\
+    "data": {\
+        "time_stamp": "$DATE('Y-m-d\TH:i:s', 'UTC').000Z"\
+    }\
+}\
+{[ENDIF]}\
+```
+
+Konfigurasi di atas memperlihatkan contoh cara memvalidasi token. Perlu dicatat bahwa `$INPUT.USERNAME=$AUTHORIZATION_BASIC.USERNAME` dan `$INPUT.PASSWORD=$AUTHORIZATION_BASIC.PASSWORD` tidak dapat lagi digunakan karena key `Authorization` sudah digunakan untuk mengirimkan token. Meskipun demikian, Anda masih tetap dapat menggunakan key lain.
+
+**Konfigurasi Validasi Token dengan Tambahahan Header**
+
+```ini
+PATH=/Universal-REST-Simulator/va-status
+
+METHOD=POST
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.USERNAME=$HEADER.X_USERNAME\
+$INPUT.PASSWORD=$HEADER.X_PASSWORD\
+$INPUT.API_KEY=$HEADER.X_API_KEY\
+$INPUT.COMMAND=$REQUEST.command\
+$INPUT.VA_NUMBER=$REQUEST.data.virtual_account_number\
+$INPUT.REQUEST_ID=$REQUEST.data.request_id\
+$INPUT.PG_CODE=$REQUEST.data.pg_code\
+$INPUT.REF_NUMBER=$REQUEST.data.reference_number\
+$INPUT.CUST_NUMBER=$REQUEST.data.customer_number\
+$INPUT.CUST_NAME=$REQUEST.data.customer_name\
+$INPUT.BANK_CODE=$REQUEST.data.bank_code\
+$INPUT.CHANNEL_TYPE=$REQUEST.data.channel_type\
+$INPUT.TOTAL_AMOUNT=$REQUEST.data.total_amount\
+$INPUT.PAID_AMOUNT=$REQUEST.data.paid_amount
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.USERNAME == 'username' && $INPUT.PASSWORD == 'userpassword' && $INPUT.API_KEY == 'API123' && $INPUT.CUST_NUMBER == "1571200004" && $ISVALIDTOKEN())\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+    "command": "$INPUT.COMMAND",\
+    "response_code": "00",\
+    "response_text": "Success",\
+    "message": {\
+        "id": "Sukses",\
+        "en": "Success"\
+    },\
+    "data": {\
+        "bank_code": "$INPUT.BANK_CODE",\
+        "channel_type": "$INPUT.CHANNEL_TYPE",\
+        "pg_code": "$INPUT.PG_CODE",\
+        "merchant_code": "030",\
+        "merchant_name": "Arta Pay",\
+        "virtual_account_number": "$INPUT.VA_NUMBER",\
+        "customer_name": "$INPUT.CUST_NAME",\
+        "request_id": "$INPUT.REQUEST_ID",\
+        "reference_number": "$INPUT.REF_NUMBER",\
+        "time_stamp": "$DATE('Y-m-d\TH:i:s', 'UTC').000Z",\
+        "customer_number": "$INPUT.CUST_NUMBER",\
+        "currency_code": "IDR",\
+        "total_amount": $INPUT.TOTAL_AMOUNT,\
+        "paid_amount": $INPUT.PAID_AMOUNT,\
+        "bill_list": []\
+    }\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+    "command": "$INPUT.COMMAND",\
+    "response_code": "05",\
+    "response_text": "Invalid Token",\
+    "message": {\
+        "id": "Sukses",\
+        "en": "Success"\
+    },\
+    "data": {\
+        "time_stamp": "$DATE('Y-m-d\TH:i:s', 'UTC').000Z"\
+    }\
+}\
+{[ENDIF]}\
+```
+
+
 ## Contoh Konfigurasi Request URL-Encoded
 
 > Contoh Request
