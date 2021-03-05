@@ -631,21 +631,112 @@ function get_request_body($parsed, $url)
 	return $request_data;
 }
 
+function parse_match_url($config_path, $request_path)
+{
+
+	// Parsing
+	$arr1 = explode(']}', $config_path);
+	$params = array();
+	foreach($arr1 as $key=>$val)
+	{
+		$pos = stripos($val, '{[', 0);
+		if($pos !== false)
+		{
+			$arr1[$key] = substr($val, 0, $pos);
+			$params[] = substr($val, $pos + 2);
+		}
+	}
+	$values = array();
+	if(count($arr1) > 1)
+	{
+		$j = 0;
+		$cur = 0;
+		$start = 0;
+		$end = 0;
+		$lastpost = 0;
+		for($i = 0; $i<count($arr1) - 1; $i++)
+		{
+			$curval = $arr1[$i];
+			$nextval = $arr1[$i+1];
+			$start = $cur + strlen($curval);
+			$end = stripos($request_path, $nextval, $end);
+			
+			$arr2[] = substr($request_path, $lastpost, $start - $lastpost);
+			
+			$lastpost = $end;
+			
+			$values[$params[$j]] = substr($request_path, $start, $end-$start);
+			
+			$cur = $end;
+			$j++;
+			
+		}
+		$arr2[] = substr($request_path, $lastpost);
+	}
+	return array(
+		'config_path_list'=>$arr1,
+		'request_path_list'=>$arr1,
+		'param_list'=>$params,
+		'param_values'=>$values
+		);
+		
+}
+
 function is_match_path($config_path, $request_path)
 {
+	$match = false;
 	$start = stripos($config_path, '{[');
-	$end = stripos($config_path, ']}');
-	if($start === false || $end === false)
+	if($start === false)
 	{
-		$base_path = $config_path;
+		if(endsWith($config_path, "/"))
+		{
+			$match = stripos($request_path, $config_path) === 0;
+		}
+		else
+		{
+			$match = stripos($request_path."/", $config_path."/") === 0;
+		}
 	}
 	else
 	{
-		$base_path = substr($config_path, 0, $start);
+		/*
+		$end = stripos($config_path, ']}');
+		if($start === false || $end === false)
+		{
+			$base_path = $config_path;
+		}
+		else
+		{
+			$base_path = substr($config_path, 0, $start);
+		}
+		$match = stripos($request_path, $base_path) === 0;
+		*/
+		$match = is_match_path_wildcard($config_path, $request_path);
 	}
-	return (stripos($request_path, $base_path) === 0);
+	return $match;
 }
 
+function is_match_path_wildcard($config_path, $request_path)
+{
+	$match = parse_match_url($config_path, $request_path);
+	$arr1 = $match['config_path_list'];
+	$arr2 =	$match['request_path_list'];
+	$oke = false;
+	if(count($arr1) <= count($arr2))
+	{
+		$oke = true;
+		foreach($arr1 as $k=>$v)
+		{
+			if($arr2[$k] != $v)
+			{
+				$oke = false;
+				break;
+			}
+		}
+	}
+	return $oke;
+	
+}
 function get_config_file($dir, $context_path)
 {
 	if ($handle = opendir($dir)) 
