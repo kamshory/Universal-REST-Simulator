@@ -839,6 +839,7 @@ function send_callback($output)
 {
 	$res = "";
 	$url = @$output['CALLBACK_URL'];
+	$timeout = @$output['CALLBACK_URL'] * 0.001;
 	if(stripos($url, "://") !== false)
 	{		
 		$body = @$output['CALLBACK_BODY'];
@@ -849,6 +850,10 @@ function send_callback($output)
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST , 0);
+		if($timeout > 0)
+		{
+			curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+		}
 		$headers = array();
 		if(isset($output['CALLBACK_HEADER']))
 		{
