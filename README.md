@@ -1,3 +1,4 @@
+
 # Universal REST Simulator
 
 ## Pengenalan
@@ -652,8 +653,9 @@ Beberapa data yang yang dapat dihasikan oleh simulator adalah sebagai berikut:
 5. `$OUTPUT.CALLBACK_URL` adalah URL yang dituju pada proses callback.
 6. `$OUTPUT.CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
 7. `$OUTPUT.CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
-8. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback.
-9. `$OUTPUT.CALLBACK_OUTPUT` adalah request body untuk callback.
+8. `$OUTPUT.CALLBACK_TIMEOUT` adalah timeout untuk callback.
+9. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback.
+10. `$OUTPUT.CALLBACK_OUTPUT` adalah request body untuk callback.
 
 Penjelasan tentang callback dapat dibaca pada bagian **Callback**.
 
