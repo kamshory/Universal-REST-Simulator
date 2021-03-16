@@ -636,6 +636,7 @@ function parse_match_url($config_path, $request_path)
 
 	// Parsing
 	$arr1 = explode(']}', $config_path);
+	$arr2 = array();
 	$params = array();
 	foreach($arr1 as $key=>$val)
 	{
@@ -649,33 +650,43 @@ function parse_match_url($config_path, $request_path)
 	$values = array();
 	if(count($arr1) > 1)
 	{
-		$j = 0;
-		$cur = 0;
-		$start = 0;
-		$end = 0;
-		$lastpost = 0;
-		for($i = 0; $i<count($arr1) - 1; $i++)
+		if($arr1[count($arr1) - 1] != '')
 		{
-			$curval = $arr1[$i];
-			$nextval = $arr1[$i+1];
-			$start = $cur + strlen($curval);
-			$end = stripos($request_path, $nextval, $end);
-			
-			$arr2[] = substr($request_path, $lastpost, $start - $lastpost);
-			
-			$lastpost = $end;
-			
-			$values[$params[$j]] = substr($request_path, $start, $end-$start);
-			
-			$cur = $end;
-			$j++;
-			
+			$j = 0;
+			$cur = 0;
+			$start = 0;
+			$end = 0;
+			$lastpost = 0;
+			for($i = 0; $i<count($arr1) - 1; $i++)
+			{
+				$curval = $arr1[$i];
+				$nextval = $arr1[$i+1];
+				$start = $cur + strlen($curval);
+				$end = stripos($request_path, $nextval, $start);
+				$arr2[] = substr($request_path, $lastpost, $start - $lastpost);
+				
+				$lastpost = $end;
+				
+				$values[$params[$j]] = substr($request_path, $start, $end-$start);
+				
+				$cur = $end;
+				$j++;
+				
+			}
+			$arr2[] = substr($request_path, $lastpost);
 		}
-		$arr2[] = substr($request_path, $lastpost);
+		else
+		{
+			$arr2[0] = substr($request_path, 0, strlen($arr1[0]));
+			$arr2[1] = "";
+			$values[$params[0]] = substr($request_path, strlen($arr1[0]));
+		}
 	}
 	return array(
+		'config_path'=>$config_path,
+		'request_path'=>$request_path,
 		'config_path_list'=>$arr1,
-		'request_path_list'=>$arr1,
+		'request_path_list'=>$arr2,
 		'param_list'=>$params,
 		'param_values'=>$values
 		);
@@ -699,18 +710,6 @@ function is_match_path($config_path, $request_path)
 	}
 	else
 	{
-		/*
-		$end = stripos($config_path, ']}');
-		if($start === false || $end === false)
-		{
-			$base_path = $config_path;
-		}
-		else
-		{
-			$base_path = substr($config_path, 0, $start);
-		}
-		$match = stripos($request_path, $base_path) === 0;
-		*/
 		$match = is_match_path_wildcard($config_path, $request_path);
 	}
 	return $match;
