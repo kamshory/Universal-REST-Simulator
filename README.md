@@ -127,6 +127,96 @@ Matriks input dan method Universal REST Simulator adalah sebagai berikut:
 | `PUT`  | applicatiom/json                  | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
 | `PUT`  | applicatiom/xml                   | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
 
+**Input dari Object dan Array**
+
+Pengguna mungkin menggunakan kombinasi antara `array` dan `object` sebagai `payload` dari `request` baik `GET`, `POST`, `PUT`, maupun `REQUEST`. Untuk mengambil nilai dari input yang kesemuanya adalah `object` dapat menggunakan operator titik (.) sedangkan untuk mengambil nilai dari input yang merupakan kombinasi antara `object` dan `array` dapat menggunakan operator kurung siku `[]`.
+
+Contoh Payload
+
+```json
+{
+	"items":[
+		{
+			"name":"Kopi",
+			"amount":15000
+		},
+		{
+			"name":"Roti",
+			"amount":80000
+		}
+	],
+	"customer": {
+		"name": "Anonim",
+		"phone": "081111111111111"
+	}
+}
+
+```
+
+Contoh Konfigurasi
+
+```ini
+PATH=/universal-rest-simulator/array
+
+METHOD=POST
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=text/plain
+
+PARSING_RULE=\
+$INPUT.AMOUNT0=$REQUEST[items][0][amount]\
+$INPUT.AMOUNT1=$REQUEST[items][1][amount]\
+$INPUT.NAME0=$REQUEST[items][0][name]\
+$INPUT.NAME1=$REQUEST[items][1][name]
+
+TRANSACTION_RULE=\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
+NAMA ITEM    : $INPUT.NAME0\
+HARGA ITEM   : $INPUT.AMOUNT0\
+NAMA ITEM    : $INPUT.NAME1\
+HARGA ITEM   : $INPUT.AMOUNT1\
+$INPUT.PARAMS\
+{[ENDIF]}
+```
+
+Operator `[]` dapat digunakan untuk mengambil nilai dari `object` dan `array`. Tidak diperkenankan menggabungkan operator `.` dan `[]` dalam mengambil sebuah nilai. Dengan demikian, penulisan `$INPUT.AMOUNT0=$REQUEST[items][0].amount` tidak diperbolehkan. Meskipun demikian, diperbolehkan menggunakan kombinasinya pada input yang berbeda.
+
+Contoh Kombinasi Operator
+
+```ini
+PATH=/universal-rest-simulator/array
+
+METHOD=POST
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=text/plain
+
+PARSING_RULE=\
+$INPUT.CUSTOMER_NAME=$REQUEST.customer.name\
+$INPUT.AMOUNT0=$REQUEST[items][0][amount]\
+$INPUT.AMOUNT1=$REQUEST[items][1][amount]\
+$INPUT.NAME0=$REQUEST[items][0][name]\
+$INPUT.NAME1=$REQUEST[items][1][name]
+
+TRANSACTION_RULE=\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
+NAMA PELANGGAN : $INPUT.CUSTOMER_NAME\
+NAMA ITEM      : $INPUT.NAME0\
+HARGA ITEM     : $INPUT.AMOUNT0\
+NAMA ITEM      : $INPUT.NAME1\
+HARGA ITEM     : $INPUT.AMOUNT1\
+$INPUT.PARAMS\
+{[ENDIF]}
+```
+
 **Nilai dari UUID**
 
 Universal REST Simulator memungkinkan penggunaan UUID. Untuk mengambil UUID dari sistem, gunakan `$SYSTEM.UUID`. 
