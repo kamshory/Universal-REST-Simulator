@@ -4,7 +4,6 @@ require dirname(__FILE__)."/lib.inc/config.php";
 require dirname(__FILE__)."/lib.inc/vendor/autoload.php";
 use \Firebase\JWT\JWT;
 
-
 error_reporting(E_ALL);
 // Functions
 function parse_config($context_path, $document_root = null)
@@ -97,9 +96,7 @@ function fix_header_key($request_headers)
 function parse_input($config, $request_headers, $request_data, $context_path, $query)
 {
 	$headers = fix_header_key($request_headers);
-	
 	parse_str($query, $get_data);
-	
 	// Parsing input
 	$rule = $config['PARSING_RULE'];
 	$rule = trim(str_replace("\\{[EOL]}", "\r\n", $rule), " \\ ");
@@ -107,7 +104,6 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 	{
 		$rule = substr($rule, 0, strlen($rule) - strlen('{[EOL]}'));
 	}
-	
 	$arr = explode("\r\n", $rule);
 	$res = array();
 	foreach($arr as $idx=>$line)
@@ -115,7 +111,6 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 		if(stripos($line, "=") > 0)
 		{
 			$arr2 = explode("=", $line, 2);			
-			
 			// Parse from headers
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$HEADER.') === 0)
 			{
@@ -123,14 +118,12 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 				$value = trim($headers[$key]);
 				$res[$key] = isset($value)?$value:'';
 			}
-			
 			// Get UUID
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && trim($arr2[1]) == '$SYSTEM.UUID')
 			{
 				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
 				$res[$key] = uniqid();
 			}
-			
 			// Parse from authorization
 			if(isset($headers['AUTHORIZATION']))
 			{
@@ -155,12 +148,10 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 								$value = trim($up[1]);
 								$res[$key1] = isset($value)?$value:'';
 							}
-							
 						}
 					}
 				}
 			}
-
 			// Parse from GET (also applied on POST and PUT)
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$GET.') === 0)
 			{
@@ -168,24 +159,42 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
 				$value = trim(substr(trim($arr2[1]), strlen('$GET.')));
 				$res[$key] = isset($get_data[$value])?$get_data[$value]:'';
-			}	
+			}
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$GET[') === 0)
+			{
+				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+				$value = trim(substr(trim($arr2[1]), strlen('$GET')));
+				$val = eval('return isset($get_data'.$value.')?($get_data'.$value.'):\'\';');
+				$res[$key] = $val;
+			}			
 			// Parse from POST
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$POST.') === 0 && $config['METHOD'] == 'POST')
-			{
-				
+			{			
 				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
 				$value = trim(substr(trim($arr2[1]), strlen('$POST.')));
 				$res[$key] = isset($request_data[$value])?$request_data[$value]:'';
 			}	
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$POST[') === 0)
+			{
+				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+				$value = trim(substr(trim($arr2[1]), strlen('$POST')));
+				$val = eval('return isset($get_data'.$value.')?($get_data'.$value.'):\'\';');
+				$res[$key] = $val;
+			}			
 			// Parse from PUT
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$PUT.') === 0 && $config['METHOD'] == 'PUT')
-			{
-				
+			{			
 				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
-				$value = trim(substr(trim($arr2[1]), strlen('$POST.')));
+				$value = trim(substr(trim($arr2[1]), strlen('$PUT.')));
 				$res[$key] = isset($request_data[$value])?$request_data[$value]:'';
 			}	
-			
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$PUT[') === 0)
+			{
+				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+				$value = trim(substr(trim($arr2[1]), strlen('$PUT')));
+				$val = eval('return isset($get_data'.$value.')?($get_data'.$value.'):\'\';');
+				$res[$key] = $val;
+			}						
 			// Parse from request
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$REQUEST.') === 0)
 			{
@@ -201,8 +210,28 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 					$obj = json_decode(json_encode($request_data));
 					$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
 					$tst = trim(substr(trim($arr2[1]), strlen('$REQUEST.')));
+					
 					$attr = str_replace(".", "->", $tst);					
 					$value = eval('return @$obj->'.$attr.';');					
+					$res[$key] = isset($value)?$value:'';
+				}
+			}
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$REQUEST[') === 0)
+			{
+				if(stripos($config['REQUEST_TYPE'], '/x-www-form-urlencoded') !== false)
+				{
+					$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+					$value = trim(substr(trim($arr2[1]), strlen('$REQUEST')));
+					$val = eval('return isset($request_data'.$value.')?($request_data'.$value.'):\'\';');
+					$res[$key] = $val;
+				}
+				else if(stripos($config['REQUEST_TYPE'], '/json') !== false 
+					|| stripos($config['REQUEST_TYPE'], '/xml') !== false)
+				{
+					$obj = $request_data;
+					$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+					$tst = trim(substr(trim($arr2[1]), strlen('$REQUEST')));
+					$value = eval('return @$obj'.$tst.';');					
 					$res[$key] = isset($value)?$value:'';
 				}
 			}
