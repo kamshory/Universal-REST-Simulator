@@ -749,6 +749,12 @@ Beberapa data yang yang dapat dihasikan oleh simulator adalah sebagai berikut:
 
 Penjelasan tentang callback dapat dibaca pada bagian **Callback**.
 
+## HTTP Status
+
+Universal REST Simulator memungkinkan penggunaan HTTP Status tidak standard. HTTP Status Standard dapat dilihat di https://developer.mozilla.org/id/docs/Web/HTTP/Status
+
+Untuk HTTP Status standard, pengguna cukup menuliskan kodenya saja. Misalnya `$OUTPUT.STATUS=200` atau `$OUTPUT.STATUS=403`. Untuk penggunaan HTTP Status tidak standard, pengguna perlu menambahkan teks keterangan di belakang kode. Sebagai contoh: `$OUTPUT.STATUS=699 Under Maintenance`.  Jika pengguna tidak menambahkan keterangan di belakang kode, maka Universal REST Simulator akan mengirimkan HTTP Status 500 atau Internal Server Error.   
+
 ```ini
 PATH=/bank/config2
 METHOD=POST
