@@ -965,6 +965,19 @@ if(!empty($parsed))
 	// Finally, send response to client
 	if(!empty($output))
 	{
+		if(isset($output['STATUS']))
+		{
+			$status = trim($output['STATUS']);
+			$arr = explode(' ', $status, 2);
+			if(count($arr) > 1)
+			{
+				header($_SERVER["SERVER_PROTOCOL"].' '.$status);
+			}
+			else
+			{
+				http_response_code($output['STATUS']);
+			}
+		}
 		if(isset($output['CALLBACK_URL']))
 		{
 			$clbk = send_callback($output);
@@ -990,10 +1003,6 @@ if(!empty($parsed))
 		{
 			$response = @$output['BODY'];
 			header("Content-length: ".strlen($response));
-			if(isset($output['STATUS']))
-			{
-				http_response_code($output['STATUS']);
-			}
 			echo $response;
 		}
 	}
