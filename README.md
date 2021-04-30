@@ -1,4 +1,5 @@
 
+
 # Universal REST Simulator
 
 ## Pengenalan
@@ -1110,7 +1111,7 @@ $OUTPUT.CALLBACK_OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
 	<msg>Ini output dari callback Transaksi ini dikenakan biaya Rp. 250</msg>\
 	<refid>$INPUT.REF_NUMBER</refid>\
 <data>\
-$HEADER=\X-Server-Name: Universal REST Simulator\
+$OUTPUT.HEADER=\X-Server-Name: Universal REST Simulator\
 X-Response-Code: 00\
 X-Response-Text: Success\
 $OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
