@@ -155,7 +155,6 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 			// Parse from GET (also applied on POST and PUT)
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$GET.') === 0)
 			{
-				
 				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
 				$value = trim(substr(trim($arr2[1]), strlen('$GET.')));
 				$res[$key] = isset($get_data[$value])?$get_data[$value]:'';
@@ -209,8 +208,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 				{
 					$obj = json_decode(json_encode($request_data));
 					$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
-					$tst = trim(substr(trim($arr2[1]), strlen('$REQUEST.')));
-					
+					$tst = trim(substr(trim($arr2[1]), strlen('$REQUEST.')));					
 					$attr = str_replace(".", "->", $tst);					
 					$value = eval('return @$obj->'.$attr.';');					
 					$res[$key] = isset($value)?$value:'';
@@ -225,8 +223,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 					$val = eval('return isset($request_data'.$value.')?($request_data'.$value.'):\'\';');
 					$res[$key] = $val;
 				}
-				else if(stripos($config['REQUEST_TYPE'], '/json') !== false 
-					|| stripos($config['REQUEST_TYPE'], '/xml') !== false)
+				else if(stripos($config['REQUEST_TYPE'], '/json') !== false || stripos($config['REQUEST_TYPE'], '/xml') !== false)
 				{
 					$obj = $request_data;
 					$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
@@ -450,6 +447,7 @@ function process_transaction($parsed, $request)
 					}
 					$result = trim(str_replace("\\{[EOL]}", "\r\n", $result), " \\\r\n ");
 					$result = replace_date($result);
+					$result = replace_number_format($result);
 					$result = replace_calc($result);
 					$result = ltrim($result, " \t\r\n ");
 					$arr6 = explode("=", $result, 2);
@@ -573,6 +571,52 @@ function replace_date($string)
 			}
 		}
 		while(stripos($string, '$DATE') !== false);
+	}
+	return $string;
+}
+function replace_number_format($string)
+{
+	if(stripos($string, '$NUMBERFORMAT') !== false)
+	{
+		do
+		{
+			$total_length = strlen($string);
+			$start = stripos($string, '$NUMBERFORMAT');
+			$p1 = 0;
+			$rem = 0;
+			$found = false;
+			do
+			{
+				$f1 = substr($string, $start+$p1, 1);
+				$f2 = substr($string, $start+$p1, 1);
+				if($f1 == "(")
+				{
+					$rem++;
+					$found = true;
+				}
+				if($f2 == ")")
+				{
+					$rem--;
+					$found = true;
+				}
+				$p1++;
+			}
+			while($rem > 0 || !$found); 
+			$formula = substr($string, $start, $p1);
+			$fm1 = trim($formula, " \r\n\t ");
+			$fm1 = substr($fm1, 13, strlen($fm1)-7);
+			$fm1 = trim($fm1, " \r\n\t ");
+			$fm1 = ltrim($fm1, '(');
+			$fm1 = rtrim($fm1, ')');
+			$result = "";
+			eval('$result = number_format('.$fm1.');');
+			$string = str_ireplace($formula, $result, $string);
+			if($start + $p1 >= $total_length)
+			{
+				break;
+			}
+		}
+		while(stripos($string, '$NUMBERFORMAT') !== false);
 	}
 	return $string;
 }
