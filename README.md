@@ -217,6 +217,8 @@ $INPUT.PARAMS\
 {[ENDIF]}
 ```
 
+`$INPUT.CUSTOMER_NAME=$REQUEST.customer.name` dapat pula ditulis dengan `$INPUT.CUSTOMER_NAME=$REQUEST[customer][name]` tanpa spasi sebelum `[` dan sesudah `]`.
+
 **Nilai dari UUID**
 
 Universal REST Simulator memungkinkan penggunaan UUID. Untuk mengambil UUID dari sistem, gunakan `$SYSTEM.UUID`. 
