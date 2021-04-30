@@ -449,6 +449,8 @@ function process_transaction($parsed, $request)
 					$result = replace_date($result);
 					$result = replace_number_format($result);
 					$result = replace_substring($result);
+					$result = replace_uppercase($result);
+					$result = replace_lowercase($result);
 					$result = replace_calc($result);
 					$result = ltrim($result, " \t\r\n ");
 					$arr6 = explode("=", $result, 2);
@@ -664,6 +666,98 @@ function replace_substring($string)
 			}
 		}
 		while(stripos($string, '$SUBSTRING') !== false);
+	}
+	return $string;
+}
+function replace_uppercase($string)
+{
+	if(stripos($string, '$UPPERCASE') !== false)
+	{
+		do
+		{
+			$total_length = strlen($string);
+			$start = stripos($string, '$UPPERCASE');
+			$p1 = 0;
+			$rem = 0;
+			$found = false;
+			do
+			{
+				$f1 = substr($string, $start+$p1, 1);
+				$f2 = substr($string, $start+$p1, 1);
+				if($f1 == "(")
+				{
+					$rem++;
+					$found = true;
+				}
+				if($f2 == ")")
+				{
+					$rem--;
+					$found = true;
+				}
+				$p1++;
+			}
+			while($rem > 0 || !$found); 
+			$formula = substr($string, $start, $p1);
+			$fm1 = trim($formula, " \r\n\t ");
+			$fm1 = substr($fm1, 10, strlen($fm1)-7);
+			$fm1 = trim($fm1, " \r\n\t ");
+			$fm1 = ltrim($fm1, '(');
+			$fm1 = rtrim($fm1, ')');
+			$result = "";
+			eval('$result = strtoupper('.$fm1.');');
+			$string = str_ireplace($formula, $result, $string);
+			if($start + $p1 >= $total_length)
+			{
+				break;
+			}
+		}
+		while(stripos($string, '$UPPERCASE') !== false);
+	}
+	return $string;
+}
+function replace_lowercase($string)
+{
+	if(stripos($string, '$LOWERCASE') !== false)
+	{
+		do
+		{
+			$total_length = strlen($string);
+			$start = stripos($string, '$LOWERCASE');
+			$p1 = 0;
+			$rem = 0;
+			$found = false;
+			do
+			{
+				$f1 = substr($string, $start+$p1, 1);
+				$f2 = substr($string, $start+$p1, 1);
+				if($f1 == "(")
+				{
+					$rem++;
+					$found = true;
+				}
+				if($f2 == ")")
+				{
+					$rem--;
+					$found = true;
+				}
+				$p1++;
+			}
+			while($rem > 0 || !$found); 
+			$formula = substr($string, $start, $p1);
+			$fm1 = trim($formula, " \r\n\t ");
+			$fm1 = substr($fm1, 10, strlen($fm1)-7);
+			$fm1 = trim($fm1, " \r\n\t ");
+			$fm1 = ltrim($fm1, '(');
+			$fm1 = rtrim($fm1, ')');
+			$result = "";
+			eval('$result = strtolower('.$fm1.');');
+			$string = str_ireplace($formula, $result, $string);
+			if($start + $p1 >= $total_length)
+			{
+				break;
+			}
+		}
+		while(stripos($string, '$LOWERCASE') !== false);
 	}
 	return $string;
 }
