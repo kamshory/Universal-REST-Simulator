@@ -448,6 +448,7 @@ function process_transaction($parsed, $request)
 					$result = trim(str_replace("\\{[EOL]}", "\r\n", $result), " \\\r\n ");
 					$result = replace_date($result);
 					$result = replace_number_format($result);
+					$result = replace_substring($result);
 					$result = replace_calc($result);
 					$result = ltrim($result, " \t\r\n ");
 					$arr6 = explode("=", $result, 2);
@@ -617,6 +618,52 @@ function replace_number_format($string)
 			}
 		}
 		while(stripos($string, '$NUMBERFORMAT') !== false);
+	}
+	return $string;
+}
+function replace_substring($string)
+{
+	if(stripos($string, '$SUBSTRING') !== false)
+	{
+		do
+		{
+			$total_length = strlen($string);
+			$start = stripos($string, '$SUBSTRING');
+			$p1 = 0;
+			$rem = 0;
+			$found = false;
+			do
+			{
+				$f1 = substr($string, $start+$p1, 1);
+				$f2 = substr($string, $start+$p1, 1);
+				if($f1 == "(")
+				{
+					$rem++;
+					$found = true;
+				}
+				if($f2 == ")")
+				{
+					$rem--;
+					$found = true;
+				}
+				$p1++;
+			}
+			while($rem > 0 || !$found); 
+			$formula = substr($string, $start, $p1);
+			$fm1 = trim($formula, " \r\n\t ");
+			$fm1 = substr($fm1, 10, strlen($fm1)-7);
+			$fm1 = trim($fm1, " \r\n\t ");
+			$fm1 = ltrim($fm1, '(');
+			$fm1 = rtrim($fm1, ')');
+			$result = "";
+			eval('$result = substr('.$fm1.');');
+			$string = str_ireplace($formula, $result, $string);
+			if($start + $p1 >= $total_length)
+			{
+				break;
+			}
+		}
+		while(stripos($string, '$SUBSTRING') !== false);
 	}
 	return $string;
 }
