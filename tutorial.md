@@ -495,7 +495,7 @@ $OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
 {[ENDIF]}\
 ```
 
-# Menggabungkan GET dan POST
+# Kombinasi GET dan POST
 
 Universal REST Simulator dapat mengkombinasikan input `GET` dengan `POST`. Untuk mengkombinasikan `GET` dengan `POST`, gunakan method `POST`. 
 
@@ -638,7 +638,7 @@ Content-length: 121
 }
 ```
 
-# Menggabungkan GET dan PUT
+# Kombinasi GET dan PUT
 
 Universal REST Simulator dapat mengkombinasikan input `GET` dengan `PUT`. Untuk mengkombinasikan `GET` dengan `PUT`, gunakan method `PUT`. 
 
