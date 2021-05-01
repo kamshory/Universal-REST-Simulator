@@ -8,7 +8,7 @@ Universal REST Simulator menggunakan protokol HTTP dengan method GET, POST dan P
 
 File manager pada Universal REST Simulator digunakan utuk membuat, mengubah dan mengatur file konfigurasi simulator. Untuk dapat membuat dan mengatur file konfigurasi simulator, pengguna harus login ke file manager. Username dan password pengguna disimpan dalam file .htpasswd yang disimpan di direktori filemanager di dalam direktori simulator.
 
-Untuk mengakses file manager, buka Universal REST Simulator dengan menggunakan browser web dan masukkan path `/filemanager` relatif terhadap path Universal REST Simulator.
+Untuk mengakses file manager, buka Universal REST Simulator dengan menggunakan browser web dan masukkan path `/filemanager/` relatif terhadap path Universal REST Simulator.
 
 # Check Path
 
@@ -17,6 +17,8 @@ Check path digunakan untuk melihat path dan method yang ada pada semua file konf
 1. menghindari konflik path dan method
 2. memudahkan dalam pencarian file konfigurasi untuk keperluan perubahan dan pembaruan
 3. jalan pintas untuk mengubah dan memperbarui file konfigurasi
+
+Untuk mengakses check path, buka Universal REST Simulator dengan menggunakan browser web dan masukkan path `/checkpath/` relatif terhadap path Universal REST Simulator.
 
 # File Konfigurasi
 
