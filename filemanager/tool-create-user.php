@@ -1,10 +1,7 @@
 <?php
-if(!file_exists(dirname(__FILE__)."/.htpasswd"))
+if(!isset($securityKey))
 {
-    $securityKey = sha1($_SERVER['REMOTE_ADDR'].date('U').mt_rand(100000, 9999999));
-    $_SESSION['sescu'] = $securityKey;
-    include_once dirname(__FILE__)."/tool-create-user.php";
-    exit();
+    $securityKey = sha1(mt_rand(11111, 99999999));
 }
 ?><!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -20,7 +17,7 @@ if(!file_exists(dirname(__FILE__)."/.htpasswd"))
 	<div class="box-inner">
         <div class="box-title">Planetbiru File Manager</div>
         <div class="box-form">
-        <form id="form1" name="form1" method="post" action="login.php">
+        <form id="form1" name="form1" method="post" action="create-user.php">
         <div class="label">Username</div>
         <div class="field">
         <input type="text" name="username" id="username" class="input-text-login" autocomplete="off" />
@@ -33,7 +30,8 @@ if(!file_exists(dirname(__FILE__)."/.htpasswd"))
         <div class="clear"></div>
         <div class="field">
         <div class="button-area"><input type="hidden" name="ref" id="ref" value="<?php echo htmlspecialchars(strip_tags($_SERVER['REQUEST_URI']));?>" />
-        <input type="submit" name="login" id="login" value="Login" class="login-button" />
+        <input type="submit" name="login" id="login" value="Create User" class="login-button" />
+        <input type="hidden" name="sec" value="<?php echo $securityKey;?>"> 
         </div>
         <div class="clear"></div>
         </div>
