@@ -637,3 +637,147 @@ Content-length: 121
     }
 }
 ```
+
+# Menggabungkan GET dan PUT
+
+Universal REST Simulator dapat mengkombinasikan input `GET` dengan `PUT`. Untuk mengkombinasikan `GET` dengan `PUT`, gunakan method `PUT`. 
+
+`PUT` hanya berlaku untuk `REQUEST_TYPE=application/x-www-form-urlencoded` . Dalam hal ini, client juga harus mengirim `Content-type: application/x-www-form-urlencoded`. Pengambilan input dari `GET` dan `PUT` sama dengan `REQUEST` seperti contoh sebagai berikut:
+
+```ini
+PATH=/universal-simulator/token
+
+METHOD=PUT
+
+REQUEST_TYPE=application/x-www-form-urlencoded
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.USERNAME=$AUTHORIZATION_BASIC.USERNAME\
+$INPUT.PASSWORD=$AUTHORIZATION_BASIC.PASSWORD\
+$INPUT.GRANT_TYPE=$PUT.grant_type\
+$INPUT.DETAIL=$GET.detail\
+$INPUT.UUID1=$SYSTEM.UUID\
+$INPUT.UUID2=$SYSTEM.UUID\
+$INPUT.UUID3=$SYSTEM.UUID\
+$INPUT.UUID4=$SYSTEM.UUID
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.GRANT_TYPE == 'client_credentials' && $INPUT.USERNAME == "username" && $INPUT.PASSWORD == "password" && $INPUT.DETAIL == "yes")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+    "token_type": "Bearer",\
+    "access_token": "$TOKEN.JWT",\
+    "expire_at": $TOKEN.EXPIRE_AT,\
+    "expires_in": $TOKEN.EXPIRE_IN,\
+    "email": "token@doconfig1n.tld"\
+}\
+{[ENDIF]}\
+{[IF]} ($INPUT.GRANT_TYPE == 'client_credentials' && $INPUT.USERNAME == "username" && $INPUT.PASSWORD == "password")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+    "token_type": "Bearer",\
+    "access_token": "$TOKEN.JWT",\
+    "expire_at": $TOKEN.EXPIRE_AT,\
+    "expires_in": $TOKEN.EXPIRE_IN\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+    "token_type": "Bearer",\
+    "access_token": "$TOKEN.JWT",\
+    "expire_at": $TOKEN.EXPIRE_AT,\
+    "expires_in": $TOKEN.EXPIRE_IN\
+}\
+{[ENDIF]}\
+```
+Konfigurasi di atas menunjukkan bahwa path tersebut menghendaki method `PUT` dan yang lain. Akan tetapi, pengguna tetap dapat mengambil nilai dari query pada `URL` menggunakan `$GET`.
+
+> Contoh Request
+
+```http
+PUT /universal-simulator/token?detail=yes HTTP/1.1 
+Host: 127.0.0.1
+Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=
+Content-type: application/x-www-form-urlencoded
+Content-length: 29
+
+grant_type=client_credentials
+```
+
+Dari contoh di atas, input dari URL `/universal-simulator/token?detail=yes` diambil dengan `$GET.detail`. Nilai ini akan sama dengan `$REQUEST.detail` jika menggunakan method `GET`. Karena pada konfigurasi telah didefinisikan`METHOD=PUT`, maka nilai ini hanya bisa diambil dengan `$GET.detail` karena `$REQUEST` hanya mengacu kepada request body yang dikirim.
+
+Pengambilan data dari body dapat dilakukan dengan dua cara yaitu `$REQUEST` dan `$PUT`. Ingat bahwa `$PUT` hanya bisa digunakan jika `REQUEST_TYPE=application/x-www-form-urlencoded` dan `Content-type: application/x-www-form-urlencoded`. Untuk content type lain, harus menggunakan `$RQUEST`.
+
+Pengguna dapat membuat konfigurasi yang memungkinkan klien mengirim data dengan tipe `application/json` dan mengkombinasikannya dengan `GET`. Dalam hal ini, `REQUEST_TYPE` diset menjadi `application/json`. Tentu saja data yang dikirim dengan `GET` menggunakan `application/x-www-form-urlencoded`.
+
+Contoh Konfigurasi:
+
+```ini
+PATH=/universal-simulator/getandput
+
+METHOD=PUT
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.ACTION=$GET.action\
+$INPUT.ACCOUNT_NUMBER=$REQUEST.data.account_number\
+$INPUT.AMOUNT=$REQUEST.data.amount\
+$INPUT.CURRENCY_CODE=$REQUEST.data.currency_code
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.ACTION == "cash-deposit" && $INPUT.ACCOUNT_NUMBER != "" && $INPUT.AMOUNT > 0)\
+{[THEN]}\
+$OUTPUT.STATUS=200\
+$OUTPUT.BODY={\
+    "response_code": "001",\
+    "response_text:" "Success",\
+    "data": {\
+        "account_number": "$INPUT.ACCOUNT_NUMBER",\
+        "amount": $INPUT.AMOUNT,\
+        "currency_code": "$INPUT.CURRENCY_CODE",\
+        "time_stamp": "$DATE('U')"\
+    }\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.STATUS=400\
+$OUTPUT.BODY={\
+    "response_code": "061",\
+    "response_text:" "Mandatory field can not be empty",\
+    "data": {\
+        "account_number": "$INPUT.ACCOUNT_NUMBER",\
+        "amount": $INPUT.AMOUNT,\
+        "currency_code": "$INPUT.CURRENCY_CODE",\
+        "time_stamp": "$DATE('U')"\
+    }\
+}\
+{[ENDIF]}\
+```
+
+Contoh Request:
+
+```http
+PUT /universal-simulator/getandput?action=cash-deposit HTTP/1.1 
+Host: 127.0.0.1
+Content-type: application/json
+Content-length: 121
+
+{
+    "data": {
+        "account_number": "1234567890",
+        "amount": 5000000,
+        "currency_code": "IDR"
+    }
+}
+```
+
