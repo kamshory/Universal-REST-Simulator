@@ -1,16 +1,19 @@
-# Sekilas Tentang Universal REST Simulator
+
+# Tutorial Menggunakan Universal REST Simulator
+
+## Sekilas Tentang Universal REST Simulator
 
 Universal REST Simulator adalah simulator REST untuk membuat simulator server aplikasi. Simulator ini akan mensimulasikan respon dari sebuah sistem saat diberi request tertentu.
 
 Universal REST Simulator menggunakan protokol HTTP dengan method GET, POST dan PUT dengan tipe request x-www-urlencode, JSON dan XML. Tipe respon dapat berupa text, HTML, XML, JSON maupun CSV.
 
-# File Manager
+## File Manager
 
 File manager pada Universal REST Simulator digunakan utuk membuat, mengubah dan mengatur file konfigurasi simulator. Untuk dapat membuat dan mengatur file konfigurasi simulator, pengguna harus login ke file manager. Username dan password pengguna disimpan dalam file .htpasswd yang disimpan di direktori filemanager di dalam direktori simulator.
 
 Untuk mengakses file manager, buka Universal REST Simulator dengan menggunakan browser web dan masukkan path `/filemanager/` relatif terhadap path Universal REST Simulator.
 
-# Check Path
+## Check Path
 
 Check path digunakan untuk melihat path dan method yang ada pada semua file konfigurasi. Tujuan dari check path adalah sebagai berikut:
 
@@ -20,7 +23,7 @@ Check path digunakan untuk melihat path dan method yang ada pada semua file konf
 
 Untuk mengakses check path, buka Universal REST Simulator dengan menggunakan browser web dan masukkan path `/checkpath/` relatif terhadap path Universal REST Simulator.
 
-# File Konfigurasi
+## File Konfigurasi
 
 Konfigurasi simulator diatur oleh file-file yang disimpan di dalam direktori `/config` relatif terhadap direktori Universal REST Simulator. Pada saat simulator menerima request dari klien, simulator akan mencari file konfigurasi yang cocok dengan method dan path dari request yang diterima. Apabila simulator menemukan file yang sesuai, maka simulator akan berhenti mencari file dan menggunakan konfigurasi pada file yang tersebut.
 
@@ -162,7 +165,7 @@ $OUPUT.BODY={\
 {[ENDIF]}\
 ``` 
 
-# Simulator Sederhana GET application/x-www-form-urlencoded
+## Simulator Sederhana GET application/x-www-form-urlencoded
 
 ```ini
 METHOD=GET
@@ -209,7 +212,7 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
-# Simulator Sederhana POST application/x-www-form-urlencoded
+## Simulator Sederhana POST application/x-www-form-urlencoded
 
 ```ini
 METHOD=POST
@@ -256,7 +259,7 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
-# Simulator Sederhana PUT application/x-www-form-urlencoded
+## Simulator Sederhana PUT application/x-www-form-urlencoded
 
 ```ini
 METHOD=PUT
@@ -303,7 +306,7 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
-# Simulator Sederhana POST application/json
+## Simulator Sederhana POST application/json
 
 ```ini
 METHOD=POST
@@ -350,7 +353,7 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
-# Simulator Sederhana PUT application/json
+## Simulator Sederhana PUT application/json
 
 ```ini
 METHOD=PUT
@@ -397,7 +400,7 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
-# Simulator Sederhana POST application/xml
+## Simulator Sederhana POST application/xml
 
 ```ini
 METHOD=POST
@@ -446,7 +449,7 @@ $OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
 {[ENDIF]}\
 ```
 
-# Simulator Sederhana PUT application/xml
+## Simulator Sederhana PUT application/xml
 
 ```ini
 METHOD=PUT
@@ -495,7 +498,7 @@ $OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
 {[ENDIF]}\
 ```
 
-# Kombinasi GET dan POST
+## Kombinasi GET dan POST
 
 Universal REST Simulator dapat mengkombinasikan input `GET` dengan `POST`. Untuk mengkombinasikan `GET` dengan `POST`, gunakan method `POST`. 
 
@@ -638,7 +641,7 @@ Content-length: 121
 }
 ```
 
-# Kombinasi GET dan PUT
+## Kombinasi GET dan PUT
 
 Universal REST Simulator dapat mengkombinasikan input `GET` dengan `PUT`. Untuk mengkombinasikan `GET` dengan `PUT`, gunakan method `PUT`. 
 
