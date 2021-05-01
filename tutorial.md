@@ -397,4 +397,101 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
+# Simulator Sederhana POST application/xml
+
+```ini
+METHOD=POST
+
+PATH=/getdata
+
+REQUEST_TYPE=application/xml
+
+RESPONSE_TYPE=application/xml
+
+PARSING_RULE=\
+$INPUT.NAME=$REQUEST.name\
+$INPUT.EMAIL=$REQUEST.email\
+$INPUT.PHONE=$REQUEST.phone
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.NAME != "" && $INPUT.EMAIL != "")\
+{[THEN]}\
+$OUTPUT.STATUS=200 OK\
+$OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
+<container>\
+    <response_code>001</response_code>\
+    <response_text>Success</response_text>\
+    <data>\
+        <name>$INPUT.NAME</name>\
+        <email>$INPUT.EMAIL</email>\
+        <phone>$INPUT.PHONE</phone>\
+        <time_stamp>$DATE('U')</time_stamp>\
+    </data>\
+</container>\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.STATUS=400 Bad Request\
+$OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
+<container>\
+    <response_code>061</response_code>\
+    <response_text>Mandatory field can not be empty</response_text>\
+    <data>\
+        <name>$INPUT.NAME</name>\
+        <email>$INPUT.EMAIL</email>\
+        <phone>$INPUT.PHONE</phone>\
+        <time_stamp>$DATE('U')</time_stamp>\
+    </data>\
+</container>\
+{[ENDIF]}\
+```
+
+# Simulator Sederhana PUT application/xml
+
+```ini
+METHOD=PUT
+
+PATH=/getdata
+
+REQUEST_TYPE=application/xml
+
+RESPONSE_TYPE=application/xml
+
+PARSING_RULE=\
+$INPUT.NAME=$REQUEST.name\
+$INPUT.EMAIL=$REQUEST.email\
+$INPUT.PHONE=$REQUEST.phone
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.NAME != "" && $INPUT.EMAIL != "")\
+{[THEN]}\
+$OUTPUT.STATUS=200 OK\
+$OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
+<container>\
+    <response_code>001</response_code>\
+    <response_text>Success</response_text>\
+    <data>\
+        <name>$INPUT.NAME</name>\
+        <email>$INPUT.EMAIL</email>\
+        <phone>$INPUT.PHONE</phone>\
+        <time_stamp>$DATE('U')</time_stamp>\
+    </data>\
+</container>\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.STATUS=400 Bad Request\
+$OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
+<container>\
+    <response_code>061</response_code>\
+    <response_text>Mandatory field can not be empty</response_text>\
+    <data>\
+        <name>$INPUT.NAME</name>\
+        <email>$INPUT.EMAIL</email>\
+        <phone>$INPUT.PHONE</phone>\
+        <time_stamp>$DATE('U')</time_stamp>\
+    </data>\
+</container>\
+{[ENDIF]}\
+```
 
