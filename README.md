@@ -787,11 +787,11 @@ $OUTPUT.BODY=\
 	"rc":"00",\
 	"sn":"82634862385235365285",\
 	"nama":"Budi",\
-	"customer_no":$INPUT.ACCOUNT,\
-	"product_code":$INPUT.PRODUCT,\
-	"time_stamp":"$DATE('Y-m-d H:i:s')",\
-	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
-	"refid":"873264832658723585"\
+	"customer_no": "$INPUT.ACCOUNT",\
+	"product_code": "$INPUT.PRODUCT",\
+	"time_stamp": "$DATE('Y-m-d H:i:s')",\
+	"msg": "Transaksi ini dikenakan biaya Rp. 250",\
+	"refid": "873264832658723585"\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
@@ -799,14 +799,14 @@ $OUTPUT.BODY=\
 $OUTPUT.DELAY=0\
 $OUTPUT.BODY=\
 {\
-	"rc":"25",\
-	"sn":"82634862385235365285",\
-	"nama":"Budi",\
-	"customer_no":$INPUT.ACCOUNT,\
-	"product_code":$INPUT.PRODUCT,\
-	"time_stamp":"$DATE('Y-m-d H:i:s')",\
-	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
-	"refid":"873264832658723585"\
+	"rc": "25",\
+	"sn": "82634862385235365285",\
+	"nama": "Budi",\
+	"customer_no": "$INPUT.ACCOUNT",\
+	"product_code": "$INPUT.PRODUCT",\
+	"time_stamp": "$DATE('Y-m-d H:i:s')",\
+	"msg": "Transaksi ini dikenakan biaya Rp. 250",\
+	"refid": "873264832658723585"\
 }\
 {[ENDIF]}\
 ```
@@ -847,14 +847,14 @@ TRANSACTION_RULE=\
 $OUTPUT.DELAY=0\
 $OUTPUT.BODY=\
 {\
-	"rc":"00",\
-	"sn":"82634862385235365285",\
-	"nama":"config2",\
-	"customer_no":"$INPUT.ACCOUNT",\
-	"product_code":"$INPUT.PRODUCT",\
-	"time_stamp":"$DATE('j F Y H:i:s', 'UTC+7')",\
-	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
-	"refid":"$INPUT.REF_NUMBER"\
+	"rc": "00",\
+	"sn": "82634862385235365285",\
+	"nama": "config2",\
+	"customer_no": "$INPUT.ACCOUNT",\
+	"product_code": "$INPUT.PRODUCT",\
+	"time_stamp": "$DATE('j F Y H:i:s', 'UTC+7')",\
+	"msg": "Transaksi ini dikenakan biaya Rp. 250",\
+	"refid": "$INPUT.REF_NUMBER"\
 }\
 {[ENDIF]}\
 {[IF]} ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612127")\
@@ -862,28 +862,28 @@ $OUTPUT.BODY=\
 $OUTPUT.DELAY=20000\
 $OUTPUT.BODY=\
 {\
-	"rc":"00",\
-	"sn":"82634862385235365285",\
-	"nama":"Budi",\
-	"customer_no":"$INPUT.ACCOUNT",\
-	"product_code":"$INPUT.PRODUCT",\
-	"time_stamp":"$DATE('Y-m-d H:i:s')",\
-	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
-	"refid":"873264832658723585"\
+	"rc": "00",\
+	"sn": "82634862385235365285",\
+	"nama": "Budi",\
+	"customer_no": "$INPUT.ACCOUNT",\
+	"product_code": "$INPUT.PRODUCT",\
+	"time_stamp": "$DATE('Y-m-d H:i:s')",\
+	"msg": "Transaksi ini dikenakan biaya Rp. 250",\
+	"refid": "873264832658723585"\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
 {[THEN]} $OUTPUT.DELAY=0\
 $OUTPUT.BODY=\
 {\
-	"rc":"25",\
-	"sn":"82634862385235365285",\
-	"nama":"Budi",\
-	"customer_no":"$INPUT.ACCOUNT",\
-	"product_code":"$INPUT.PRODUCT",\
-	"time_stamp":"$DATE('Y-m-d H:i:s')",\
-	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
-	"refid":"873264832658723585"\
+	"rc": "25",\
+	"sn": "82634862385235365285",\
+	"nama": "Budi",\
+	"customer_no": "$INPUT.ACCOUNT",\
+	"product_code": "$INPUT.PRODUCT",\
+	"time_stamp": "$DATE('Y-m-d H:i:s')",\
+	"msg": "Transaksi ini dikenakan biaya Rp. 250",\
+	"refid": "873264832658723585"\
 }\
 {[ENDIF]}\
 ```
@@ -903,9 +903,9 @@ Content-length: 166
 {
 	"command":"inquiry",
 	"data":{
-		"destination_bank_code":"002",
-		"beneficiary_account_number":"1234567890",
-		"customer_reference_number":"9876544322"
+		"destination_bank_code": "002",
+		"beneficiary_account_number": "1234567890",
+		"customer_reference_number": "9876544322"
 	}
 }
 ```
@@ -928,28 +928,28 @@ TRANSACTION_RULE=\
 $OUTPUT.DELAY=0\
 $OUTPUT.BODY=\
 {\
-	"rc":"00",\
-	"sn":"82634862385235365285",\
-	"nama":"config2",\
-	"customer_no":"$INPUT.ACCOUNT",\
-	"product_code":"$INPUT.PRODUCT",\
-	"time_stamp":"$DATE('j F Y H:i:s', 'UTC+7')",\
-	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
-	"refid":"$INPUT.REF_NUMBER"\
+	"rc": "00",\
+	"sn": "82634862385235365285",\
+	"nama": "config2",\
+	"customer_no": "$INPUT.ACCOUNT",\
+	"product_code": "$INPUT.PRODUCT",\
+	"time_stamp": "$DATE('j F Y H:i:s', 'UTC+7')",\
+	"msg": "Transaksi ini dikenakan biaya Rp. 250",\
+	"refid": "$INPUT.REF_NUMBER"\
 }\
 {[ENDIF]}\
 {[IF]} ($INPUT.COMMAND == "inquiry" && $INPUT.PRODUCT == "002" && $INPUT.ACCOUNT == "1234567891")\
 {[THEN]} $OUTPUT.DELAY=20000\
 $OUTPUT.BODY=\
 {\
-	"rc":"00",\
-	"sn":"82634862385235365285",\
-	"nama":"Budi",\
-	"customer_no":"$INPUT.ACCOUNT",\
-	"product_code":"$INPUT.PRODUCT",\
-	"time_stamp":"$DATE('Y-m-d H:i:s')",\
-	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
-	"refid":"873264832658723585"\
+	"rc": "00",\
+	"sn": "82634862385235365285",\
+	"nama": "Budi",\
+	"customer_no": "$INPUT.ACCOUNT",\
+	"product_code": "$INPUT.PRODUCT",\
+	"time_stamp": "$DATE('Y-m-d H:i:s')",\
+	"msg": "Transaksi ini dikenakan biaya Rp. 250",\
+	"refid": "873264832658723585"\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
@@ -957,14 +957,14 @@ $OUTPUT.BODY=\
 $OUTPUT.DELAY=0\
 $OUTPUT.BODY=\
 {\
-	"rc":"25",\
-	"sn":"82634862385235365285",\
-	"nama":"Budi",\
-	"customer_no":"$INPUT.ACCOUNT",\
-	"product_code":"$INPUT.PRODUCT",\
-	"time_stamp":"$DATE('Y-m-d H:i:s')",\
-	"msg":"Transaksi ini dikenakan biaya Rp. 250",\
-	"refid":"873264832658723585"\
+	"rc": "25",\
+	"sn": "82634862385235365285",\
+	"nama": "Budi",\
+	"customer_no": "$INPUT.ACCOUNT",\
+	"product_code": "$INPUT.PRODUCT",\
+	"time_stamp": "$DATE('Y-m-d H:i:s')",\
+	"msg": "Transaksi ini dikenakan biaya Rp. 250",\
+	"refid": "873264832658723585"\
 }\
 {[ENDIF]}\
 ```
