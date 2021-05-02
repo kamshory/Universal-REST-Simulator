@@ -1529,4 +1529,47 @@ PARSING_RULE=\
 $INPUT.NAME=$REQUEST.name\
 $INPUT.QUANTITY=$REQUEST[quantity]\
 $INPUT.PRICE=$REQUEST.price
+```
+
+## Membuat Token
+
+Universal REST Simulator menggunakan *JSON Web Token* atau JWT sebagai metode untuk membuat token. Salah satu kelebihan dari JWT adalah bahwa token dapat divalidasi dengan dirinya sendiri. Server menyimpan beberapa informasi rahasia untuk membuat token dan dapat memvalidasi token yang telah dibuat dengan informasi yang ada pada token tersebut dan informasi rahasia yang disimpan di server. Salah satu informasi rahasia yang disimpan di server yang tidak dimasukkan ke dalam token adalah kunci atau *key* untuk membuat dan memvalidasi token.
+
+JWT mempunyai parameter waktu berlaku. Artinya, sebuah token JWT hanya valid dalam waktu tertentu. Dengan kata lain, apabila token bocor setelah masa berlakunya habis, maka token tersebut tidak dapat digunakan lain oleh siapapun. Tidak ada standard berapa lama masa berlaku JWT. Akan tetapi, banyak yang menggunakan waktu 1 jam untuk masa berlaku token.
+
+Contoh Konfigurasi:
+
+```ini
+PATH=/auth
+
+METHOD=POST
+
+REQUEST_TYPE=application/x-www-form-urlencoded
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.USERNAME=$AUTHORIZATION_BASIC.USERNAME\
+$INPUT.PASSWORD=$AUTHORIZATION_BASIC.PASSWORD\
+$INPUT.GRANT_TYPE=$REQUEST.grant_type
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.USERNAME == 'username' && $INPUT.PASSWORD == 'userpassword' && $INPUT.GRANT_TYPE == 'client_credentials')\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+    "token_type": "Bearer",\
+    "access_token": "$TOKEN.JWT",\
+    "expire_at": $TOKEN.EXPIRE_AT,\
+    "expires_in": $TOKEN.EXPIRE_IN\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.STATUS=403\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+}\
+{[ENDIF]}\
+```
 
