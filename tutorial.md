@@ -1477,4 +1477,48 @@ Content-Lengh: 207
 }
 ```
 
+## Simulator Sederhana Input Array
+
+Pada kenyataannya, request tidak hanya mengandung objek saja melainkan juga array. Array bisa berasal dari parameter pada `GET`, `POST` dan `PUT` pada tipe data `application/x-www-form-urlencode`, `application/json` maupun `application/xml`.
+
+Data tidak dapat diparsing dengan menggunakan operator titik (`.`). Sebagai gantinya, operator kurung siku (`[]`) dapat digunakan untuk memparsing data tersebut.
+
+Sebagai contoh, parameter sebuah request adalah sebagai berikut:
+
+`item[]=Kemeja&item[]=Sepatu&item[]=Topi`
+
+Maka, untuk mengambil data di atas, dapat dilakukan dengan cara sebagai berikut:
+
+```ini
+PARSING_RULE=\
+$INPUT.ITEM0=$REQUEST[item][0]\
+$INPUT.ITEM1=$REQUEST[item][1]\
+$INPUT.ITEM2=$REQUEST[item][2]
+```
+
+Pada bererapa web server mungkin `item[]=Kemeja&item[]=Sepatu&item[]=Topi` tidak diterima. Sebagai gantinya, klien harus menuliskan indeks secara eksplisit menjadi `item[0]=Kemeja&item[1]=Sepatu&item[2]=Topi`.
+
+Universal REST Simulator secara cerdas dapat dengan mengambil nilai baik dengan penulisan indeks secara eksplisit maupun tidak. Selain itu, penulisan seperti `item[]=Kemeja&item[1]=Sepatu&item[3]=Topi` juga dapat diterima meskipun penulisan seperti ini sangat tidak disarankan.
+
+Penggunaan operator kurung siku (`[]`) menganggap request sebagai sebuah *associated array* yaitu map dengan key sebuah string dan mempunyai value dengan tipe mixed meskipun dalam hal ini dibatasi pada tipe data string, numeric dan boolean.
+
+Tidak diperbolehkan menggunakan operator  kurung siku (`[]`) dan titik (`.`) untuk mengambil sebuah nilai. Perlu diingat bahwa Universal REST Simulator akan langsung mengkonversi semua request menjadi *object* apabila inputnya diawali dengan `$REQUEST.`, `$GET.`, `$POST.`, dan `$PUT.` dan akan langsung mengkonversi semua request menjadi *associated array* apabila inputnya diawali dengan `$REQUEST[`, `$GET[`, `$POST[`, dan `$PUT[`. Oleh sebab itu, meskpun data yang akan diambil merupakan *object*, namun tetap dapat diparsing menggunakan operator kurung siku (`[]`).
+
+Sebagai contoh, parameter request `name=Kemeja&quantity=1&price=450000` dapat diparsing dengan konfigurasi sebagai berikut:
+
+```ini
+PARSING_RULE=\
+$INPUT.NAME=$REQUEST[name]\
+$INPUT.QUANTITY=$REQUEST[quantity]\
+$INPUT.PRICE=$REQUEST[price]
+```
+
+atau 
+
+```ini
+PARSING_RULE=\
+$INPUT.NAME=$REQUEST.name\
+$INPUT.QUANTITY=$REQUEST.quantity\
+$INPUT.PRICE=$REQUEST.price
+```
 
