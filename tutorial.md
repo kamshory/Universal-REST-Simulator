@@ -1191,7 +1191,7 @@ Contoh Respon:
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Lengh: 243
+Content-Lengh: 242
 
 {
     "action": "deposit",
@@ -1199,7 +1199,7 @@ Content-Lengh: 243
     "data": {
         "name": "Bambang",
         "account_number": "123456",
-        "amount": 5000000,
+        "amount": 250000,
         "currency_code": "IDR"
     },
     "response_code": "001",
