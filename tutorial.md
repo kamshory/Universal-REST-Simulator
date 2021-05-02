@@ -372,7 +372,6 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
-
 Contoh Request:
 
 ```http
@@ -407,10 +406,12 @@ Content-Length: 216
 
 ## Simulator Sederhana POST application/json
 
+Contoh Konfigurasi:
+
 ```ini
 METHOD=POST
 
-PATH=/getdata
+PATH=/postjson
 
 REQUEST_TYPE=application/json
 
@@ -452,12 +453,50 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
+Contoh Request:
+
+```http
+POST /postjson HTTP/1.1
+Host: 127.0.0.1
+User-Agent: Service
+Accept: application/json
+Content-Type: application/json
+Content-Length: 89
+
+{
+    "name": "Bambang",
+    "email": "bambang@domain.tld",
+    "phone": "08111111111"
+}
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 216
+
+{
+    "response_code": "001",
+    "response_text": "Success",
+    "data": {
+        "name": "Bambang",
+        "email": "bambang@domain.tld",
+        "phone": "08111111111",
+        "time_stamp": "1619922480"
+    }
+}
+```
+
 ## Simulator Sederhana PUT application/json
+
+Contoh Konfigurasi:
 
 ```ini
 METHOD=PUT
 
-PATH=/getdata
+PATH=/putjson
 
 REQUEST_TYPE=application/json
 
@@ -497,6 +536,42 @@ $OUTPUT.BODY={\
     }\
 }\
 {[ENDIF]}\
+```
+
+Contoh Request:
+
+```http
+PUT /putjson HTTP/1.1
+Host: 127.0.0.1
+User-Agent: Service
+Accept: application/json
+Content-Type: application/json
+Content-Length: 89
+
+{
+    "name": "Bambang",
+    "email": "bambang@domain.tld",
+    "phone": "08111111111"
+}
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 216
+
+{
+    "response_code": "001",
+    "response_text": "Success",
+    "data": {
+        "name": "Bambang",
+        "email": "bambang@domain.tld",
+        "phone": "08111111111",
+        "time_stamp": "1619922480"
+    }
+}
 ```
 
 ## Simulator Sederhana POST application/xml
