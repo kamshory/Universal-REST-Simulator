@@ -956,7 +956,7 @@ $OUTPUT.BODY={\
 ```
 Konfigurasi di atas menunjukkan bahwa path tersebut menghendaki method `PUT` dan yang lain. Akan tetapi, pengguna tetap dapat mengambil nilai dari query pada `URL` menggunakan `$GET`.
 
-> Contoh Request
+Contoh Request:
 
 ```http
 PUT /universal-simulator/token?detail=yes HTTP/1.1 
