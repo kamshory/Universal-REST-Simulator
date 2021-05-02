@@ -1301,3 +1301,99 @@ Content-Lengh: 242
     "response_text": "Success"
 }
 ```
+
+## Simulator Sederhana Input dari Basic Authorization
+
+Pengguna dapat mengambil username dan password dari Basic Authorization tanpa harus memparsingnya secara manual. Simulator secara otomatis memparsing Basic Authorization jika konfigurasi menghendakinya.
+
+Contoh Konfigurasi:
+
+```ini
+METHOD=POST
+
+PATH=/basicauth
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.USERNAME=$AUTHORIZATION_BASIC.USERNAME\
+$INPUT.PASSWORD=$AUTHORIZATION_BASIC.PASSWORD\
+$INPUT.ACCOUNT_NUMBER=$REQUEST.data.account_number\
+$INPUT.AMOUNT=$REQUEST.data.amount\
+$INPUT.CURRENCY=$REQUEST.data.currency_code
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.USERNAME == "user1" && $INPUT.PASSWORD == "password1" && $INPUT.ACCOUNT_NUMBER != "" && $INPUT.AMOUNT > 0)\
+{[THEN]}
+$OUTPUT.STATUS=200\
+$OUTPUT.BODY={\
+    "action": "$INPUT.TRANSACTION_TYPE",\
+    "id": 69,\
+    "data": {\
+        "date_time": "$INPUT.DATE_TIME",\
+        "name": "Bambang",\
+        "account_number": "$INPUT.ACCOUNT_NUMBER",\
+        "amount": $INPUT.AMOUNT,\
+        "currency_code": "$INPUT.CURRENCY"\
+    },\
+    "response_code": "001",\
+    "response_text": "Success"\
+}\
+{[ENDIF]}
+{[IF]} (true)\
+{[THEN]}
+$OUTPUT.STATUS=403\
+$OUTPUT.BODY={\
+    "action": "$INPUT.TRANSACTION_TYPE",\
+    "id": "$INPUT.TRANSACTION_ID",\
+    "data": {},\
+    "response_code": "062",\
+    "response_text": "Access forbidden"\
+}\
+{[ENDIF]}
+```
+
+Contoh Request:
+
+```http
+GET /basicauth HTTP/1.1 
+Host: 127.0.0.1
+User-Agent: Service
+Content-Type: application/json
+Accept: application/json
+Content-Length: 118
+Authorization: Basic dXNlcjE6cGFzc3dvcmQx
+
+{
+    "data": {
+        "account_number": "98765432",
+        "amount": 250000,
+        "currency_code": "IDR"
+    }
+}
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Lengh: 242
+
+{
+    "action": "deposit",
+    "id": 69,
+    "data": {
+        "date_time": "2021-05-01T10:11:12.000Z",
+        "name": "Bambang",
+        "account_number": "123456",
+        "amount": 250000,
+        "currency_code": "IDR"
+    },
+    "response_code": "001",
+    "response_text": "Success"
+}
+```
+
