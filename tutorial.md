@@ -1382,7 +1382,7 @@ Contoh Respon:
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Lengh: 242
+Content-Lengh: 291
 
 {
     "action": "deposit",
@@ -1398,4 +1398,83 @@ Content-Lengh: 242
     "response_text": "Success"
 }
 ```
+
+## Simulator Sederhana Output UUID
+
+Pada beberapa kasus, pengguna mungkin membutuhkan respon dengan ID yang dinamik dan unik. Universal REST Simulator memungkinkan pengguna untuk menghasilkan UUID. 
+
+Pengguna dapat menggunakan banyak UUID pada sebuah file konfigurasi.
+
+Contoh Konfigurasi:
+
+```ini
+PATH=/universal-simulator/token
+
+METHOD=POST
+
+REQUEST_TYPE=application/x-www-form-urlencoded
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.USERNAME=$AUTHORIZATION_BASIC.USERNAME\
+$INPUT.PASSWORD=$AUTHORIZATION_BASIC.PASSWORD\
+$INPUT.UUID1=$SYSTEM.UUID\
+$INPUT.UUID2=$SYSTEM.UUID\
+$INPUT.UUID3=$SYSTEM.UUID\
+$INPUT.UUID4=$SYSTEM.UUID
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.USERNAME == "user1" && $INPUT.PASSWORD == "password1")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.DELAY=0\
+$OUTPUT.STATUS=200\
+$OUTPUT.BODY={\
+    "respnse_code":"001",\
+    "data":{\
+        "unique_id_1": "$INPUT.UUID1",\
+        "unique_id_2": "$INPUT.UUID2",\
+        "unique_id_3": "$INPUT.UUID3",\
+        "unique_id_4": "$INPUT.UUID4"\
+    }\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.DELAY=0\
+$OUTPUT.STATUS=403\
+$OUTPUT.BODY={\
+    "respnse_code":"061",
+    "data":{\
+    }\
+}\
+{[ENDIF]}\
+```
+
+Contoh Request:
+
+```http
+POST /uuid HTTP/1.1 
+Host: 127.0.0.1
+Authorization: Basic dXNlcjE6cGFzc3dvcmQx
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Lengh: 207
+
+{
+    "respnse_code":"001",
+    "data":{
+        "unique_id_1": "4b3403665fea6",
+        "unique_id_2": "4b3403665eea6",
+        "unique_id_3": "4b3403665dea6",
+        "unique_id_4": "4b3403665cea6"
+    }
+}
+```
+
 
