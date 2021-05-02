@@ -167,6 +167,8 @@ $OUPUT.BODY={\
 
 ## Simulator Sederhana GET application/x-www-form-urlencoded
 
+Contoh Konfigurasi:
+
 ```ini
 METHOD=GET
 
@@ -212,12 +214,42 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
+Contoh Request:
+
+```http
+GET /getdata?name=Bambang&email=bambang@domain.tld&phone=08111111111 HTTP/1.1
+Host: 127.0.0.1
+User-Agent: Service
+Accept: application/json
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 216
+
+{
+    "response_code": "001",
+    "response_text": "Success",
+    "data": {
+        "name": "Bambang",
+        "email": "bambang@domain.tld",
+        "phone": "08111111111",
+        "time_stamp": "1619922480"
+    }
+}
+```
+
 ## Simulator Sederhana POST application/x-www-form-urlencoded
+
+Contoh Konfigurasi:
 
 ```ini
 METHOD=POST
 
-PATH=/getdata
+PATH=/postdata
 
 REQUEST_TYPE=application/x-www-form-urlencoded
 
@@ -259,12 +291,46 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
+Contoh Request:
+
+```http
+POST /postdata HTTP/1.1
+Host: 127.0.0.1
+User-Agent: Service
+Accept: application/json
+Content-Type: ## application/x-www-form-urlencoded
+Content-Length: 55
+
+name=Bambang&email=bambang@domain.tld&phone=08111111111
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 216
+
+{
+    "response_code": "001",
+    "response_text": "Success",
+    "data": {
+        "name": "Bambang",
+        "email": "bambang@domain.tld",
+        "phone": "08111111111",
+        "time_stamp": "1619922480"
+    }
+}
+```
+
 ## Simulator Sederhana PUT application/x-www-form-urlencoded
+
+Contoh Konfigurasi:
 
 ```ini
 METHOD=PUT
 
-PATH=/getdata
+PATH=/putdata
 
 REQUEST_TYPE=application/x-www-form-urlencoded
 
@@ -304,6 +370,39 @@ $OUTPUT.BODY={\
     }\
 }\
 {[ENDIF]}\
+```
+
+
+Contoh Request:
+
+```http
+PUT /putdata HTTP/1.1
+Host: 127.0.0.1
+User-Agent: Service
+Accept: application/json
+Content-Type: ## application/x-www-form-urlencoded
+Content-Length: 55
+
+name=Bambang&email=bambang@domain.tld&phone=08111111111
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 216
+
+{
+    "response_code": "001",
+    "response_text": "Success",
+    "data": {
+        "name": "Bambang",
+        "email": "bambang@domain.tld",
+        "phone": "08111111111",
+        "time_stamp": "1619922480"
+    }
+}
 ```
 
 ## Simulator Sederhana POST application/json
