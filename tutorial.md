@@ -1039,3 +1039,171 @@ Content-length: 121
 }
 ```
 
+## Simulator Sederhana Input dari URL
+
+Tidak jarang developer menggunakan path pada URL sebagai cara untuk mengambil nilai dari klien. Tentu saja aplikasi harus dapat mengekstrak informasi tersebut dari path request yang diberikan. 
+
+Nilai yang diambil dari path pun kadang lebih dari satu yang dipisahkan dengan tanda baca garis miring (`/`). Akan tetapi, ada pula developer yang menggunakan pola tidak umum pada path aplikasi.
+
+Contoh Konfigurasi:
+
+```ini
+METHOD=GET
+
+PATH=/geturldata/{[TRANSACTION]}/{[ID]}
+
+REQUEST_TYPE=application/x-www-form-urlencode
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.TRANSACTION_TYPE=$URL.TRANSACTION\
+$INPUT.TRANSACTION_ID=$URL.ID
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.TRANSACTION_TYPE == "detail" && $INPUT.TRANSACTION_ID != "")\
+{[THEN]}
+$OUTPUT.STATUS=200\
+$OUTPUT.BODY={\
+    "action": "$INPUT.TRANSACTION_TYPE",\
+    "id": "$INPUT.TRANSACTION_ID",\
+    "data": {\
+        "name": "Bambang",\
+        "account_number": "123456",\
+        "amount": 5000000\
+    },\
+    "response_code": "001",\
+    "response_text": "Success"\
+}\
+{[ENDIF]}
+{[IF]} (true)\
+{[THEN]}
+$OUTPUT.STATUS=400\
+$OUTPUT.BODY={\
+    "action": "$INPUT.TRANSACTION_TYPE",\
+    "id": "$INPUT.TRANSACTION_ID",\
+    "data": {},\
+    "response_code": "061",\
+    "response_text": "Mandatory field can not be empty"\
+}\
+{[ENDIF]}
+```
+
+Contoh Request:
+
+```http
+GET /geturldata/detail/69 HTTP/1.1 
+Host: 127.0.0.1
+User-Agent: Service
+Accept: application/json
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Lengh: 212
+
+{
+    "action": "detail",
+    "id": "69",
+    "data": {
+        "name": "Bambang",
+        "account_number": "123456",
+        "amount": 5000000
+    },
+    "response_code": "001",
+    "response_text": "Success"
+}
+```
+
+Penggunaan path tidak hanya untuk method `GET` saja namun bisa juga digunakan pada method `POST` dan `PUT`.
+
+Contoh Konfigurasi:
+
+```ini
+METHOD=POST
+
+PATH=/posturldata/{[TRANSACTION]}/{[ID]}
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.TRANSACTION_TYPE=$URL.TRANSACTION\
+$INPUT.ACCOUNT_NUMBER=$REQUEST.data.account_number\
+$INPUT.AMOUNT=$REQUEST.data.amount\
+$INPUT.CURRENCY=$REQUEST.data.currency_code
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.TRANSACTION_TYPE == "deposit" && $INPUT.ACCOUNT_NUMBER != "" && $INPUT.AMOUNT > 0)\
+{[THEN]}
+$OUTPUT.STATUS=200\
+$OUTPUT.BODY={\
+    "action": "$INPUT.TRANSACTION_TYPE",\
+    "id": 69,\
+    "data": {\
+        "name": "Bambang",\
+        "account_number": "$INPUT.ACCOUNT_NUMBER",\
+        "amount": $INPUT.AMOUNT,\
+        "currency_code": "$INPUT.CURRENCY"\
+    },\
+    "response_code": "001",\
+    "response_text": "Success"\
+}\
+{[ENDIF]}
+{[IF]} (true)\
+{[THEN]}
+$OUTPUT.STATUS=400\
+$OUTPUT.BODY={\
+    "action": "$INPUT.TRANSACTION_TYPE",\
+    "id": "$INPUT.TRANSACTION_ID",\
+    "data": {},\
+    "response_code": "061",\
+    "response_text": "Mandatory field can not be empty"\
+}\
+{[ENDIF]}
+```
+
+Contoh Request:
+
+```http
+GET /posturldata/deposit HTTP/1.1 
+Host: 127.0.0.1
+User-Agent: Service
+Content-Type: application/json
+Accept: application/json
+Content-Length: 118
+
+{
+    "data": {
+        "account_number": "98765432",
+        "amount": 250000,
+        "currency_code": "IDR"
+    }
+}
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Lengh: 243
+
+{
+    "action": "deposit",
+    "id": 69,
+    "data": {
+        "name": "Bambang",
+        "account_number": "123456",
+        "amount": 5000000,
+        "currency_code": "IDR"
+    },
+    "response_code": "001",
+    "response_text": "Success"
+}
+```
+
