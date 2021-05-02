@@ -576,10 +576,12 @@ Content-Length: 216
 
 ## Simulator Sederhana POST application/xml
 
+Contoh Konfigurasi:
+
 ```ini
 METHOD=POST
 
-PATH=/getdata
+PATH=/postxml
 
 REQUEST_TYPE=application/xml
 
@@ -623,12 +625,53 @@ $OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
 {[ENDIF]}\
 ```
 
+
+Contoh Request:
+
+```http
+POST /postxml HTTP/1.1
+Host: 127.0.0.1
+User-Agent: Service
+Accept: application/xml
+Content-Type: application/xml
+Content-Length: 157
+
+<?xml version="1.0" encoding="UTF-8"?>
+<container>
+    <name>Bambang</name>
+    <email>bambang@domain.tld</email>
+    <phone>08111111111</phone>
+</container>
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 319
+
+<?xml version="1.0" encoding="UTF-8"?>
+<container>
+    <response_code>001</response_code>
+    <response_text>Success</response_text>
+    <data>\
+        <name>Bambang</name>
+        <email>bambang@domain.tld</email>
+        <phone>08111111111</phone>
+        <time_stamp>1619922480</time_stamp>
+    </data>
+</container>
+```
+
 ## Simulator Sederhana PUT application/xml
+
+Contoh Konfigurasi:
 
 ```ini
 METHOD=PUT
 
-PATH=/getdata
+PATH=/putxml
 
 REQUEST_TYPE=application/xml
 
@@ -670,6 +713,44 @@ $OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
     </data>\
 </container>\
 {[ENDIF]}\
+```
+
+Contoh Request:
+
+```http
+PUT /putxml HTTP/1.1
+Host: 127.0.0.1
+User-Agent: Service
+Accept: application/xml
+Content-Type: application/xml
+Content-Length: 157
+
+<?xml version="1.0" encoding="UTF-8"?>
+<container>
+    <name>Bambang</name>
+    <email>bambang@domain.tld</email>
+    <phone>08111111111</phone>
+</container>
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 319
+
+<?xml version="1.0" encoding="UTF-8"?>
+<container>
+    <response_code>001</response_code>
+    <response_text>Success</response_text>
+    <data>\
+        <name>Bambang</name>
+        <email>bambang@domain.tld</email>
+        <phone>08111111111</phone>
+        <time_stamp>1619922480</time_stamp>
+    </data>
+</container>
 ```
 
 ## Kombinasi GET dan POST
