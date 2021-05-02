@@ -1224,12 +1224,13 @@ RESPONSE_TYPE=application/json
 PARSING_RULE=\
 $INPUT.DATE_TIME=$HEADER.X_DATE_TIME\
 $INPUT.SIGNATURE=$HEADER.X_SIGNATURE\
+$INPUT.API_KEY=$HEADER.X_API_KEY\
 $INPUT.ACCOUNT_NUMBER=$REQUEST.data.account_number\
 $INPUT.AMOUNT=$REQUEST.data.amount\
 $INPUT.CURRENCY=$REQUEST.data.currency_code
 
 TRANSACTION_RULE=\
-{[IF]} ($INPUT.DATE_TIME != "" && $INPUT.SIGNATURE != "" && $INPUT.ACCOUNT_NUMBER != "" && $INPUT.AMOUNT > 0)\
+{[IF]} ($INPUT.API_KEY == "api123" && $INPUT.DATE_TIME != "" && $INPUT.SIGNATURE != "" && $INPUT.ACCOUNT_NUMBER != "" && $INPUT.AMOUNT > 0)\
 {[THEN]}
 $OUTPUT.STATUS=200\
 $OUTPUT.BODY={\
@@ -1268,6 +1269,7 @@ User-Agent: Service
 Content-Type: application/json
 Accept: application/json
 Content-Length: 118
+X-Api-Key: api123
 X-Date-Time: 2021-05-01T10:11:12.000Z
 X-Signature: yuYTDtrdoiioidtydDRryooTtee588iKJesrrfr1
 
