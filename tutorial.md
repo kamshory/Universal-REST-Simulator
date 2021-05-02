@@ -1262,7 +1262,7 @@ $OUTPUT.BODY={\
 Contoh Request:
 
 ```http
-GET /posturldata/deposit HTTP/1.1 
+GET /fromheader HTTP/1.1 
 Host: 127.0.0.1
 User-Agent: Service
 Content-Type: application/json
