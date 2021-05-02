@@ -298,7 +298,7 @@ POST /postdata HTTP/1.1
 Host: 127.0.0.1
 User-Agent: Service
 Accept: application/json
-Content-Type: ## application/x-www-form-urlencoded
+Content-Type: application/x-www-form-urlencoded
 Content-Length: 55
 
 name=Bambang&email=bambang@domain.tld&phone=08111111111
@@ -380,7 +380,7 @@ PUT /putdata HTTP/1.1
 Host: 127.0.0.1
 User-Agent: Service
 Accept: application/json
-Content-Type: ## application/x-www-form-urlencoded
+Content-Type: application/x-www-form-urlencoded
 Content-Length: 55
 
 name=Bambang&email=bambang@domain.tld&phone=08111111111
