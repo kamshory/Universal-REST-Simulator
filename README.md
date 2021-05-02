@@ -8,6 +8,8 @@ Universal REST Simulator adalah simulator universal untuk REST API. Simulator in
 
 Konfigurasi mirip dengan file `ini`. Apabila nilai konfigurasi lebih dari satu baris, maka nilai pada baris selain terakhir harus diakhiri dengan `\` (backslash).
 
+Totorial dapat dibaca di https://github.com/kamshory/Universal-REST-Simulator/blob/main/tutorial.md 
+
 Contoh:
 
 ```ini
