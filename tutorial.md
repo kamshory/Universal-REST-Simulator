@@ -1,4 +1,5 @@
 
+
 # Tutorial Menggunakan Universal REST Simulator
 
 ## Sekilas Tentang Universal REST Simulator
@@ -1207,3 +1208,96 @@ Content-Lengh: 242
 }
 ```
 
+## Simulator Sederhana Input dari Header
+
+Contoh Konfigurasi:
+
+```ini
+METHOD=POST
+
+PATH=/fromheader
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.DATE_TIME=$HEADER.X_DATE_TIME\
+$INPUT.SIGNATURE=$HEADER.X_SIGNATURE\
+$INPUT.ACCOUNT_NUMBER=$REQUEST.data.account_number\
+$INPUT.AMOUNT=$REQUEST.data.amount\
+$INPUT.CURRENCY=$REQUEST.data.currency_code
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.DATE_TIME != "" && $INPUT.SIGNATURE != "" && $INPUT.ACCOUNT_NUMBER != "" && $INPUT.AMOUNT > 0)\
+{[THEN]}
+$OUTPUT.STATUS=200\
+$OUTPUT.BODY={\
+    "action": "$INPUT.TRANSACTION_TYPE",\
+    "id": 69,\
+    "data": {\
+        "date_time": "$INPUT.DATE_TIME",\
+        "name": "Bambang",\
+        "account_number": "$INPUT.ACCOUNT_NUMBER",\
+        "amount": $INPUT.AMOUNT,\
+        "currency_code": "$INPUT.CURRENCY"\
+    },\
+    "response_code": "001",\
+    "response_text": "Success"\
+}\
+{[ENDIF]}
+{[IF]} (true)\
+{[THEN]}
+$OUTPUT.STATUS=400\
+$OUTPUT.BODY={\
+    "action": "$INPUT.TRANSACTION_TYPE",\
+    "id": "$INPUT.TRANSACTION_ID",\
+    "data": {},\
+    "response_code": "061",\
+    "response_text": "Mandatory field can not be empty"\
+}\
+{[ENDIF]}
+```
+
+Contoh Request:
+
+```http
+GET /posturldata/deposit HTTP/1.1 
+Host: 127.0.0.1
+User-Agent: Service
+Content-Type: application/json
+Accept: application/json
+Content-Length: 118
+X-Date-Time: 2021-05-01T10:11:12.000Z
+X-Signature: yuYTDtrdoiioidtydDRryooTtee588iKJesrrfr1
+
+{
+    "data": {
+        "account_number": "98765432",
+        "amount": 250000,
+        "currency_code": "IDR"
+    }
+}
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Lengh: 242
+
+{
+    "action": "deposit",
+    "id": 69,
+    "data": {
+        "date_time": "2021-05-01T10:11:12.000Z",
+        "name": "Bambang",
+        "account_number": "123456",
+        "amount": 250000,
+        "currency_code": "IDR"
+    },
+    "response_code": "001",
+    "response_text": "Success"
+}
+```
