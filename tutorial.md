@@ -1534,6 +1534,113 @@ $INPUT.QUANTITY=$REQUEST[quantity]\
 $INPUT.PRICE=$REQUEST.price
 ```
 
+## Simulator Sederhana Input Object dan Array
+
+Pengguna mungkin menggunakan kombinasi antara `array` dan `object` sebagai `payload` dari `request` baik `GET`, `POST`, `PUT`, maupun `REQUEST`. Untuk mengambil nilai dari input yang kesemuanya adalah `object` dapat menggunakan operator titik (.) sedangkan untuk mengambil nilai dari input yang merupakan kombinasi antara `object` dan `array` dapat menggunakan operator kurung siku `[]`.
+
+Contoh Konfigurasi:
+
+```ini
+PATH=/universal-rest-simulator/array
+
+METHOD=POST
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=text/plain
+
+PARSING_RULE=\
+$INPUT.AMOUNT0=$REQUEST[items][0][amount]\
+$INPUT.AMOUNT1=$REQUEST[items][1][amount]\
+$INPUT.NAME0=$REQUEST[items][0][name]\
+$INPUT.NAME1=$REQUEST[items][1][name]
+
+TRANSACTION_RULE=\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
+NAMA ITEM    : $INPUT.NAME0\
+HARGA ITEM   : $INPUT.AMOUNT0\
+NAMA ITEM    : $INPUT.NAME1\
+HARGA ITEM   : $INPUT.AMOUNT1\
+{[ENDIF]}
+```
+
+Operator `[]` dapat digunakan untuk mengambil nilai dari `object` dan `array`. Tidak diperkenankan menggabungkan operator `.` dan `[]` dalam mengambil sebuah nilai. Dengan demikian, penulisan `$INPUT.AMOUNT0=$REQUEST[items][0].amount` tidak diperbolehkan. Meskipun demikian, diperbolehkan menggunakan kombinasinya pada input yang berbeda.
+
+Contoh Kombinasi Operator:
+
+```ini
+PATH=/universal-rest-simulator/array
+
+METHOD=POST
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=text/plain
+
+PARSING_RULE=\
+$INPUT.CUSTOMER_NAME=$REQUEST.customer.name\
+$INPUT.AMOUNT0=$REQUEST[items][0][amount]\
+$INPUT.AMOUNT1=$REQUEST[items][1][amount]\
+$INPUT.NAME0=$REQUEST[items][0][name]\
+$INPUT.NAME1=$REQUEST[items][1][name]
+
+TRANSACTION_RULE=\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=\
+NAMA PELANGGAN : $INPUT.CUSTOMER_NAME\
+NAMA ITEM      : $INPUT.NAME0\
+HARGA ITEM     : $INPUT.AMOUNT0\
+NAMA ITEM      : $INPUT.NAME1\
+HARGA ITEM     : $INPUT.AMOUNT1\
+{[ENDIF]}
+```
+
+Contoh Request:
+
+```http
+POST /objectandarray HTTP/1.1 
+Host: 127.0.0.1
+Content
+
+{
+    "items":[
+        {
+            "name":"Kopi",
+            "amount":15000
+        },
+        {
+            "name":"Roti",
+            "amount":80000
+        }
+    ],
+    "customer": {
+        "name": "Anonim",
+        "phone": "081111111111111"
+    }
+}
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Length: 113
+
+NAMA PELANGGAN : Anonim
+NAMA ITEM      : Kopi
+HARGA ITEM     : 15000
+NAMA ITEM      : Roti
+HARGA ITEM     : 80000
+```
+
+`$INPUT.CUSTOMER_NAME=$REQUEST.customer.name` dapat pula ditulis dengan `$INPUT.CUSTOMER_NAME=$REQUEST[customer][name]` tanpa spasi sebelum `[` dan sesudah `]`.
+
 ## Membuat Token
 
 Universal REST Simulator menggunakan *JSON Web Token* atau JWT sebagai metode untuk membuat token. Salah satu kelebihan dari JWT adalah bahwa token dapat divalidasi dengan dirinya sendiri. Server menyimpan beberapa informasi rahasia untuk membuat token dan dapat memvalidasi token yang telah dibuat dengan informasi yang ada pada token tersebut dan informasi rahasia yang disimpan di server. Salah satu informasi rahasia yang disimpan di server yang tidak dimasukkan ke dalam token adalah kunci atau *key* untuk membuat dan memvalidasi token.
