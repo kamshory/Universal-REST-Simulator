@@ -132,9 +132,9 @@ Parsing rule digunakan untuk memparsing request dari klien. Sumber data yang dig
 1. `$HEADER` yaitu request header dengan  nama header yang eksplisit
 2. `$AUTHORIZATION_BASIC` yaitu username dan password pada basic authentication
 3. `$URL` yaitu nilai yang cocok dari pola URL dengan membandingkan antara URL pada file konfigurasi dengan URL pada request dari klien
-4. `$GET` yaitu nilai yang diambil dari parameter yang dikirimkan melalui URL dengan pengkodean `x-www-urlencode`
-5. `$POST` yaitu nilai yang diambil dari body request dengan method `POST` dengan pengkodean `x-www-urlencode`
-6. `$PUT` yaitu nilai yang diambil dari body request dengan method `PUT` dengan pengkodean `x-www-urlencode`
+4. `$GET` yaitu nilai yang diambil dari parameter yang dikirimkan melalui URL dengan pengkodean `x-www-form-urlencode`
+5. `$POST` yaitu nilai yang diambil dari body request dengan method `POST` dengan pengkodean `x-www-form-urlencode`
+6. `$PUT` yaitu nilai yang diambil dari body request dengan method `PUT` dengan pengkodean `x-www-form-urlencode`
 7. `$REQUEST` yaitu alternatif dari `$GET`, `$POST` dan `$PUT` tergantung dari method yang digunakan pada file konfigurasi
 
 Nilai yang diambil dari request disimpan pada variabel yang diawali dengan `$INPUT.` dan diikuti dengan nama unik dari variabel tersebut.
@@ -2412,4 +2412,6 @@ Content-Lengh: 291
     "response_text": "Success"
 }
 ```
+
+
 
