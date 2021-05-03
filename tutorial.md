@@ -1,6 +1,4 @@
 
-
-
 # Tutorial Menggunakan Universal REST Simulator
 
 ## Daftar Isi
@@ -34,14 +32,22 @@
 27. [Fungsi $CALC()](#fungsi-calc)
 28. [Fungsi $ISVALIDTOKEN()](#fungsi-isvalidtoken)
 29. [Fungsi $NUMBERFORMAT()](#fungsi-numberformat)
- 
-
 
 ## Sekilas Tentang Universal REST Simulator
 
 Universal REST Simulator adalah simulator REST untuk membuat simulator server aplikasi. Simulator ini akan mensimulasikan respon dari sebuah sistem saat diberi request tertentu.
 
 Universal REST Simulator menggunakan protokol HTTP dengan method `GET`, `POST` dan `PUT` dengan tipe request `x-www-form-urlencode`, `JSON` dan `XML`. Tipe respon dapat berupa `text`, `HTML`, `XML`, `JSON` maupun `CSV`.
+
+Universal REST Simulator mengambil input dari request klien melalui beberapa cara yaitu sebagai berikut:
+
+1. `$HEADER` yaitu request header dengan  nama header yang eksplisit
+2. `$AUTHORIZATION_BASIC` yaitu username dan password pada basic authentication
+3. `$URL` yaitu nilai yang cocok dari pola URL dengan membandingkan antara URL pada file konfigurasi dengan URL pada request dari klien
+4. `$GET` yaitu nilai yang diambil dari parameter yang dikirimkan melalui URL dengan pengkodean `x-www-form-urlencode`
+5. `$POST` yaitu nilai yang diambil dari body request dengan method `POST` dengan pengkodean `x-www-form-urlencode`
+6. `$PUT` yaitu nilai yang diambil dari body request dengan method `PUT` dengan pengkodean `x-www-form-urlencode`
+7. `$REQUEST` tergantung dari method yang digunakan pada file konfigurasi. Berbeda dengan `$GET`, `$PUT` dan `$POST` yang hanya mendukung `x-www-form-urlencode`, `$REQUEST` mendukung tipe data `x-www-form-urlencode`, JSON dan XML baik objek maupun array.
 
 Universal REST Simulator dilengkapi dengan callback sehingga dapat mengirimkan request ke endpoint tertentu dengan kondisi tertentu sesuai dengan konfigurasi yang dibuat. Pengguna juga dapat mengatur request time out callback.
 
@@ -135,7 +141,7 @@ Parsing rule digunakan untuk memparsing request dari klien. Sumber data yang dig
 4. `$GET` yaitu nilai yang diambil dari parameter yang dikirimkan melalui URL dengan pengkodean `x-www-form-urlencode`
 5. `$POST` yaitu nilai yang diambil dari body request dengan method `POST` dengan pengkodean `x-www-form-urlencode`
 6. `$PUT` yaitu nilai yang diambil dari body request dengan method `PUT` dengan pengkodean `x-www-form-urlencode`
-7. `$REQUEST` yaitu alternatif dari `$GET`, `$POST` dan `$PUT` tergantung dari method yang digunakan pada file konfigurasi
+7. `$REQUEST` yaitu alternatif dari `$GET`, `$POST` dan `$PUT` tergantung dari method yang digunakan pada file konfigurasi. Berbeda dengan `$GET`, `$PUT` dan `$POST` yang hanya mendukung `x-www-form-urlencode`, `$REQUEST` mendukung tipe data `x-www-form-urlencode`, JSON dan XML baik objek maupun array.
 
 Nilai yang diambil dari request disimpan pada variabel yang diawali dengan `$INPUT.` dan diikuti dengan nama unik dari variabel tersebut.
 
@@ -2412,6 +2418,4 @@ Content-Lengh: 291
     "response_text": "Success"
 }
 ```
-
-
 
