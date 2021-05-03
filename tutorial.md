@@ -2133,3 +2133,248 @@ $OUTPUT.BODY={\
 ```
 
 Pada contoh di atas, apabila parameter `data.phone` memiliki nilai `081222222222`, maka simulator akan melakukan *sleep* selama 5 detik. Apabila parameter `data.phone` memiliki nilai `081222222223`, maka simulator akan melakukan *sleep* selama 15 detik. Apabila parameter `data.phone` memiliki nilai `081222222224`, maka simulator tidak akan melakukan *sleep*. 
+
+## Fungsi $DATE()
+
+Fungsi `$DATE()` berguna untuk membuat tanggal dan jam secara otomatis. Tanggal dan jam akan mengikuti waktu server. Pengguna dapat menggunakan daerah waktu.
+
+Format `$DATE()` mengikuti format pada bahasa pemrograman PHP. Berikut ini merupakan penjelasan dari format `$DATE()` pada bahasa pemrograman PHP. Untuk menyisipkan karakter konstan pada fungsi `$DATE()`, awali dengan `\`. Misalnya `$DATE('Y-m-d\TH:i:s.000\Z', 'UTC+7')` akan menampilkan `2020-10:10T20:20:20.000Z`. Perhatikan bahwa `\T` akan menjadi `T` dan `\Z` akan menjadi `Z`.
+
+| format character  | Description | Example returned values |
+|-------------------|------------ |------------------------ |
+| Day | --- | --- |
+| d | Day of the month, 2 digits with leading zeros | 01 to 31 |
+| D | A textual representation of a day, three letters | Mon through Sun |
+| j | Day of the month without leading zeros | 1 to 31 |
+| l (lowercase 'L') | A full textual representation of the day of the week | Sunday through Saturday |
+| N | ISO-8601 numeric representation of the day of the week (added in PHP 5.1.0) | 1 (for Monday) through 7 (for Sunday) |
+| S | English ordinal suffix for the day of the month, 2 characters | st, nd, rd or th. Works well with j |
+| w | Numeric representation of the day of the week | 0 (for Sunday) through 6 (for Saturday) |
+| z | The day of the year (starting from 0) | 0 through 365 |
+| Week | --- | --- |
+| W | ISO-8601 week number of year, weeks starting on Monday | Example: 42 (the 42nd week in the year) |
+| Month | --- | --- |
+| F | A full textual representation of a month, such as January or March | January through December |
+| m | Numeric representation of a month, with leading zeros | 01 through 12 |
+| M | A short textual representation of a month, three letters | Jan through Dec |
+| n | Numeric representation of a month, without leading zeros | 1 through 12 |
+| t | Number of days in the given month | 28 through 31 |
+| Year | --- | --- |
+| L | Whether it's a leap year | 1 if it is a leap year, 0 otherwise. |
+| o | ISO-8601 week-numbering year. This has the same value as Y, except that if the ISO week number (W) belongs to the previous or next year, that year is used instead. (added in PHP 5.1.0) | Examples: 1999 or 2003 |
+| Y | A full numeric representation of a year, 4 digits | Examples: 1999 or 2003 |
+| y | A two digit representation of a year | Examples: 99 or 03 |
+| Time | --- | --- |
+| a | Lowercase Ante meridiem and Post meridiem | am or pm |
+| A | Uppercase Ante meridiem and Post meridiem | AM or PM |
+| B | Swatch Internet time | 000 through 999 |
+| g | 12-hour format of an hour without leading zeros | 1 through 12 |
+| G | 24-hour format of an hour without leading zeros | 0 through 23 |
+| h | 12-hour format of an hour with leading zeros | 01 through 12 |
+| H | 24-hour format of an hour with leading zeros | 00 through 23 |
+| i | Minutes with leading zeros | 00 to 59 |
+| s | Seconds with leading zeros | 00 through 59 |
+| u | Microseconds (added in PHP 5.2.2). Note that date() will always generate 000000 since it takes an int parameter, whereas DateTime::format() does support microseconds if DateTime was created with microseconds. | Example: 654321 |
+| v | Milliseconds (added in PHP 7.0.0). Same note applies as for u. | Example: 654 |
+| Timezone | --- | --- |
+| e | Timezone identifier (added in PHP 5.1.0) | Examples: UTC, GMT, Atlantic/Azores |
+| I (capital i) | Whether or not the date is in daylight saving time | 1 if Daylight Saving Time, 0 otherwise. |
+| O | Difference to Greenwich time (GMT) without colon between hours and minutes | Example: +0200 |
+| P | Difference to Greenwich time (GMT) with colon between hours and minutes (added in PHP 5.1.3) | Example: +02:00 |
+| T | Timezone abbreviation | Examples: EST, MDT ... |
+| Z | Timezone offset in seconds. The offset for timezones west of UTC is always negative, and for those east of UTC is always positive. | -43200 through 50400 |
+| Full Date/Time | --- | --- |
+| c | ISO 8601 date (added in PHP 5) | 2004-02-12T15:19:21+00:00 |
+| r | » RFC 2822 formatted date | Example: Thu, 21 Dec 2000 16:01:07 +0200 |
+| U | Seconds since the Unix Epoch (January 1 1970 00:00:00 GMT) | See also time() |
+
+**Sumber**: https://www.php.net/manual/en/datetime.format.php 
+
+## Fungsi $CALC()
+
+Fungsi `$CALC()` sangan berguna untuk melakukan operasi matematika di mana `$INPUT` menjadi salah satu operannya.
+
+Sebagai contoh: pengguna akan menambahkan jumlah tagihan dengan admin fee. Jika tagihan disimpan di dalam variabel `$INPUT.AMOUNT` dan admin fee disimpan dalam variabel `$INPUT.FEE`, maka dapat ditulis dengan `$CALC($INPUT.AMOUNT + $INPUT.FEE)`. Jika admin fee adalah nilai tetap yaitu 2500, maka dapat ditulis dengan `$CALC($INPUT.AMOUNT + 2500)`.
+
+Fungsi `$CALC()` juga dapat menghitung rumus dalam pasangan kurung. Contoh: `$CALC($INPUT.AMOUNT + $INPUT.FEE + ($INPUT.AMOUNT * 10/100))` dan sebagainya. Perhatikan bahwa jumlah kurung buka harus sama dengan jumlah kurung tutup. 
+
+```ini
+PATH=/biller/post/json
+
+METHOD=POST
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.PRODUCT=$REQUEST.product_code\
+$INPUT.ACCOUNT=$REQUEST.customer_no\
+$INPUT.REF_NUMBER=$REQUEST.refno\
+$INPUT.AMOUNT=$REQUEST.amount\
+$INPUT.FEE=$REQUEST.admin_fee
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.PRODUCT == "322112" && $INPUT.FEE > 0)\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+   "rc": "00",\
+   "description": "Success",\
+   "mitra_code": "904",\
+   "product_code": "322112",\
+   "merchant_type": "5612",\
+   "customer_no": "$INPUT.ACCOUNT",\
+   "product_name": "GOPAY",\
+   "phone_number": "$INPUT.ACCOUNT",\
+   "name": "GOPAY GP-$INPUT.ACCOUNT",\
+   "amount": $INPUT.AMOUNT,\
+   "admin": $INPUT.FEE,\
+   "total": $CALC($INPUT.AMOUNT + $INPUT.FEE),\
+   "transaction_date": "$DATE('d-m-Y H:i:s', 'UTC+9')",\
+   "transaction_code": "000002873147"\
+}\
+{[ENDIF]}\
+{[IF]} ($INPUT.PRODUCT == "322112")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+   "rc": "00",\
+   "description": "Success",\
+   "mitra_code": "904",\
+   "product_code": "322112",\
+   "merchant_type": "5612",\
+   "customer_no": "$INPUT.ACCOUNT",\
+   "product_name": "GOPAY",\
+   "phone_number": "$INPUT.ACCOUNT",\
+   "name": "GOPAY GP-$INPUT.ACCOUNT",\
+   "amount": $INPUT.AMOUNT,\
+   "admin": 2500,\
+   "total": $CALC($INPUT.AMOUNT + 2500),\
+   "transaction_date": "$DATE('d-m-Y H:i:s', 'UTC+9')",\
+   "transaction_code": "000002873147"\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+   "rc": "00",\
+   "description": "Success",\
+   "mitra_code": "904",\
+   "product_code": "322112",\
+   "merchant_type": "5612",\
+   "customer_no": "$INPUT.ACCOUNT",\
+   "product_name": "GOPAY",\
+   "phone_number": "$INPUT.ACCOUNT",\
+   "name": "GOPAY GP-$INPUT.ACCOUNT",\
+   "amount": $INPUT.AMOUNT,\
+   "admin": 2500,\
+   "total": $CALC('$INPUT.AMOUNT + 2500'),\
+   "transaction_date": "$DATE('d-m-Y H:i:s')",\
+   "transaction_code": "000002873147"\
+}\
+{[ENDIF]}\
+```
+
+## Fungsi $ISVALIDTOKEN()
+
+Fungsi `$ISVALIDTOKEN()` digunakan pada kondisi untuk memvalidasi token yang dikirimkan melalui `Authorization: Bearer`. Simulator akan mengambil token yang dikirimkan melalui header dengan key `Autorization`. Token ini kemudian akan divalidasi sesuai dengan konfigurasi server. Apabila token tersebut benar, `$ISVALIDTOKEN()` akan bernilai `true`. Sebaliknya, apabila token tersebut salah, `$ISVALIDTOKEN()` akan bernilai `false`. Simulator hanya akan memvalidasi token yang dibuat oleh simulator itu sendiri.
+
+## Fungsi $NUMBERFORMAT()
+
+Fungsi `$NUMBERFORMAT()` digunakan untuk memformat suatu bilangan. Jumlah parameter pada fungsi ini bisa 1, 2 atau 3. Fungsi ini identik dengan fungsi `number_format` pada PHP. Tutorial fungsi ini dapat dibaca di https://www.php.net/manual/en/function.number-format.php
+
+Nilai balikan atau output dari fungsi ini bertipe string. Perlu dicatat bahwa Universal REST Simulator bekerja pada mode teks. Dengan demikian, output dari fungsi `$NUMBERFORMAT()` pada JSON wajib diberi tanda kutip. 
+
+Contoh penggunaan fungsi ini adalah `$NUMBERFORMAT($INPUT.AMOUNT, 2, ',', '.')` di mana `$INPUT.AMOUNT` adalah nilai yang akan ditampilkan.
+
+Contoh Konfigurasi:
+```ini
+METHOD=POST
+
+PATH=/basicauth
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.USERNAME=$AUTHORIZATION_BASIC.USERNAME\
+$INPUT.PASSWORD=$AUTHORIZATION_BASIC.PASSWORD\
+$INPUT.ACCOUNT_NUMBER=$REQUEST.data.account_number\
+$INPUT.AMOUNT=$REQUEST.data.amount\
+$INPUT.CURRENCY=$REQUEST.data.currency_code
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.USERNAME == "user1" && $INPUT.PASSWORD == "password1" && $INPUT.ACCOUNT_NUMBER != "" && $INPUT.AMOUNT > 0)\
+{[THEN]}
+$OUTPUT.STATUS=200\
+$OUTPUT.BODY={\
+    "action": "$INPUT.TRANSACTION_TYPE",\
+    "id": 69,\
+    "data": {\
+        "date_time": "$INPUT.DATE_TIME",\
+        "name": "Bambang",\
+        "account_number": "$INPUT.ACCOUNT_NUMBER",\
+        "amount": "$NUMBERFORMAT($INPUT.AMOUNT, 2, ',', '.')",\
+        "currency_code": "$INPUT.CURRENCY"\
+    },\
+    "response_code": "001",\
+    "response_text": "Success"\
+}\
+{[ENDIF]}
+{[IF]} (true)\
+{[THEN]}
+$OUTPUT.STATUS=403\
+$OUTPUT.BODY={\
+    "action": "$INPUT.TRANSACTION_TYPE",\
+    "id": "$INPUT.TRANSACTION_ID",\
+    "data": {},\
+    "response_code": "062",\
+    "response_text": "Access forbidden"\
+}\
+{[ENDIF]}
+```
+
+Contoh Request:
+
+```http
+GET /basicauth HTTP/1.1 
+Host: 127.0.0.1
+User-Agent: Service
+Content-Type: application/json
+Accept: application/json
+Content-Length: 118
+Authorization: Basic dXNlcjE6cGFzc3dvcmQx
+
+{
+    "data": {
+        "account_number": "98765432",
+        "amount": "250,000.00",
+        "currency_code": "IDR"
+    }
+}
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Lengh: 291
+
+{
+    "action": "deposit",
+    "id": 69,
+    "data": {
+        "date_time": "2021-05-01T10:11:12.000Z",
+        "name": "Bambang",
+        "account_number": "123456",
+        "amount": 250000,
+        "currency_code": "IDR"
+    },
+    "response_code": "001",
+    "response_text": "Success"
+}
+```
