@@ -2351,7 +2351,7 @@ Authorization: Basic dXNlcjE6cGFzc3dvcmQx
 {
     "data": {
         "account_number": "98765432",
-        "amount": "250,000.00",
+        "amount": 250000,
         "currency_code": "IDR"
     }
 }
@@ -2371,10 +2371,13 @@ Content-Lengh: 291
         "date_time": "2021-05-01T10:11:12.000Z",
         "name": "Bambang",
         "account_number": "123456",
-        "amount": 250000,
+        "amount": "250,000.00",
         "currency_code": "IDR"
     },
     "response_code": "001",
     "response_text": "Success"
 }
 ```
+
+
+
