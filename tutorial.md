@@ -2049,3 +2049,87 @@ $OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 {[ENDIF]}\
 ```
+
+## Menggunakan Delay
+
+Delay atau sleep digunakan untuk menahan proses selama waktu tertentu. Delay sangat berguna untuk test case time out. Simulator akan melakukan sleep selama waktu tertentu sebelum kemudian mengirimkan respon ke klien. Delay pada Universal REST Simulator diatur pada file konfigurasi sesuai dengan kondisi yang telah ditetapkan. Delay memiliki satuan mili detik.
+
+Contoh Konfigurasi:
+
+```ini
+METHOD=POST
+
+PATH=/postjson
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.NAME=$REQUEST.name\
+$INPUT.EMAIL=$REQUEST.email\
+$INPUT.PHONE=$REQUEST.phone
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.NAME != "" && $INPUT.EMAIL != "" && $INPUT.PHONE == "081222222222)\
+{[THEN]}\
+$OUTPUT.DELAY=5000\
+$OUTPUT.STATUS=200 OK\
+$OUTPUT.BODY={\
+    "response_code": "001",\
+    "response_text": "Success",\
+    "data": {\
+        "name": "$INPUT.NAME",\
+        "email": "$INPUT.EMAIL",\
+        "phone": "$INPUT.PHONE",\
+        "time_stamp": "$DATE('U')"\
+    }\
+}\
+{[ENDIF]}\
+{[IF]} ($INPUT.NAME != "" && $INPUT.EMAIL != "" && $INPUT.PHONE == "081222222223)\
+{[THEN]}\
+$OUTPUT.DELAY=15000\
+$OUTPUT.STATUS=200 OK\
+$OUTPUT.BODY={\
+    "response_code": "001",\
+    "response_text": "Success",\
+    "data": {\
+        "name": "$INPUT.NAME",\
+        "email": "$INPUT.EMAIL",\
+        "phone": "$INPUT.PHONE",\
+        "time_stamp": "$DATE('U')"\
+    }\
+}\
+{[ENDIF]}\
+{[IF]} ($INPUT.NAME != "" && $INPUT.EMAIL != "" && $INPUT.PHONE == "081222222224)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.STATUS=200 OK\
+$OUTPUT.BODY={\
+    "response_code": "001",\
+    "response_text": "Success",\
+    "data": {\
+        "name": "$INPUT.NAME",\
+        "email": "$INPUT.EMAIL",\
+        "phone": "$INPUT.PHONE",\
+        "time_stamp": "$DATE('U')"\
+    }\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.STATUS=400 Bad Request\
+$OUTPUT.BODY={\
+    "response_code": "061",\
+    "response_text": "Mandatory field can not be empty",\
+    "data": {\
+        "name": "$INPUT.NAME",\
+        "email": "$INPUT.EMAIL",\
+        "phone": "$INPUT.PHONE",\
+        "time_stamp": "$DATE('U')"\
+    }\
+}\
+{[ENDIF]}\
+```
+
+Pada contoh di atas, apabila parameter `data.phone` memiliki nilai `081222222222`, maka simulator akan melakukan *sleep* selama 5 detik. Apabila parameter `data.phone` memiliki nilai `081222222223`, maka simulator akan melakukan *sleep* selama 15 detik. Apabila parameter `data.phone` memiliki nilai `081222222224`, maka simulator tidak akan melakukan *sleep*. 
