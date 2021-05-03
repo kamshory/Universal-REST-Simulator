@@ -750,7 +750,7 @@ Beberapa data yang yang dapat dihasikan oleh simulator adalah sebagai berikut:
 7. `$OUTPUT.CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
 8. `$OUTPUT.CALLBACK_TIMEOUT` adalah timeout untuk callback.
 9. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback.
-10. `$OUTPUT.CALLBACK_OUTPUT` adalah request body untuk callback.
+10. `$OUTPUT.CALLBACK_BODY` adalah request body untuk callback.
 
 Penjelasan tentang callback dapat dibaca pada bagian **Callback**.
 
@@ -1068,11 +1068,11 @@ Untuk menambahkan callback, beberapa konfigurasi perlu dibuat pada `TRANSACTION_
 2. `$OUTPUT.CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
 3. `$OUTPUT.CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
 4. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback.
-5. `$OUTPUT.CALLBACK_OUTPUT` adalah request body untuk callback.
+5. `$OUTPUT.CALLBACK_BODY` adalah request body untuk callback.
 
-Method default adalah `GET`. Apabila `$OUTPUT.CALLBACK_METHOD` adalah `GET`, maka `$OUTPUT.CALLBACK_OUTPUT` tidak akan dikirim dan `Content-length` dan `Content-type` pada header juga tidak akan dikirim.
+Method default adalah `GET`. Apabila `$OUTPUT.CALLBACK_METHOD` adalah `GET`, maka `$OUTPUT.CALLBACK_BODY` tidak akan dikirim dan `Content-length` dan `Content-type` pada header juga tidak akan dikirim.
 
-Perlu diingat bahwa pada method `POST` dan `PUT`, pengguna wajib menjantumkan `$OUTPUT.CALLBACK_OUTPUT` karena server yang dituju akan menunggu simulator mengirimkan `body` pada proses callback. `$OUTPUT.CALLBACK_TYPE` pada `POST` dan `PUT` juga harus diseting untuk menentukan `Content-type` pada callback. `Content-length` akan dibuat secara otomatis oleh simulator pada saat callback dilakukan. Pengguna dapat menambahkan `User-agent` pada header. Jika pengguna tidak memasukkan `User-agent`, maka simulator akan membuat `User-agent` default karena beberapa server mungkin mewajibkan setiap request mencantumkan `User-agent`.
+Perlu diingat bahwa pada method `POST` dan `PUT`, pengguna wajib menjantumkan `$OUTPUT.CALLBACK_BODY` karena server yang dituju akan menunggu simulator mengirimkan `body` pada proses callback. `$OUTPUT.CALLBACK_TYPE` pada `POST` dan `PUT` juga harus diseting untuk menentukan `Content-type` pada callback. `Content-length` akan dibuat secara otomatis oleh simulator pada saat callback dilakukan. Pengguna dapat menambahkan `User-agent` pada header. Jika pengguna tidak memasukkan `User-agent`, maka simulator akan membuat `User-agent` default karena beberapa server mungkin mewajibkan setiap request mencantumkan `User-agent`.
 
 **Konfigurasi**
 
@@ -1101,7 +1101,7 @@ $OUTPUT.CALLBACK_TYPE=application/xml\
 $OUTPUT.CALLBACK_HEADER=\X-Server-Name: Universal REST Simulator\
 X-Response-Code: 00\
 X-Response-Text: Success\
-$OUTPUT.CALLBACK_OUTPUT=<?xml version="1.0" encoding="UTF-8"?>\
+$OUTPUT.CALLBACK_BODY=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 \
 	<rc>00</rc>\
