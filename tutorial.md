@@ -2250,7 +2250,7 @@ $INPUT.FEE=$REQUEST.admin_fee
 
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.PRODUCT == "322112" && $INPUT.FEE > 0)\
-{[THEN]} $OUTPUT.DELAY=0\
+{[THEN]}\
 $OUTPUT.DELAY=0\
 $OUTPUT.BODY={\
    "rc": "00",\
@@ -2270,7 +2270,7 @@ $OUTPUT.BODY={\
 }\
 {[ENDIF]}\
 {[IF]} ($INPUT.PRODUCT == "322112")\
-{[THEN]} $OUTPUT.DELAY=0\
+{[THEN]}\
 $OUTPUT.DELAY=0\
 $OUTPUT.BODY={\
    "rc": "00",\
@@ -2342,7 +2342,7 @@ $INPUT.CURRENCY=$REQUEST.data.currency_code
 
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.USERNAME == "user1" && $INPUT.PASSWORD == "password1" && $INPUT.ACCOUNT_NUMBER != "" && $INPUT.AMOUNT > 0)\
-{[THEN]}
+{[THEN]}\
 $OUTPUT.STATUS=200\
 $OUTPUT.BODY={\
     "action": "$INPUT.TRANSACTION_TYPE",\
@@ -2357,9 +2357,9 @@ $OUTPUT.BODY={\
     "response_code": "001",\
     "response_text": "Success"\
 }\
-{[ENDIF]}
+{[ENDIF]}\
 {[IF]} (true)\
-{[THEN]}
+{[THEN]}\
 $OUTPUT.STATUS=403\
 $OUTPUT.BODY={\
     "action": "$INPUT.TRANSACTION_TYPE",\
@@ -2368,7 +2368,7 @@ $OUTPUT.BODY={\
     "response_code": "062",\
     "response_text": "Access forbidden"\
 }\
-{[ENDIF]}
+{[ENDIF]}\
 ```
 
 Contoh Request:
@@ -2412,6 +2412,4 @@ Content-Lengh: 291
     "response_text": "Success"
 }
 ```
-
-
 
