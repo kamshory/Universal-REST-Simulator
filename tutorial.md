@@ -3,6 +3,14 @@
 
 # Tutorial Menggunakan Universal REST Simulator
 
+## Daftar Isi
+
+1. [Sekilas Tentang Universal REST Simulator](#sekilas-tentang-universal-rest-simulator)
+2. [File Manager](#file-manager)
+3. [Check Path](#check-path)
+4. [File Konfigurasi](#file-konfigurasi)
+
+
 ## Sekilas Tentang Universal REST Simulator
 
 Universal REST Simulator adalah simulator REST untuk membuat simulator server aplikasi. Simulator ini akan mensimulasikan respon dari sebuah sistem saat diberi request tertentu.
