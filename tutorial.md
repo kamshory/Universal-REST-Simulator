@@ -741,7 +741,7 @@ Contoh Respon:
 
 ```http
 HTTP/1.1 200 OK
-Content-Type: application/json
+Content-Type: application/xml
 Content-Length: 319
 
 <?xml version="1.0" encoding="UTF-8"?>
@@ -817,7 +817,7 @@ $OUTPUT.BODY={\
 ```
 Konfigurasi di atas menunjukkan bahwa path tersebut menghendaki method `POST` dan yang lain. Akan tetapi, pengguna tetap dapat mengambil nilai dari query pada `URL` menggunakan `$GET`.
 
-> Contoh Request
+ Contoh Request:
 
 ```http
 POST /universal-simulator/token?detail=yes HTTP/1.1 
@@ -897,6 +897,25 @@ Content-length: 121
         "amount": 5000000,
         "currency_code": "IDR"
     }
+}
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 218
+
+{
+    "response_code": "001",
+    "response_text:" "Success",
+    "data": {
+        "account_number": "1234567890",
+        "amount": 5000000,
+        "currency_code": "IDR",
+        "time_stamp": "1619922480"
+    }\
 }
 ```
 
@@ -1641,6 +1660,153 @@ HARGA ITEM     : 80000
 
 `$INPUT.CUSTOMER_NAME=$REQUEST.customer.name` dapat pula ditulis dengan `$INPUT.CUSTOMER_NAME=$REQUEST[customer][name]` tanpa spasi sebelum `[` dan sesudah `]`.
 
+## HTTP Status Standard
+
+Contoh Konfigurasi:
+
+```ini
+PATH=/universal-simulator/token
+
+METHOD=POST
+
+REQUEST_TYPE=application/x-www-form-urlencoded
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.USERNAME=$AUTHORIZATION_BASIC.USERNAME\
+$INPUT.PASSWORD=$AUTHORIZATION_BASIC.PASSWORD\
+$INPUT.GRANT_TYPE=$POST.grant_type\
+$INPUT.DETAIL=$GET.detail
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.GRANT_TYPE == 'client_credentials' && $INPUT.USERNAME == "username" && $INPUT.PASSWORD == "password")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.STATUS=200\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+    "token_type": "Bearer",\
+    "access_token": "$TOKEN.JWT",\
+    "expire_at": $TOKEN.EXPIRE_AT,\
+    "expires_in": $TOKEN.EXPIRE_IN,\
+    "email": "token@doconfig1n.tld"\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.DELAY=0\
+$OUTPUT.STATUS=403\
+$OUTPUT.BODY={\
+}\
+{[ENDIF]}\
+```
+
+Contoh Request:
+
+```http
+POST /universal-simulator/token?detail=yes HTTP/1.1 
+Host: 127.0.0.1
+Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=
+Content-type: application/x-www-form-urlencoded
+Content-length: 29
+
+grant_type=client_credentials
+```
+
+Contoh Respon
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 363
+
+{
+    "token_type": "Bearer",
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJZb3VyIENvbXBhbnkiLCJhdWQiOiJZb3VyIENsaWVudCIsImlhdCI6MTYyMDAyNDI0MiwibmJmIjoxNjIwMDI0MjQyLCJleHAiOjE2MjAwMjc4NDIsImRhdGEiOltdfQ.x_SOclw1fn4irxsNHtX6ai02CTnFAGB5X7O_pRtk5UA",
+    "expire_at": 1620027842,
+    "expires_in": 3600,
+    "email": "token@doconfig1n.tld"
+}
+```
+
+## HTTP Status Non-Standard
+
+Contoh Konfigurasi:
+
+```ini
+PATH=/universal-simulator/token
+
+METHOD=POST
+
+REQUEST_TYPE=application/x-www-form-urlencoded
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.USERNAME=$AUTHORIZATION_BASIC.USERNAME\
+$INPUT.PASSWORD=$AUTHORIZATION_BASIC.PASSWORD\
+$INPUT.GRANT_TYPE=$POST.grant_type\
+$INPUT.DETAIL=$GET.detail
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.GRANT_TYPE == 'client_credentials' && $INPUT.USERNAME == "username" && $INPUT.PASSWORD == "password")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.STATUS=200\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+    "token_type": "Bearer",\
+    "access_token": "$TOKEN.JWT",\
+    "expire_at": $TOKEN.EXPIRE_AT,\
+    "expires_in": $TOKEN.EXPIRE_IN,\
+    "email": "token@doconfig1n.tld"\
+}\
+{[ENDIF]}\
+{[IF]} ($INPUT.GRANT_TYPE == 'client_credentials' && $INPUT.USERNAME != "" && $INPUT.PASSWORD == "")\
+{[THEN]} $OUTPUT.DELAY=0\
+$OUTPUT.DELAY=0\
+$OUTPUT.STATUS=403\
+$OUTPUT.BODY={\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.STATUS=999 Invalid Request\
+$OUTPUT.BODY={\
+}\
+{[ENDIF]}\
+```
+
+Pada HTTP Status Non-Standard (*unofficial HTTP Status*), pengguna perlu menambahkan deskripsi di belakang kode. Misalnya `999 Invalid Request`. `999` merupakan HTTP Status yang tidak standard. Kode tersebut dapat digunakan dengan catatan pengguna menambahkan deskripsi di belakang kode. Jika pengguna tidak menambahkan deskripsi di belakang kode, maka simulator akan memberikan status `500 Internal Server Error`.
+
+Contoh Request:
+
+```http
+POST /universal-simulator/token?detail=yes HTTP/1.1 
+Host: 127.0.0.1
+Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=
+Content-type: application/x-www-form-urlencoded
+Content-length: 29
+
+grant_type=client_credentials
+```
+
+Contoh Respon
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 363
+
+{
+    "token_type": "Bearer",
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJZb3VyIENvbXBhbnkiLCJhdWQiOiJZb3VyIENsaWVudCIsImlhdCI6MTYyMDAyNDI0MiwibmJmIjoxNjIwMDI0MjQyLCJleHAiOjE2MjAwMjc4NDIsImRhdGEiOltdfQ.x_SOclw1fn4irxsNHtX6ai02CTnFAGB5X7O_pRtk5UA",
+    "expire_at": 1620027842,
+    "expires_in": 3600,
+    "email": "token@doconfig1n.tld"
+}
+```
+
 ## Membuat Token
 
 Universal REST Simulator menggunakan *JSON Web Token* atau JWT sebagai metode untuk membuat token. Salah satu kelebihan dari JWT adalah bahwa token dapat divalidasi dengan dirinya sendiri. Server menyimpan beberapa informasi rahasia untuk membuat token dan dapat memvalidasi token yang telah dibuat dengan informasi yang ada pada token tersebut dan informasi rahasia yang disimpan di server. Salah satu informasi rahasia yang disimpan di server yang tidak dimasukkan ke dalam token adalah kunci atau *key* untuk membuat dan memvalidasi token.
@@ -1683,12 +1849,42 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
+Contoh Request:
+
+```http
+POST /auth HTTP/1.1 
+Host: 127.0.0.1
+Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=
+Content-type: application/x-www-form-urlencoded
+Content-length: 29
+
+grant_type=client_credentials
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 363
+
+{
+    "token_type": "Bearer",
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJZb3VyIENvbXBhbnkiLCJhdWQiOiJZb3VyIENsaWVudCIsImlhdCI6MTYyMDAyNDYxNiwibmJmIjoxNjIwMDI0NjE2LCJleHAiOjE2MjAwMjgyMTYsImRhdGEiOltdfQ.eisS2qFFf4vjifCz7y_d5OyReqtkNSBtBrJoZuwPumw",
+    "expire_at": 1620028216,
+    "expires_in": 3600,
+    "email": "token@doconfig1n.tld"
+}
+```
+
 ## Memvalidasi Token
 
 Untuk memvalidasi token, pengguna cukup menambahkan fungsi `$ISVALIDTOKEN()` pada kondisi yang akan diuji. Saat menemukan fungsi `$ISVALIDTOKEN()`, Universal REST Simulator langsung memproses header `Authorization: Bearer ...` yang ada pada request header dan menguji apakah token yang diberikan valid atau tidak. Jika valid, fungsi `$ISVALIDTOKEN()` akan bernilau `true` namun jika tidak valid, maka fungsi `$ISVALIDTOKEN()` akan bernilai false.
 
+Universal REST Simulator dapat memvalidasi token untuk method `GET`, `POST` maupun `PUT`. Path untuk memvalidasi token tidak ada hubungannya dengan path ketika melakukan request token. Simulator akan memvalidasi token secara independen tanpa terkait dengan path dan header lain.
+
 ```ini
-PATH=/Universal-REST-Simulator/va-status
+PATH=/va-status
 
 METHOD=POST
 

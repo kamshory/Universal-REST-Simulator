@@ -1130,7 +1130,6 @@ $url = get_url();
 	
 // Select configuration file
 $parsed = get_config_file($config_dir, $context_path);
-
 if(!empty($parsed))
 {
 	// Get request headers
