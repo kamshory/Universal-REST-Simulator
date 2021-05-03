@@ -1954,3 +1954,98 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
+## Membuat Callback
+
+Callback adalah proses lanjutan yang dilakukan oleh Universal REST Simulator setelah menerima request dari klien. Proses ini berbeda dengan respon. Pada proses asinkron, server akan melakukan request ke endpoint lain setelah menerima request dari klein. Endpoin untuk proses callback bisa ditentukan di konfigurasi server dan bisa pula dikirim oleh klien yang melakukan request ke server. Pada Universal REST Simulator, endpoin callback ditentukan di file konfigurasi.
+
+Selain endpoint callback, ada beberapa parameter callback yang dapat ditentukan di dalam file konfigurasi, di antaranya adalah sebagai berikut:
+
+ 1. `$OUTPUT.CALLBACK_URL` adalah URL yang dituju pada proses callback.
+ 2.  `$OUTPUT.CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
+ 3.  `$OUTPUT.CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
+ 4. `$OUTPUT.CALLBACK_TIMEOUT` adalah timeout untuk callback.
+ 5. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback.
+ 6. `$OUTPUT.CALLBACK_BODY` adalah request body untuk callback.
+
+Contoh Konfigurasi:
+
+```ini
+PATH=/universal-rest-simulator/xml
+
+METHOD=POST
+
+REQUEST_TYPE=application/xml
+
+RESPONSE_TYPE=application/xml
+
+PARSING_RULE=\
+$INPUT.PRODUCT=$REQUEST.product_code\
+$INPUT.ACCOUNT=$REQUEST.customer_no\
+$INPUT.REF_NUMBER=$REQUEST.refno\
+$INPUT.AMOUNT=$REQUEST.amount
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.PRODUCT == "10000" && $INPUT.ACCOUNT == "081266612126" && $INPUT.AMOUNT > 0)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.CALLBACK_URL=http://localhost/test/\
+$OUTPUT.CALLBACK_METHOD=POST\
+$OUTPUT.CALLBACK_TYPE=application/xml\
+$OUTPUT.CALLBACK_HEADER=\X-Server-Name: Universal REST Simulator\
+X-Response-Code: 00\
+X-Response-Text: Success\
+$OUTPUT.CALLBACK_BODY=<?xml version="1.0" encoding="UTF-8"?>\
+<data>\
+	<rc>00</rc>\
+	<sn>82634862385235365285</sn>\
+	<nama>config2</nama>\
+	<customer_no>$INPUT.ACCOUNT</customer_no>\
+	<product_code>$INPUT.PRODUCT</product_code>\
+	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
+	<msg>Ini output dari callback Transaksi ini dikenakan biaya Rp. 250</msg>\
+	<refid>$INPUT.REF_NUMBER</refid>\
+<data>\
+$OUTPUT.HEADER=\X-Server-Name: Universal REST Simulator\
+X-Response-Code: 00\
+X-Response-Text: Success\
+$OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
+<data>\
+	<rc>25</rc>\
+	<nama>config2</nama>\
+	<customer_no>$INPUT.ACCOUNT</customer_no>\
+	<product_code>$INPUT.PRODUCT</product_code>\
+	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
+	<msg>Transaksi ini dikenakan biaya Rp. 250</msg>\
+	<refid>$INPUT.REF_NUMBER</refid>\
+<data>\
+{[ENDIF]}\
+{[IF]} ($INPUT.PRODUCT == "10001" && $INPUT.ACCOUNT == "081266612127")\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
+<data>\
+	<rc>00</rc>\
+	<sn>82634862385235365285</sn>\
+	<nama>config2</nama>\
+	<customer_no>$INPUT.ACCOUNT</customer_no>\
+	<product_code>$INPUT.PRODUCT</product_code>\
+	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
+	<msg>Transaksi ini dikenakan biaya Rp. 250</msg>\
+	<refid>$INPUT.REF_NUMBER</refid>\
+<data>\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
+<data>\
+	<rc>25</rc>\
+	<nama>config2</nama>\
+	<customer_no>$INPUT.ACCOUNT</customer_no>\
+	<product_code>$INPUT.PRODUCT</product_code>\
+	<time_stamp>$DATE('j F Y H:i:s', 'UTC+7')</time_stamp>\
+	<msg>Pelanggan tidak ditemukan</msg>\
+	<refid>$INPUT.REF_NUMBER</refid>\
+<data>\
+{[ENDIF]}\
+```
