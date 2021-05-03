@@ -9,6 +9,9 @@
 2. [File Manager](#file-manager)
 3. [Check Path](#check-path)
 4. [File Konfigurasi](#file-konfigurasi)
+5. [Simulator Sederhana GET application/x-www-form-urlencoded](#simulator-sederhana-get-applicationx-www-form-urlencoded)
+6. [Simulator Sederhana POST application/x-www-form-urlencoded](#simulator-sederhana-post-applicationx-www-form-urlencoded)
+7. [Simulator Sederhana PUT application/x-www-form-urlencoded](#simulator-sederhana-put-applicationx-www-form-urlencoded)
 
 
 ## Sekilas Tentang Universal REST Simulator
