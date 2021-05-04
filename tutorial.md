@@ -92,7 +92,15 @@ METHOD=POST
 
 **PATH**
 
-Path adalah path yang diakses oleh klien. Path ini bersifat relatif. Dalam beberapa kondisi mungkin membutuhkan path yang sama persis namun dalam kondisi yang lain hanya memerlukan kecocokan pola.
+Path adalah path yang diakses oleh klien. Path ini bersifat relatif. 
+
+Contoh:
+
+```ini
+PATH=/core/admin/add-account
+```
+
+Dalam beberapa kondisi mungkin membutuhkan path yang sama persis namun dalam kondisi yang lain hanya memerlukan kecocokan pola.
 
 Path juga dapat berisi input dari klien. Dengan demikian, path request yang berbeda mungkin akan menjalankan proses yang sama.
 
