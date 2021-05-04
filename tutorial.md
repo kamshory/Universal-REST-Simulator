@@ -35,9 +35,7 @@
 
 ## Sekilas Tentang Universal REST Simulator
 
-Universal REST Simulator adalah simulator REST untuk membuat simulator server aplikasi. Simulator ini akan mensimulasikan respon dari sebuah sistem saat diberi request tertentu.
-
-Universal REST Simulator menggunakan protokol HTTP dengan method `GET`, `POST` dan `PUT` dengan tipe request `x-www-form-urlencode`, `JSON` dan `XML`. Tipe respon dapat berupa `text`, `HTML`, `XML`, `JSON` maupun `CSV`.
+Universal REST Simulator adalah simulator REST untuk membuat simulator server aplikasi. Simulator ini akan mensimulasikan respon dari sebuah sistem saat diberi request tertentu. Universal REST Simulator menggunakan protokol HTTP dengan method `GET`, `POST` dan `PUT` dengan tipe request `x-www-form-urlencode`, `JSON` dan `XML`. Tipe respon dapat berupa `text`, `HTML`, `XML`, `JSON` maupun `CSV`.
 
 Universal REST Simulator mengambil input dari request klien melalui beberapa cara yaitu sebagai berikut:
 
@@ -48,6 +46,8 @@ Universal REST Simulator mengambil input dari request klien melalui beberapa car
 5. `$POST` yaitu nilai yang diambil dari body request dengan method `POST` dengan pengkodean `x-www-form-urlencode`
 6. `$PUT` yaitu nilai yang diambil dari body request dengan method `PUT` dengan pengkodean `x-www-form-urlencode`
 7. `$REQUEST` tergantung dari method yang digunakan pada file konfigurasi. Berbeda dengan `$GET`, `$PUT` dan `$POST` yang hanya mendukung `x-www-form-urlencode`, `$REQUEST` mendukung *content type* `x-www-form-urlencode`, JSON dan XML baik objek maupun array.
+
+Coutput dari Universal REST Simulator adalah HTTP Status, header respon dan body respon.
 
 Universal REST Simulator dilengkapi dengan callback sehingga dapat mengirimkan request ke endpoint tertentu dengan kondisi tertentu sesuai dengan konfigurasi yang dibuat. Pengguna juga dapat mengatur request time out callback.
 
@@ -2418,4 +2418,5 @@ Content-Lengh: 291
     "response_text": "Success"
 }
 ```
+
 
