@@ -47,7 +47,7 @@ Universal REST Simulator mengambil input dari request klien melalui beberapa car
 4. `$GET` yaitu nilai yang diambil dari parameter yang dikirimkan melalui URL dengan pengkodean `x-www-form-urlencode`
 5. `$POST` yaitu nilai yang diambil dari body request dengan method `POST` dengan pengkodean `x-www-form-urlencode`
 6. `$PUT` yaitu nilai yang diambil dari body request dengan method `PUT` dengan pengkodean `x-www-form-urlencode`
-7. `$REQUEST` tergantung dari method yang digunakan pada file konfigurasi. Berbeda dengan `$GET`, `$PUT` dan `$POST` yang hanya mendukung `x-www-form-urlencode`, `$REQUEST` mendukung tipe data `x-www-form-urlencode`, JSON dan XML baik objek maupun array.
+7. `$REQUEST` tergantung dari method yang digunakan pada file konfigurasi. Berbeda dengan `$GET`, `$PUT` dan `$POST` yang hanya mendukung `x-www-form-urlencode`, `$REQUEST` mendukung *content type* `x-www-form-urlencode`, JSON dan XML baik objek maupun array.
 
 Universal REST Simulator dilengkapi dengan callback sehingga dapat mengirimkan request ke endpoint tertentu dengan kondisi tertentu sesuai dengan konfigurasi yang dibuat. Pengguna juga dapat mengatur request time out callback.
 
@@ -104,9 +104,9 @@ PATH=/core/{[GROUP]}/{[TRANSACTION]}
 
 **REQUEST_TYPE**
 
-Request type adalah tipe data dari request yang dikirimkan oleh klien. Tipe data request akan menentukan bagaimaka cara simulator memparsing request dari klien. Ketidaksesuaian antara request type pada konfigurasi dengan tipe data yang dikirimkan akan menyebabkan data tidak dapat diparsing sama sekali.
+Request type adalah *content type* dari request yang dikirimkan oleh klien. *Content type* request akan menentukan bagaimaka cara simulator memparsing request dari klien. Ketidaksesuaian antara request type pada konfigurasi dengan *content type* yang dikirimkan akan menyebabkan data tidak dapat diparsing sama sekali.
 
-Tipe data yang didukung adalah sebagai berikut:
+*Content type* yang didukung adalah sebagai berikut:
 
 1. `application/x-www-form-urlencoded` untuk method `GET`, `POST` dan `PUT`
 2. `application/xml` untuk method `POST` dan `PUT`
@@ -114,7 +114,7 @@ Tipe data yang didukung adalah sebagai berikut:
 
 **RESPONSE_TYPE**
 
-Response type adalah tipe data respon yang dikirimkan ke klien. Tipe data ini akan diinformasikan melalui header respon `Content-type`. Tipe data ini mengabaikan header request `Accept` yang dikirimkan oleh klien. Apabila pengguna ingin menggunakan nilai pada header request `Accept`, pengguna dapat membuat kondisi dengan terlebih dahulu mengambil nilai `Accept` pada parsing rule sebagai berikut:
+Response type adalah *content type* respon yang dikirimkan ke klien. *Content type* ini akan diinformasikan melalui header respon `Content-type`. *Content type* ini mengabaikan header request `Accept` yang dikirimkan oleh klien. Apabila pengguna ingin menggunakan nilai pada header request `Accept`, pengguna dapat membuat kondisi dengan terlebih dahulu mengambil nilai `Accept` pada parsing rule sebagai berikut:
 
 ```ini
 PARSING_RULE=\
@@ -123,7 +123,7 @@ $INPUT.ACCEPT=$HEADER.ACCEPT
 
 Kemudian menambahkan kondisi `$INPUT.ACCEPT` pada transaction rule.
 
-Tipe data yang didukung lebih luas meskipun terbatas pada tipe data text misalnya sebagai berikut:
+*Content type* yang didukung lebih luas meskipun terbatas pada *content type* text misalnya sebagai berikut:
 
 1. `text/plan`
 2. `text/html`
@@ -141,7 +141,7 @@ Parsing rule digunakan untuk memparsing request dari klien. Sumber data yang dig
 4. `$GET` yaitu nilai yang diambil dari parameter yang dikirimkan melalui URL dengan pengkodean `x-www-form-urlencode`
 5. `$POST` yaitu nilai yang diambil dari body request dengan method `POST` dengan pengkodean `x-www-form-urlencode`
 6. `$PUT` yaitu nilai yang diambil dari body request dengan method `PUT` dengan pengkodean `x-www-form-urlencode`
-7. `$REQUEST` yaitu alternatif dari `$GET`, `$POST` dan `$PUT` tergantung dari method yang digunakan pada file konfigurasi. Berbeda dengan `$GET`, `$PUT` dan `$POST` yang hanya mendukung `x-www-form-urlencode`, `$REQUEST` mendukung tipe data `x-www-form-urlencode`, JSON dan XML baik objek maupun array.
+7. `$REQUEST` yaitu alternatif dari `$GET`, `$POST` dan `$PUT` tergantung dari method yang digunakan pada file konfigurasi. Berbeda dengan `$GET`, `$PUT` dan `$POST` yang hanya mendukung `x-www-form-urlencode`, `$REQUEST` mendukung *content type* `x-www-form-urlencode`, JSON dan XML baik objek maupun array.
 
 Nilai yang diambil dari request disimpan pada variabel yang diawali dengan `$INPUT.` dan diikuti dengan nama unik dari variabel tersebut.
 
@@ -1541,7 +1541,7 @@ Content-Lengh: 207
 
 ## Simulator Sederhana Input Array
 
-Pada kenyataannya, request tidak hanya mengandung objek saja melainkan juga array. Array bisa berasal dari parameter pada `GET`, `POST` dan `PUT` pada tipe data `application/x-www-form-urlencode`, `application/json` maupun `application/xml`.
+Pada kenyataannya, request tidak hanya mengandung objek saja melainkan juga array. Array bisa berasal dari parameter pada `GET`, `POST` dan `PUT` pada *content type* `application/x-www-form-urlencode`, `application/json` maupun `application/xml`.
 
 Data tidak dapat diparsing dengan menggunakan operator titik (`.`). Sebagai gantinya, operator kurung siku (`[]`) dapat digunakan untuk memparsing data tersebut.
 
