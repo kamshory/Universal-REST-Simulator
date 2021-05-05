@@ -168,7 +168,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 			}			
 			// Parse from POST
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$POST.') === 0 && $config['METHOD'] == 'POST')
-			{			
+			{
 				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
 				$value = trim(substr(trim($arr2[1]), strlen('$POST.')));
 				$res[$key] = isset($request_data[$value])?$request_data[$value]:'';
@@ -204,7 +204,9 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 					$res[$key] = isset($request_data[$value])?$request_data[$value]:'';
 				}
 				else if(stripos($config['REQUEST_TYPE'], '/json') !== false 
-					|| stripos($config['REQUEST_TYPE'], '/xml') !== false)
+					|| stripos($config['REQUEST_TYPE'], '/xml') !== false
+					|| stripos($config['REQUEST_TYPE'], '/soap+xml') !== false
+					)
 				{
 					$obj = json_decode(json_encode($request_data));
 					$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
@@ -838,7 +840,16 @@ function get_request_body($parsed, $url)
 		else if(stripos($parsed['REQUEST_TYPE'], '/xml') !== false)
 		{
 			$input_buffer = file_get_contents("php://input");
-			$request_data = json_decode(json_encode(simplexml_load_string($input_buffer)), true);
+			$xml = simplexml_load_string($input_buffer);
+			$request_data = json_decode(json_encode($xml), true);
+			$request_data = fix_array_key($request_data);
+		}
+		else if(stripos($parsed['REQUEST_TYPE'], '/soap+xml') !== false)
+		{
+			$input_buffer = file_get_contents("php://input");
+			$input_buffer = str_ireplace(array('<soap:', '</soap:'), array('<', '</'), $input_buffer);
+			$xml = simplexml_load_string($input_buffer);
+			$request_data = json_decode(json_encode($xml), true);
 			$request_data = fix_array_key($request_data);
 		}
 	}
@@ -1176,7 +1187,7 @@ if(!empty($parsed))
 		}
 		if(isset($output['HEADER']))
 		{
-			$clbk = send_response_header($output['HEADER']);
+			send_response_header($output['HEADER']);
 		}
 		if(isset($parsed['RESPONSE_TYPE']))
 		{
