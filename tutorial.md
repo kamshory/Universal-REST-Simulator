@@ -817,7 +817,7 @@ Content-Length: 319
 </container>
 ```
 
-## Simulator Sederhana POST application/xml
+## Simulator Sederhana POST application/soap+xml
 
 Contoh Konfigurasi:
 
