@@ -15,7 +15,7 @@
 10. [Simulator Sederhana POST application/xml](#simulator-sederhana-post-applicationxml)
 11. [Simulator Sederhana PUT application/xml](#simulator-sederhana-post-applicationxml)
 12. [Simulator Sederhana POST application/soap+xml](#simulator-sederhana-post-applicationsoapxml)
-13. [Simulator Sederhana PUT application/soap+xml](#simulator-sederhana-post-applicationsoapxml)
+13. [Simulator Sederhana PUT application/soap+xml](#simulator-sederhana-put-applicationsoapxml)
 14. [Kombinasi GET dan POST](#kombinasi-get-dan-post)
 15. [Kombinasi GET dan PUT](#kombinasi-get-dan-put)
 16. [Simulator Sederhana Input dari URL](#simulator-sederhana-input-dari-url)
