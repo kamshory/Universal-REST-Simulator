@@ -817,6 +817,144 @@ Content-Length: 319
 </container>
 ```
 
+## Simulator Sederhana POST application/xml
+
+Contoh Konfigurasi:
+
+```ini
+METHOD=POST
+
+PATH=/postsoap
+
+REQUEST_TYPE=applicatiom/soap+xml
+
+RESPONSE_TYPE=applicatiom/soap+xml
+
+PARSING_RULE=\
+$INPUT.MSISDN=$REQUEST.Body.YtzTopupRequest.msisdn\
+$INPUT.PRODUCT_CODE=$REQUEST.Body.YtzTopupRequest.productCode\
+$INPUT.REFERENCE_NUMBER=$REQUEST.Body.YtzTopupRequest.clientRefID
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.MSISDN == "081266666667")\
+{[THEN]}\
+$OUTPUT.CALLBACK_URL=http://localhost:8080/process-callback\
+$OUTPUT.CALLBACK_METHOD=POST\
+$OUTPUT.CALLBACK_TYPE=applicatiom/soap+xml\
+$OUTPUT.CALLBACK_BODY=<?xml version="1.0" encoding="utf-8"?>\
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
+  <soap:Body>\
+    <YtzTopupRequest xmlns="http://ytz.org/">\
+      <ResponseCode>0</ResponseCode>\
+      <TransID>164</TransID>\
+      <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
+      <SerialNo>0987654321</SerialNo>\
+    </YtzTopupRequest>\
+  </soap:Body>\
+</soap:Envelope>\
+$OUTPUT.BODY=<?xml version="1.0" encoding="utf-8"?>\
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
+  <soap:Body>\
+    <YtzTopupRequest xmlns="http://ytz.org/">\
+      <ResponseCode>1</ResponseCode>\
+      <TransID>164</TransID>\
+      <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
+      <SerialNo>0987654321</SerialNo>\
+    </YtzTopupRequest>\
+  </soap:Body>\
+</soap:Envelope>\
+{[ENDIF]}\
+{[IF]} ($INPUT.MSISDN == "081266666666")\
+{[THEN]}\
+$OUTPUT.CALLBACK_URL=http://localhost:8080/process-callback\
+$OUTPUT.CALLBACK_METHOD=POST\
+$OUTPUT.CALLBACK_TYPE=applicatiom/soap+xml\
+$OUTPUT.CALLBACK_BODY=<?xml version="1.0" encoding="utf-8"?>\
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
+  <soap:Body>\
+    <YtzTopupRequest xmlns="http://ytz.org/">\
+      <ResponseCode>0</ResponseCode>\
+      <TransID>164</TransID>\
+      <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
+      <SerialNo>0987654321</SerialNo>\
+    </YtzTopupRequest>\
+  </soap:Body>\
+</soap:Envelope>\
+$OUTPUT.BODY=<?xml version="1.0" encoding="utf-8"?>\
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
+  <soap:Body>\
+    <YtzTopupRequest xmlns="http://ytz.org/">\
+      <ResponseCode>0</ResponseCode>\
+      <TransID>164</TransID>\
+      <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
+      <SerialNo>0987654321</SerialNo>\
+    </YtzTopupRequest>\
+  </soap:Body>\
+</soap:Envelope>\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.BODY=<?xml version="1.0" encoding="utf-8"?>\
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
+  <soap:Body>\
+    <YtzTopupRequest xmlns="http://ytz.org/">\
+      <ResponseCode>17</ResponseCode>\
+      <TransID>164</TransID>\
+      <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
+      <SerialNo>0987654321</SerialNo>\
+    </YtzTopupRequest>\
+  </soap:Body>\
+</soap:Envelope>\
+{[ENDIF]}\
+```
+
+Pada `Content-type: application/soap+xml`, prefix `soap:` pada setiap tag dihapus sehingga pengguna dapat mengambil input dari request tanpa prefix `soap:`. Sebagai contoh: data di dalam tag `<soap:Body>` dapat diambil dengan `$REQUEST.Body` atau `$REQUEST[Body]` bukan `$REQUEST[soap:Body]`.
+
+Contoh Request:
+
+```http
+PUT /postsoap HTTP/1.1
+Host: 127.0.0.1
+User-Agent: Service
+Accept: application/soap+xml
+Content-Type: application/soap+xml
+Content-Length: 543
+
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <YtzTopupRequest xmlns="http://ytz.org/">
+      <msisdn>081266666666</msisdn>
+      <productCode>X010</productCode>
+      <userID>USER</userID>
+      <userPassword>PASS</userPassword>
+      <clientRefID>0000000000013787</clientRefID>
+      <storeid>XL</storeid>
+    </YtzTopupRequest>
+  </soap:Body>
+</soap:Envelope>
+```
+
+Contoh Respon:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/soap+xml
+Content-Length: 477
+
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <YtzTopupRequest xmlns="http://ytz.org/">
+      <ResponseCode>0</ResponseCode>
+      <TransID>164</TransID>
+      <ReferenceID>0000000000013787</ReferenceID>
+      <SerialNo>0987654321</SerialNo>
+    </YtzTopupRequest>
+  </soap:Body>
+</soap:Envelope>
+```
+
 ## Kombinasi GET dan POST
 
 Universal REST Simulator dapat mengkombinasikan input `GET` dengan `POST`. Untuk mengkombinasikan `GET` dengan `POST`, gunakan method `POST`. 
