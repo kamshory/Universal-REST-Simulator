@@ -47,7 +47,7 @@ Universal REST Simulator mengambil input dari request klien melalui beberapa car
 6. `$PUT` yaitu nilai yang diambil dari body request dengan method `PUT` dengan pengkodean `x-www-form-urlencode`
 7. `$REQUEST` tergantung dari method yang digunakan pada file konfigurasi. Berbeda dengan `$GET`, `$PUT` dan `$POST` yang hanya mendukung `x-www-form-urlencode`, `$REQUEST` mendukung *content type* `x-www-form-urlencode`, JSON dan XML baik objek maupun array.
 
-Coutput dari Universal REST Simulator adalah HTTP Status, header respon dan body respon.
+Output dari Universal REST Simulator adalah HTTP Status, header respon dan body respon.
 
 Universal REST Simulator dilengkapi dengan callback sehingga dapat mengirimkan request ke endpoint tertentu dengan kondisi tertentu sesuai dengan konfigurasi yang dibuat. Pengguna juga dapat mengatur request time out callback.
 
@@ -69,7 +69,9 @@ Untuk mengakses check path, buka Universal REST Simulator dengan menggunakan bro
 
 ## File Konfigurasi
 
-Konfigurasi simulator diatur oleh file-file yang disimpan di dalam direktori `/config` relatif terhadap direktori Universal REST Simulator. Pada saat simulator menerima request dari klien, simulator akan mencari file konfigurasi yang cocok dengan method dan path dari request yang diterima. Apabila simulator menemukan file yang sesuai, maka simulator akan berhenti mencari file dan menggunakan konfigurasi pada file yang tersebut.
+Konfigurasi simulator diatur oleh file-file yang disimpan di dalam direktori `/config` relatif terhadap direktori Universal REST Simulator. *Working directory* file manager adalah `/config` sehingga pengguna cukup membuat file konfigurasi pada `base directory` tanpa memasukkannya ke dalam direktori lagi. File yang berada di dalam direktori (tidak di `base directory`) tidak akan dibaca oleh simulator. Dengan demikian, apabila pengguna ingin mengarsipkan konfigurasi yang sudah tidak digunakan lagi cukup membuat sebuah direktori dan memasukkan file-file konfigurasi yang tidak digunakan ke dalam direktori tersebut.
+
+Pada saat simulator menerima request dari klien, simulator akan mencari file konfigurasi yang cocok dengan method dan path dari request yang diterima. Apabila simulator menemukan file yang sesuai, maka simulator akan berhenti mencari file dan menggunakan konfigurasi pada file yang tersebut. File konfigurasi yang tidak dapat diparsing dengan benar akan diabaikan dan tidak akan menyebabkan kerusakan pada simulator.
 
 File konfigurasi Universal REST Simulator dapat memiliki ekstensi apapun. Akan tetapi, untuk memudahkan penulisan, disarankan menggunakan ekstensi `.ini`.
 
@@ -2426,5 +2428,4 @@ Content-Lengh: 291
     "response_text": "Success"
 }
 ```
-
 
