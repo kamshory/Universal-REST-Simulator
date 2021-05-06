@@ -69,7 +69,17 @@ Untuk mengakses check path, buka Universal REST Simulator dengan menggunakan bro
 
 ## File Konfigurasi
 
-Konfigurasi simulator diatur oleh file-file yang disimpan di dalam direktori `/config` relatif terhadap direktori Universal REST Simulator. *Working directory* file manager adalah `/config` sehingga pengguna cukup membuat file konfigurasi pada `base directory` tanpa memasukkannya ke dalam direktori lagi. File yang berada di dalam direktori (tidak di `base directory`) tidak akan dibaca oleh simulator. Dengan demikian, apabila pengguna ingin mengarsipkan konfigurasi yang sudah tidak digunakan lagi cukup membuat sebuah direktori dan memasukkan file-file konfigurasi yang tidak digunakan ke dalam direktori tersebut.
+Konfigurasi simulator diatur oleh file-file yang disimpan di dalam direktori `/config` relatif terhadap direktori Universal REST Simulator. *Working directory* file manager adalah `/config` sehingga pengguna cukup membuat file konfigurasi pada `base directory` tanpa memasukkannya ke dalam direktori lagi. 
+
+```txt
+[root]
+    [config]
+        config1.ini
+        config2.ini
+        config3.ini
+```
+
+File yang berada di dalam direktori (tidak di `base directory`) tidak akan dibaca oleh simulator. Dengan demikian, apabila pengguna ingin mengarsipkan konfigurasi yang sudah tidak digunakan lagi cukup membuat sebuah direktori dan memasukkan file-file konfigurasi yang tidak digunakan ke dalam direktori tersebut.
 
 Pada saat simulator menerima request dari klien, simulator akan mencari file konfigurasi yang cocok dengan method dan path dari request yang diterima. Apabila simulator menemukan file yang sesuai, maka simulator akan berhenti mencari file dan menggunakan konfigurasi pada file yang tersebut. File konfigurasi yang tidak dapat diparsing dengan benar akan diabaikan dan tidak akan menyebabkan kerusakan pada simulator.
 
