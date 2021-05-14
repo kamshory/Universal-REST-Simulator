@@ -1,4 +1,5 @@
 
+
 # Tutorial Menggunakan Universal REST Simulator
 
 ## Daftar Isi
@@ -833,9 +834,9 @@ REQUEST_TYPE=applicatiom/soap+xml
 RESPONSE_TYPE=applicatiom/soap+xml
 
 PARSING_RULE=\
-$INPUT.MSISDN=$REQUEST.Body.YtzTopupRequest.msisdn\
-$INPUT.PRODUCT_CODE=$REQUEST.Body.YtzTopupRequest.productCode\
-$INPUT.REFERENCE_NUMBER=$REQUEST.Body.YtzTopupRequest.clientRefID
+$INPUT.MSISDN=$REQUEST.Body.TopupRequest.msisdn\
+$INPUT.PRODUCT_CODE=$REQUEST.Body.TopupRequest.productCode\
+$INPUT.REFERENCE_NUMBER=$REQUEST.Body.TopupRequest.clientRefID
 
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.MSISDN == "081266666667")\
@@ -846,23 +847,23 @@ $OUTPUT.CALLBACK_TYPE=applicatiom/soap+xml\
 $OUTPUT.CALLBACK_BODY=<?xml version="1.0" encoding="utf-8"?>\
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
   <soap:Body>\
-    <YtzTopupRequest xmlns="http://ytz.org/">\
+    <TopupRequest xmlns="http://ytz.org/">\
       <ResponseCode>0</ResponseCode>\
       <TransID>164</TransID>\
       <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
       <SerialNo>0987654321</SerialNo>\
-    </YtzTopupRequest>\
+    </TopupRequest>\
   </soap:Body>\
 </soap:Envelope>\
 $OUTPUT.BODY=<?xml version="1.0" encoding="utf-8"?>\
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
   <soap:Body>\
-    <YtzTopupRequest xmlns="http://ytz.org/">\
+    <TopupRequest xmlns="http://ytz.org/">\
       <ResponseCode>1</ResponseCode>\
       <TransID>164</TransID>\
       <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
       <SerialNo>0987654321</SerialNo>\
-    </YtzTopupRequest>\
+    </TopupRequest>\
   </soap:Body>\
 </soap:Envelope>\
 {[ENDIF]}\
@@ -874,23 +875,23 @@ $OUTPUT.CALLBACK_TYPE=applicatiom/soap+xml\
 $OUTPUT.CALLBACK_BODY=<?xml version="1.0" encoding="utf-8"?>\
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
   <soap:Body>\
-    <YtzTopupRequest xmlns="http://ytz.org/">\
+    <TopupRequest xmlns="http://ytz.org/">\
       <ResponseCode>0</ResponseCode>\
       <TransID>164</TransID>\
       <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
       <SerialNo>0987654321</SerialNo>\
-    </YtzTopupRequest>\
+    </TopupRequest>\
   </soap:Body>\
 </soap:Envelope>\
 $OUTPUT.BODY=<?xml version="1.0" encoding="utf-8"?>\
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
   <soap:Body>\
-    <YtzTopupRequest xmlns="http://ytz.org/">\
+    <TopupRequest xmlns="http://ytz.org/">\
       <ResponseCode>0</ResponseCode>\
       <TransID>164</TransID>\
       <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
       <SerialNo>0987654321</SerialNo>\
-    </YtzTopupRequest>\
+    </TopupRequest>\
   </soap:Body>\
 </soap:Envelope>\
 {[ENDIF]}\
@@ -899,12 +900,12 @@ $OUTPUT.BODY=<?xml version="1.0" encoding="utf-8"?>\
 $OUTPUT.BODY=<?xml version="1.0" encoding="utf-8"?>\
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
   <soap:Body>\
-    <YtzTopupRequest xmlns="http://ytz.org/">\
+    <TopupRequest xmlns="http://ytz.org/">\
       <ResponseCode>17</ResponseCode>\
       <TransID>164</TransID>\
       <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
       <SerialNo>0987654321</SerialNo>\
-    </YtzTopupRequest>\
+    </TopupRequest>\
   </soap:Body>\
 </soap:Envelope>\
 {[ENDIF]}\
@@ -925,14 +926,14 @@ Content-Length: 543
 <?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Body>
-    <YtzTopupRequest xmlns="http://ytz.org/">
+    <TopupRequest xmlns="http://ytz.org/">
       <msisdn>081266666666</msisdn>
       <productCode>X010</productCode>
       <userID>USER</userID>
       <userPassword>PASS</userPassword>
       <clientRefID>0000000000013787</clientRefID>
       <storeid>XL</storeid>
-    </YtzTopupRequest>
+    </TopupRequest>
   </soap:Body>
 </soap:Envelope>
 ```
@@ -947,12 +948,12 @@ Content-Length: 477
 <?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Body>
-    <YtzTopupRequest xmlns="http://ytz.org/">
+    <TopupRequest xmlns="http://ytz.org/">
       <ResponseCode>0</ResponseCode>
       <TransID>164</TransID>
       <ReferenceID>0000000000013787</ReferenceID>
       <SerialNo>0987654321</SerialNo>
-    </YtzTopupRequest>
+    </TopupRequest>
   </soap:Body>
 </soap:Envelope>
 ```
@@ -971,9 +972,9 @@ REQUEST_TYPE=applicatiom/soap+xml
 RESPONSE_TYPE=applicatiom/soap+xml
 
 PARSING_RULE=\
-$INPUT.MSISDN=$REQUEST.Body.YtzTopupRequest.msisdn\
-$INPUT.PRODUCT_CODE=$REQUEST.Body.YtzTopupRequest.productCode\
-$INPUT.REFERENCE_NUMBER=$REQUEST.Body.YtzTopupRequest.clientRefID
+$INPUT.MSISDN=$REQUEST.Body.TopupRequest.msisdn\
+$INPUT.PRODUCT_CODE=$REQUEST.Body.TopupRequest.productCode\
+$INPUT.REFERENCE_NUMBER=$REQUEST.Body.TopupRequest.clientRefID
 
 TRANSACTION_RULE=\
 {[IF]} ($INPUT.MSISDN == "081266666667")\
@@ -984,23 +985,23 @@ $OUTPUT.CALLBACK_TYPE=applicatiom/soap+xml\
 $OUTPUT.CALLBACK_BODY=<?xml version="1.0" encoding="utf-8"?>\
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
   <soap:Body>\
-    <YtzTopupRequest xmlns="http://ytz.org/">\
+    <TopupRequest xmlns="http://ytz.org/">\
       <ResponseCode>0</ResponseCode>\
       <TransID>164</TransID>\
       <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
       <SerialNo>0987654321</SerialNo>\
-    </YtzTopupRequest>\
+    </TopupRequest>\
   </soap:Body>\
 </soap:Envelope>\
 $OUTPUT.BODY=<?xml version="1.0" encoding="utf-8"?>\
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
   <soap:Body>\
-    <YtzTopupRequest xmlns="http://ytz.org/">\
+    <TopupRequest xmlns="http://ytz.org/">\
       <ResponseCode>1</ResponseCode>\
       <TransID>164</TransID>\
       <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
       <SerialNo>0987654321</SerialNo>\
-    </YtzTopupRequest>\
+    </TopupRequest>\
   </soap:Body>\
 </soap:Envelope>\
 {[ENDIF]}\
@@ -1012,23 +1013,23 @@ $OUTPUT.CALLBACK_TYPE=applicatiom/soap+xml\
 $OUTPUT.CALLBACK_BODY=<?xml version="1.0" encoding="utf-8"?>\
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
   <soap:Body>\
-    <YtzTopupRequest xmlns="http://ytz.org/">\
+    <TopupRequest xmlns="http://ytz.org/">\
       <ResponseCode>0</ResponseCode>\
       <TransID>164</TransID>\
       <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
       <SerialNo>0987654321</SerialNo>\
-    </YtzTopupRequest>\
+    </TopupRequest>\
   </soap:Body>\
 </soap:Envelope>\
 $OUTPUT.BODY=<?xml version="1.0" encoding="utf-8"?>\
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
   <soap:Body>\
-    <YtzTopupRequest xmlns="http://ytz.org/">\
+    <TopupRequest xmlns="http://ytz.org/">\
       <ResponseCode>0</ResponseCode>\
       <TransID>164</TransID>\
       <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
       <SerialNo>0987654321</SerialNo>\
-    </YtzTopupRequest>\
+    </TopupRequest>\
   </soap:Body>\
 </soap:Envelope>\
 {[ENDIF]}\
@@ -1037,12 +1038,12 @@ $OUTPUT.BODY=<?xml version="1.0" encoding="utf-8"?>\
 $OUTPUT.BODY=<?xml version="1.0" encoding="utf-8"?>\
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
   <soap:Body>\
-    <YtzTopupRequest xmlns="http://ytz.org/">\
+    <TopupRequest xmlns="http://ytz.org/">\
       <ResponseCode>17</ResponseCode>\
       <TransID>164</TransID>\
       <ReferenceID>$INPUT.REFERENCE_NUMBER</ReferenceID>\
       <SerialNo>0987654321</SerialNo>\
-    </YtzTopupRequest>\
+    </TopupRequest>\
   </soap:Body>\
 </soap:Envelope>\
 {[ENDIF]}\
@@ -1063,14 +1064,14 @@ Content-Length: 543
 <?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Body>
-    <YtzTopupRequest xmlns="http://ytz.org/">
+    <TopupRequest xmlns="http://ytz.org/">
       <msisdn>081266666666</msisdn>
       <productCode>X010</productCode>
       <userID>USER</userID>
       <userPassword>PASS</userPassword>
       <clientRefID>0000000000013787</clientRefID>
       <storeid>XL</storeid>
-    </YtzTopupRequest>
+    </TopupRequest>
   </soap:Body>
 </soap:Envelope>
 ```
@@ -1085,12 +1086,12 @@ Content-Length: 477
 <?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Body>
-    <YtzTopupRequest xmlns="http://ytz.org/">
+    <TopupRequest xmlns="http://ytz.org/">
       <ResponseCode>0</ResponseCode>
       <TransID>164</TransID>
       <ReferenceID>0000000000013787</ReferenceID>
       <SerialNo>0987654321</SerialNo>
-    </YtzTopupRequest>
+    </TopupRequest>
   </soap:Body>
 </soap:Envelope>
 ```
