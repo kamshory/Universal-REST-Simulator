@@ -127,9 +127,11 @@ Matriks input dan method Universal REST Simulator adalah sebagai berikut:
 | `POST` | `applicatiom/x-www-form-urlencoded` | Header, Body, <br>Basic Authorization, <br>GET, POST | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$POST` |
 | `POST` | `applicatiom/json`                  | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
 | `POST` | `applicatiom/xml`                   | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `POST` | `applicatiom/soap+xml`              | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
 | `PUT`  | `applicatiom/x-www-form-urlencoded` | Header, Body, <br>Basic Authorization, <br>GET, PUT | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$PUT` |
 | `PUT`  | `applicatiom/json`                  | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
 | `PUT`  | `applicatiom/xml`                   | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `PUT`  | `applicatiom/soap+xml`              | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
 
 **Input dari Object dan Array**
 
