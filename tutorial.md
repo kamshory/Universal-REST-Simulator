@@ -1,6 +1,3 @@
-
-
-
 # Tutorial Menggunakan Universal REST Simulator
 
 ## Daftar Isi
@@ -1133,7 +1130,7 @@ $OUTPUT.BODY={\
     "access_token": "$TOKEN.JWT",\
     "expire_at": $TOKEN.EXPIRE_AT,\
     "expires_in": $TOKEN.EXPIRE_IN,\
-    "email": "token@doconfig1n.tld"\
+    "email": "token@domain.tld"\
 }\
 {[ENDIF]}\
 {[IF]} ($INPUT.GRANT_TYPE == 'client_credentials' && $INPUT.USERNAME == "username" && $INPUT.PASSWORD == "password")\
@@ -1295,7 +1292,7 @@ $OUTPUT.BODY={\
     "access_token": "$TOKEN.JWT",\
     "expire_at": $TOKEN.EXPIRE_AT,\
     "expires_in": $TOKEN.EXPIRE_IN,\
-    "email": "token@doconfig1n.tld"\
+    "email": "token@domain.tld"\
 }\
 {[ENDIF]}\
 {[IF]} ($INPUT.GRANT_TYPE == 'client_credentials' && $INPUT.USERNAME == "username" && $INPUT.PASSWORD == "password")\
@@ -2031,7 +2028,7 @@ $OUTPUT.BODY={\
     "access_token": "$TOKEN.JWT",\
     "expire_at": $TOKEN.EXPIRE_AT,\
     "expires_in": $TOKEN.EXPIRE_IN,\
-    "email": "token@doconfig1n.tld"\
+    "email": "token@domain.tld"\
 }\
 {[ENDIF]}\
 {[IF]} (true)\
@@ -2060,14 +2057,14 @@ Contoh Respon
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 363
+Content-Length: 359
 
 {
     "token_type": "Bearer",
     "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJZb3VyIENvbXBhbnkiLCJhdWQiOiJZb3VyIENsaWVudCIsImlhdCI6MTYyMDAyNDI0MiwibmJmIjoxNjIwMDI0MjQyLCJleHAiOjE2MjAwMjc4NDIsImRhdGEiOltdfQ.x_SOclw1fn4irxsNHtX6ai02CTnFAGB5X7O_pRtk5UA",
     "expire_at": 1620027842,
     "expires_in": 3600,
-    "email": "token@doconfig1n.tld"
+    "email": "token@domain.tld"
 }
 ```
 
@@ -2100,7 +2097,7 @@ $OUTPUT.BODY={\
     "access_token": "$TOKEN.JWT",\
     "expire_at": $TOKEN.EXPIRE_AT,\
     "expires_in": $TOKEN.EXPIRE_IN,\
-    "email": "token@doconfig1n.tld"\
+    "email": "token@domain.tld"\
 }\
 {[ENDIF]}\
 {[IF]} ($INPUT.GRANT_TYPE == 'client_credentials' && $INPUT.USERNAME != "" && $INPUT.PASSWORD == "")\
@@ -2138,14 +2135,14 @@ Contoh Respon
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 363
+Content-Length: 359
 
 {
     "token_type": "Bearer",
     "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJZb3VyIENvbXBhbnkiLCJhdWQiOiJZb3VyIENsaWVudCIsImlhdCI6MTYyMDAyNDI0MiwibmJmIjoxNjIwMDI0MjQyLCJleHAiOjE2MjAwMjc4NDIsImRhdGEiOltdfQ.x_SOclw1fn4irxsNHtX6ai02CTnFAGB5X7O_pRtk5UA",
     "expire_at": 1620027842,
     "expires_in": 3600,
-    "email": "token@doconfig1n.tld"
+    "email": "token@domain.tld"
 }
 ```
 
@@ -2208,14 +2205,14 @@ Contoh Respon:
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 363
+Content-Length: 359
 
 {
     "token_type": "Bearer",
     "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJZb3VyIENvbXBhbnkiLCJhdWQiOiJZb3VyIENsaWVudCIsImlhdCI6MTYyMDAyNDYxNiwibmJmIjoxNjIwMDI0NjE2LCJleHAiOjE2MjAwMjgyMTYsImRhdGEiOltdfQ.eisS2qFFf4vjifCz7y_d5OyReqtkNSBtBrJoZuwPumw",
     "expire_at": 1620028216,
     "expires_in": 3600,
-    "email": "token@doconfig1n.tld"
+    "email": "token@domain.tld"
 }
 ```
 
