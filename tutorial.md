@@ -1247,7 +1247,7 @@ Contoh Respon:
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 218
+Content-Length: 217
 
 {
     "response_code": "001",
@@ -1257,7 +1257,7 @@ Content-Length: 218
         "amount": 5000000,
         "currency_code": "IDR",
         "time_stamp": "1619922480"
-    }\
+    }
 }
 ```
 
