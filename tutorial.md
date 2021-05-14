@@ -1247,11 +1247,11 @@ Contoh Respon:
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 217
+Content-Length: 218
 
 {
     "response_code": "001",
-    "response_text:" "Success",
+    "response_text:": "Success",
     "data": {
         "account_number": "1234567890",
         "amount": 5000000,
