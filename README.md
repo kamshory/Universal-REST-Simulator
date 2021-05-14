@@ -79,6 +79,7 @@ Universal REST Simulator  mendukung 3 macam `content type` yaitu sebagai berikut
 1. application/x-www-form-urlencoded
 2. application/json
 3. application/xml
+4. application/soap+xml
 
 `Content type` ini akan mempengaruhi cara menbaca request pada simulator.
 
@@ -1181,3 +1182,4 @@ Panduan lengkap untuk menggunakan file manager dapat dilihat di halaman https://
 Universal REST Simulator menggunakan `path` dan `method` untuk menentukan konfigurasi mana yang akan digunakan. Apabila terdapat dua atau lebih pasangan `path` dan `method` yang sama, maka file konfigurasi yang pertama kali ditemukan yang akan digunakan. 
 
 Pengguna perlu mengetahui apakah `path` dan `method` tersebut sudah digunakan atau belum atau apakah terjadi duplikasi atau tidak. Untuk memeriksa `path` dan `method` yang digunakan, pengguna cukup mengakses /checkpath/ dari document root simulator menggunakan browser.
+
