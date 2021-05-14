@@ -121,15 +121,15 @@ Simulator membaca input tergantung dari `content type` request. Untuk `content t
 
 Matriks input dan method Universal REST Simulator adalah sebagai berikut:
 
-| Method | Content Tpe                       | Sumber Data  | Alternatif Objek                |
-| ------ | --------------------------------- | ------------ | --------------------- |
-| `GET`  | applicatiom/x-www-form-urlencoded | Header, URL, <br>Basic Authorization, <br>GET  | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
-| `POST` | applicatiom/x-www-form-urlencoded | Header, Body, <br>Basic Authorization, <br>GET, POST | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$POST` |
-| `POST` | applicatiom/json                  | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
-| `POST` | applicatiom/xml                   | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
-| `PUT`  | applicatiom/x-www-form-urlencoded | Header, Body, <br>Basic Authorization, <br>GET, PUT | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$PUT` |
-| `PUT`  | applicatiom/json                  | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
-| `PUT`  | applicatiom/xml                   | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| Method | Content Tpe                         | Sumber Data  | Alternatif Objek                |
+| ------ | ----------------------------------- | ------------ | --------------------- |
+| `GET`  | `applicatiom/x-www-form-urlencoded` | Header, URL, <br>Basic Authorization, <br>GET  | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `POST` | `applicatiom/x-www-form-urlencoded` | Header, Body, <br>Basic Authorization, <br>GET, POST | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$POST` |
+| `POST` | `applicatiom/json`                  | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `POST` | `applicatiom/xml`                   | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `PUT`  | `applicatiom/x-www-form-urlencoded` | Header, Body, <br>Basic Authorization, <br>GET, PUT | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$PUT` |
+| `PUT`  | `applicatiom/json`                  | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `PUT`  | `applicatiom/xml`                   | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
 
 **Input dari Object dan Array**
 
