@@ -1,5 +1,6 @@
 
 
+
 # Tutorial Menggunakan Universal REST Simulator
 
 ## Daftar Isi
@@ -92,8 +93,10 @@ Atribut utama dari file konfigurasi adalah sebagai berikut:
 
 1. METHOD
 2. PATH
-3. PARSING_RULE
-4. TRANSACTION_RULE
+3. REQUETS_TYPE
+4. RESPONSE_TYPE
+5. PARSING_RULE
+6. TRANSACTION_RULE
 
 **METHOD**
 
