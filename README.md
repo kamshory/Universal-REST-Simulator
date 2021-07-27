@@ -754,6 +754,7 @@ Beberapa data yang yang dapat dihasikan oleh simulator adalah sebagai berikut:
 8. `$OUTPUT.CALLBACK_TIMEOUT` adalah timeout untuk callback.
 9. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback.
 10. `$OUTPUT.CALLBACK_BODY` adalah request body untuk callback.
+11. `$OUTPUT.CALLBACK_DELAY` adalah delay untuk callback dalam satuan mili detik.
 
 Penjelasan tentang callback dapat dibaca pada bagian **Callback**.
 
@@ -1072,6 +1073,7 @@ Untuk menambahkan callback, beberapa konfigurasi perlu dibuat pada `TRANSACTION_
 3. `$OUTPUT.CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
 4. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback.
 5. `$OUTPUT.CALLBACK_BODY` adalah request body untuk callback.
+6. `$OUTPUT.CALLBACK_DELAY` adalah delay untuk callback dalam satuan mili detik.
 
 Method default adalah `GET`. Apabila `$OUTPUT.CALLBACK_METHOD` adalah `GET`, maka `$OUTPUT.CALLBACK_BODY` tidak akan dikirim dan `Content-length` dan `Content-type` pada header juga tidak akan dikirim.
 
@@ -1104,6 +1106,7 @@ $OUTPUT.CALLBACK_TYPE=application/xml\
 $OUTPUT.CALLBACK_HEADER=\X-Server-Name: Universal REST Simulator\
 X-Response-Code: 00\
 X-Response-Text: Success\
+$OUTPUT.CALLBACK_DELAY=200\
 $OUTPUT.CALLBACK_BODY=<?xml version="1.0" encoding="UTF-8"?>\
 <data>\
 \
