@@ -1063,9 +1063,15 @@ function send_callback($output)
 {
 	$res = "";
 	$url = @$output['CALLBACK_URL'];
-	$timeout = @$output['CALLBACK_URL'] * 0.001;
+	$timeout = @$output['CALLBACK_TIMEOUT'] * 0.001;
 	if(stripos($url, "://") !== false)
-	{		
+	{
+		$callbackDelay = @$output['CALLBACK_DELAY'] * 1000;
+		if($callbackDelay > 0)
+		{
+			usleep($callbackDelay);
+		}
+
 		$body = @$output['CALLBACK_BODY'];
 		$content_length = strlen($body);
 		$ch = curl_init();
