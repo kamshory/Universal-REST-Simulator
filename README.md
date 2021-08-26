@@ -89,7 +89,7 @@ This `content type` will affect how to read requests on the simulator.
 
 Users are free to use any content type for the response because basically the response simulator is pure text.
 
-## Konfigurasi Input
+## Input Configuration
 
 **Property: `PARSING_RULE`**
 
