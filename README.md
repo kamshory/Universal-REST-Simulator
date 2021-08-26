@@ -2,15 +2,15 @@
 
 # Universal REST Simulator
 
-## Pengenalan
+## Introduction
 
-Universal REST Simulator adalah simulator universal untuk REST API. Simulator ini dapat dikonfigurasi dengan menambahkan beberapa file konfigurasi ke dalam direktori `config`. Universal REST Simulator dapat membaca semua ekstensi file.
+Universal REST Simulator is a universal simulator for REST APIs. This simulator can be configured by adding some configuration files into the `config` directory. Universal REST Simulator can read all file extensions.
 
-Konfigurasi mirip dengan file `ini`. Apabila nilai konfigurasi lebih dari satu baris, maka nilai pada baris selain terakhir harus diakhiri dengan `\` (backslash).
+The configuration is similar to the `this` file. If the configuration value is more than one line, then the value in the line other than the last must end with `\` (backslash).
 
-Totorial dapat dibaca di https://github.com/kamshory/Universal-REST-Simulator/blob/main/tutorial.md 
+The tutorial can be read at https://github.com/kamshory/Universal-REST-Simulator/blob/main/tutorial.md
 
-Contoh:
+Example:
 
 ```ini
 PARSING_RULE=\
@@ -21,7 +21,7 @@ $INPUT.ACCEPT_LANGUAGE=$OUTPUT.HEADER.ACCEPT_LANGUAGE\
 $INPUT.AMOUNT=$REQUEST.amount
 ```
 
-Property `PARSING_RULE` di atas terdiri dari 4 baris. Apabila karakter `\` dihilangkan, maka `PARSING_RULE` tidak ada nilainya. Apabila `\` di baris 2 dihilangkan menjadi sebagai berikut:
+The `PARSING_RULE` property above consists of 4 lines. If the `\` character is omitted, then `PARSING_RULE` has no value. If the `\` in line 2 is omitted it becomes as follows:
 
 ```ini
 PARSING_RULE=\
@@ -31,22 +31,22 @@ $INPUT.REF_NUMBER=$REQUEST.refno\
 $INPUT.AMOUNT=$REQUEST.amount
 ```
 
-maka `PARSING_RULE` hanya terdiri dari 2 baris saja yaitu:
+then `PARSING_RULE` only consists of 2 lines, namely:
 
 ```ini
 $INPUT.PRODUCT=$REQUEST.product_code\
 $INPUT.ACCOUNT=$REQUEST.customer_no
 ```
 
-karena setelah baris kehilangan `\` di akhirnya, maka simulator tidak akan melanjutkan pembacaan data. Cara konfigurasi ini berlaku untuk semua property.
+Because after the line loses `\` at the end, the simulator will not continue reading the data. This configuration method applies to all properties.
 
 ## Path
 
 **Property: `PATH`**
 
-Universal REST Simulator akan memilih konfigurasi sesuai dengan `path` yang diakses dengan method yang sama dengan method request. Sebagai contoh: pengguna membuat 7 file konfigurasi, Universal REST Simulator akan memilih satu file dengan `path` yang sesuai. Setelah mendapatkan file dengan path dan method yang sesuai, simulator akan berhenti mencari file lain.
+Universal REST Simulator will select the configuration according to the `path` which is accessed by the same method as the request method. For example: user creates 7 configuration files, Universal REST Simulator will select one file with appropriate `path`. After getting a file with the appropriate path and method, the simulator will stop looking for other files.
 
-Contoh struktur file konfigurasi:
+Example configuration file structure:
 
 ```
 [root]
@@ -56,17 +56,17 @@ Contoh struktur file konfigurasi:
         config3.txt
 ```
 
-`root` adalah document root dari simulator
-`config` adalah direktori di bawah document root
-File `config1.txt`, `config2.txt`, `config3.txt` berada di dalam direktori `config`.
+`root` is the document root of the simulator
+`config` is a directory under document root
+The files `config1.txt`, `config2.txt`, `config3.txt` are in the `config` directory.
 
-Jika `PATH` pada file `config1.txt` adalah `/biller/config1`, maka file tersebut akan dipilih hanya jika path pada URL request adalah `/biller/config1`.  Jika `PATH` pada file `config2.txt` adalah `/bank/config2`, maka file tersebut akan dipilih hanya jika path pada URL request adalah `/bank/config2`.  Jika tidak ada satu pun file dengan `path` yang cocok, maka simulator tidak akan memberikan response apa-apa.
+If the `PATH` in the `config1.txt` file is `/biller/config1`, then the file will be selected only if the path in the request URL is `/biller/config1`. If the `PATH` in the `config2.txt` file is `/bank/config2`, then the file will be selected only if the path in the request URL is `/bank/config2`. If none of the files with `path` match, then the simulator will give no response.
 
 ## Method
 
 **Property: `METHOD`**
 
-Pengguna dapat memilih method `GET`, `POST` atau `PUT`. Universal REST Simulator akan membaca request sesuai dengan method yang digunakan pada konfigurasi dan akan mengabaikan request lain.
+User can choose `GET`, `POST` or `PUT` method. Universal REST Simulator will read the request according to the method used in the configuration and will ignore other requests.
 
 ## Content Type
 
@@ -74,54 +74,54 @@ Pengguna dapat memilih method `GET`, `POST` atau `PUT`. Universal REST Simulator
 
 **Property: `REQUEST_TYPE`**
 
-Universal REST Simulator  mendukung 3 macam `content type` yaitu sebagai berikut:
+Universal REST Simulator supports 3 kinds of `content types` which are as follows:
 
 1. application/x-www-form-urlencoded
 2. application/json
 3. application/xml
 4. application/soap+xml
 
-`Content type` ini akan mempengaruhi cara menbaca request pada simulator.
+This `content type` will affect how to read requests on the simulator.
 
 ### Content Type Response
 
 **Property: `RESPONSE_TYPE`**
 
-Pengguna bebas menggunakan content type apa saja untuk response karena pada dasarnya response simulator adalah teks murni.
+Users are free to use any content type for the response because basically the response simulator is pure text.
 
 ## Konfigurasi Input
 
 **Property: `PARSING_RULE`**
 
-`$INPUT` adalah objek yang dapat dianggap sebagai global variable dan memiliki properti. `$INPUT` selalu ditulis dengan huruf kapital. Properti dari `$INPUT` dapat ditulis dengan huruf besar maupun huruf kecil dan akan bersifat _case sensitive_.
+`$INPUT` is an object that can be thought of as a global variable and has properties. `$INPUT` is always capitalized. The property of `$INPUT` can be written in both uppercase and lowercase letters and will be _case sensitive_.
 
-Input berasal dari 2 sumber yaitu `$REQUEST` (_request body_ pada `POST` dan `PUT` serta _query string_ pada `GET`) dan `$OUTPUT.HEADER` (request header). Baik `$REQUEST` maupun `$OUTPUT.HEADER` harus ditulis dengan huruf kapital. Nama properti dari `$REQUEST` adalah _case sensitive_ sedangkan nama properti dari `$OUTPUT.HEADER` berupa huruf kapital dan `-` diganti menjadi `_`. Hal ini disebabkan karena properti header mungkin sudah berubah dan tidak dapat diprediksi penulisannya secara pasti. 
+Input comes from 2 sources namely `$REQUEST` (_request body_ in `POST` and `PUT` and _query string_ in `GET`) and `$OUTPUT.HEADER` (request header). Both `$REQUEST` and `$OUTPUT.HEADER` must be capitalized. The property name of `$REQUEST` is _case sensitive_ while the property name of `$OUTPUT.HEADER` is capitalized and `-` is changed to `_`. This is because the header properties may have changed and cannot be predicted with certainty.
 
-`$REQUEST` dapat berasal dari:
-1. Query pada `GET`
-2. Request body pada `POST` dan `PUT`
+`$REQUEST` can come from:
+1. Query on `GET`
+2. Request body on `POST` and `PUT`
 3. Wildcard URL
 4. Basic Authorization
 
-Untuk mengambil `$REQUEST` dari wildcard URL, cukup menggunakan `{[IDENTIFIER]}` pada URL. `{[IDENTIFIER]}` bersifat _case sensitive_.
+To retrieve `$REQUEST` from a URL wildcard, simply use `{[IDENTIFIER]}` in the URL. `{[IDENTIFIER]}` is _case sensitive_.
 
-Contoh:
+Example:
 
 ```ini
 PATH=/payment/{[PRODUCT_CODE]}/{[CUSTOMER_ID]}/{[REFERENCE_NUMBER]}
 ```
 
-Jika client melakukan request baik `GET`, `POST` atau `PUT` dengan URL `/payment/123/456/7890`, maka `$REQUEST.PRODUCT_CODE` akan bernila `123`, `$REQUEST.CUSTOMER_ID` akan bernila `456`, `$REQUEST.REFERENCE_NUMBER` akan bernila `7890`. Wildcard URL tetap dapat digabungkan dengan query string. Baik input dari wildcard URL maupun query string akan dapat diparsing dalam satu request.
+If the client requests either `GET`, `POST` or `PUT` with URL `/payment/123/456/7890`, then `$REQUEST.PRODUCT_CODE` will be `123`, `$REQUEST.CUSTOMER_ID` will be value `456`, `$REQUEST.REFERENCE_NUMBER` will be `7890`. URL wildcards can still be concatenated with query strings. Both the input from the URL wildcard and the query string can be parsed in a single request.
 
-Basic authorization mengandung username dan password untuk mengakses sebuah sumber data. Informasi username dan password dikodekan dengan base 64. Simulator mengekstrak informasi tersebut lalu menyimpannya ke objek `$AUTHORIZATION_BASIC`.
+Basic authorization contains a username and password to access a data source. The username and password information is encoded with base 64. The simulator extracts the information and then saves it to the `$AUTHORIZATION_BASIC` object.
 
-Untuk mengambil username dari basic authorization, gunakan `$AUTHORIZATION_BASIC.USERNAME`. Untuk mengambil password dari basic authorization, gunakan `$AUTHORIZATION_BASIC.PASSWORD`. Penulisan `$AUTHORIZATION_BASIC.USERNAME` dan `$AUTHORIZATION_BASIC.PASSWORD` harus dengan huruf kapital.
+To retrieve the username from basic authorization, use `$AUTHORIZATION_BASIC.USERNAME`. To retrieve the password from basic authorization, use `$AUTHORIZATION_BASIC.PASSWORD`. `$AUTHORIZATION_BASIC.USERNAME` and `$AUTHORIZATION_BASIC.PASSWORD` must be capitalized.
 
-Simulator membaca input tergantung dari `content type` request. Untuk `content type`  `application/x-www-form-urlencoded`, simulator langsung mengambil nilai dari parameter yang sesuai. Untuk content type `application/json` dan `application/xml`, simulator akan mengambil data secara bertingkat. Dengan demikian, pengguna bebas memberikan request JSON dan XML dengan struktur bertingkat.
+The simulator reads the input depending on the `content type` request. For `content type` `application/x-www-form-urlencoded`, the simulator directly fetches the value of the appropriate parameter. For `application/json` and `application/xml` content types, the simulator will fetch data incrementally. Thus, users are free to provide JSON and XML requests with a nested structure.
 
-Matriks input dan method Universal REST Simulator adalah sebagai berikut:
+The input matrix and methods of Universal REST Simulator are as follows:
 
-| Method | Content Tpe                         | Sumber Data  | Alternatif Objek                |
+| Method | Content Tpe                         | Data Source  | Alternative Object              |
 | ------ | ----------------------------------- | ------------ | --------------------- |
 | `GET`  | `applicatiom/x-www-form-urlencoded` | Header, URL, <br>Basic Authorization, <br>GET  | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
 | `POST` | `applicatiom/x-www-form-urlencoded` | Header, Body, <br>Basic Authorization, <br>GET, POST | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$POST` |
@@ -133,11 +133,11 @@ Matriks input dan method Universal REST Simulator adalah sebagai berikut:
 | `PUT`  | `applicatiom/xml`                   | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
 | `PUT`  | `applicatiom/soap+xml`              | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
 
-**Input dari Object dan Array**
+**Input from Objects and Arrays**
 
-Pengguna mungkin menggunakan kombinasi antara `array` dan `object` sebagai `payload` dari `request` baik `GET`, `POST`, `PUT`, maupun `REQUEST`. Untuk mengambil nilai dari input yang kesemuanya adalah `object` dapat menggunakan operator titik (.) sedangkan untuk mengambil nilai dari input yang merupakan kombinasi antara `object` dan `array` dapat menggunakan operator kurung siku `[]`.
+Users may use a combination of `array` and `object` as the `payload` of the `request` either `GET`, `POST`, `PUT`, or `REQUEST`. To retrieve values from input which are all `object`, you can use the dot operator (.) while to retrieve values from input which is a combination of `object` and `array`, you can use the square bracket operator `[]`.
 
-Contoh Payload
+Payload Example
 
 ```json
 {
@@ -159,7 +159,7 @@ Contoh Payload
 
 ```
 
-Contoh Konfigurasi
+Example Configuration
 
 ```ini
 PATH=/universal-rest-simulator/array
@@ -189,9 +189,9 @@ $INPUT.PARAMS\
 {[ENDIF]}
 ```
 
-Operator `[]` dapat digunakan untuk mengambil nilai dari `object` dan `array`. Tidak diperkenankan menggabungkan operator `.` dan `[]` dalam mengambil sebuah nilai. Dengan demikian, penulisan `$INPUT.AMOUNT0=$REQUEST[items][0].amount` tidak diperbolehkan. Meskipun demikian, diperbolehkan menggunakan kombinasinya pada input yang berbeda.
+The `[]` operator can be used to retrieve values from `object` and `array`. It is not allowed to combine the `.` and `[]` operators in retrieving a value. Thus, writing `$INPUT.AMOUNT0=$REQUEST[items][0].amount` is not allowed. However, it is permissible to use their combination on different inputs.
 
-Contoh Kombinasi Operator
+Example of Operator Combinations
 
 ```ini
 PATH=/universal-rest-simulator/array
@@ -223,22 +223,22 @@ $INPUT.PARAMS\
 {[ENDIF]}
 ```
 
-`$INPUT.CUSTOMER_NAME=$REQUEST.customer.name` dapat pula ditulis dengan `$INPUT.CUSTOMER_NAME=$REQUEST[customer][name]` tanpa spasi sebelum `[` dan sesudah `]`.
+`$INPUT.CUSTOMER_NAME=$REQUEST.customer.name` can also be written as `$INPUT.CUSTOMER_NAME=$REQUEST[customer][name]` without spaces before `[` and after `]`.
 
-**Nilai dari UUID**
+**Value of UUID**
 
-Universal REST Simulator memungkinkan penggunaan UUID. Untuk mengambil UUID dari sistem, gunakan `$SYSTEM.UUID`. 
+Universal REST Simulator allows the use of UUIDs. To retrieve the UUID from the system, use `$SYSTEM.UUID`.
 
-Contoh:
+Example:
 
 ```ini
 $INPUT.UUID=$SYSTEM.UUID\
 $INPUT.RANDOM_ID=$SYSTEM.UUID\
 $INPUT.UNIQ_ID=$SYSTEM.UUID
 ```
-Dari contoh di atas, `$INPUT.UUID`, `$INPUT.RANDOM_ID`, dan `$INPUT.UNIQ_ID` akan memiliki nilai yang berbeda-beda.
+From the example above, `$INPUT.UUID`, `$INPUT.RANDOM_ID`, and `$INPUT.UNIQ_ID` will have different values.
 
-**Contoh Konfigurasi Input URL Encoded**
+**Examples of Encoded URL Input Configuration**
 
 ```ini
 PATH=/biller/config1
@@ -251,9 +251,9 @@ $INPUT.ACCOUNT=$REQUEST.customer_no\
 $INPUT.REF_NUMBER=$REQUEST.refno
 ```
 
-Pada kunfigurasi di atas, `$INPUT.PRODUCT` akan mengambil nilai dari `$REQUEST.product_code`. Dengan demikian, saat pengguna melakukan request dengan URL `/biller/config1?product_code=10000&customer_no=081266612126&refno=5473248234`, maka `$INPUT.PRODUCT` akan bernilai `10000`, demikian pula `$INPUT.ACCOUNT` akan bernilai `081266612126` dan seterusnya.
+In the above configuration, `$INPUT.PRODUCT` will retrieve the value from `$REQUEST.product_code`. Thus, when a user makes a request with the URL `/biller/config1?product_code=10000&customer_no=081266612126&refno=5473248234`, then `$INPUT.PRODUCT` will be worth `10000`, and `$INPUT.ACCOUNT` will be `081266612126` etc.
 
-**Contoh Konfigurasi Input JSON**
+**Examples of JSON Input Configuration**
 
 ```ini
 PATH=/bank/config2
@@ -267,7 +267,7 @@ $INPUT.ACCOUNT=$REQUEST.data.beneficiary_account_number\
 $INPUT.REF_NUMBER=$REQUEST.data.customer_reference_number
 ```
 
-JSON biasanya digunakan pada method `POST` atau `PUT`. Pada kunfigurasi di atas, `$INPUT.PRODUCT` akan mengambil nilai dari `$REQUEST.data.destination_bank_code` yaitu `ROOT.data.destination_bank_code`. dengan `ROOT` adalah objek JSON. Dengan demikian, saat pengguna melakukan request dengan 
+JSON is usually used in `POST` or `PUT` methods. In the above configuration, `$INPUT.PRODUCT` will take the value from `$REQUEST.data.destination_bank_code` which is `ROOT.data.destination_bank_code`. where `ROOT` is a JSON object. Thus, when a user makes a request with
 
 ```http
 POST /bank/config2 HTTP/1.1 
@@ -285,7 +285,7 @@ Content-length: 166
 }
 ```
 
-maka `$INPUT.PRODUCT` akan bernilai `002`, demikian pula `$INPUT.ACCOUNT` akan bernilai `1234567890` dan seterusnya.
+then `$INPUT.PRODUCT` will be worth `002`, likewise `$INPUT.ACCOUNT` will be `1234567890` and so on.
 
 **Contoh Konfigurasi Input XML**
 
@@ -302,7 +302,7 @@ $INPUT.AMOUNT=$REQUEST.amount\
 $INPUT.REF_NUMBER=$REQUEST.refno
 ```
 
-XML biasanya digunakan pada method `POST` atau `PUT`. Pada kunfigurasi di atas, `$INPUT.PRODUCT` akan mengambil nilai dari `$REQUEST.product_code` yaitu `ROOT.product_code`. dengan `ROOT` adalah tag level pertama dari XML. Dengan demikian, saat pengguna melakukan request dengan 
+XML is usually used in `POST` or `PUT` methods. In the above configuration, `$INPUT.PRODUCT` will take the value from `$REQUEST.product_code` which is `ROOT.product_code`. where `ROOT` is the first level tag of the XML. Thus, when a user makes a request with
 
 ```http
 POST /bank/config3 HTTP/1.1 
@@ -320,13 +320,13 @@ Content-length: 196
 </data>
 ```
 
-maka `$INPUT.PRODUCT` akan bernilai `10001`, demikian pula `$INPUT.ACCOUNT` akan bernilai `081266612127` dan seterusnya.
+then `$INPUT.PRODUCT` will be worth `10001`, likewise `$INPUT.ACCOUNT` will be `081266612127` and so on.
 
-## Kombinasi GET+POST dan GET+PUT
+## Combination of GET+POST and GET+PUT
 
-Universal REST Simulator dapat mengkombinasikan input `GET` dengan `POST` atau `PUT`. Untuk mengkombinasikan `GET` dengan `POST`, gunakan method `POST`. Untuk mengkombinasikan `GET` dengan `PUT`, gunakan method `PUT`.
+Universal REST Simulator can combine `GET` input with `POST` or `PUT`. To combine `GET` with `POST`, use the `POST` method. To combine `GET` with `PUT`, use the `PUT` method.
 
-`POST` dan `PUT` hanya berlaku untuk `REQUEST_TYPE=application/x-www-form-urlencoded` . Dalam hal ini, client juga harus mengirim `Content-type: application/x-www-form-urlencoded`. Pengambilan input dari `GET`, `POST`, dan `PUT` sama dengan `REQUEST` seperti contoh sebagai berikut:
+`POST` and `PUT` only apply to `REQUEST_TYPE=application/x-www-form-urlencoded` . In this case, the client must also send `Content-type: application/x-www-form-urlencoded`. Taking input from `GET`, `POST`, and `PUT` is the same as `REQUEST` as in the following example:
 
 ```ini
 PATH=/universal-simulator/token
@@ -380,9 +380,9 @@ $OUTPUT.BODY={\
 }\
 {[ENDIF]}\
 ```
-Konfigurasi di atas menunjukkan bahwa path tersebut menghendaki method `POST` dan yang lain. Akan tetapi, pengguna tetap dapat mengambil nilai dari query pada `URL` menggunakan `$GET`.
+The configuration above shows that the path requires the `POST` method and others. However, users can still retrieve values from queries at `URL` using `$GET`.
 
-> Contoh Request
+> Sample Request
 
 ```http
 POST /universal-simulator/token?detail=yes HTTP/1.1 
@@ -394,17 +394,17 @@ Content-length: 29
 grant_type=client_credentials
 ```
 
-Dari contoh di atas, input dari URL `/universal-simulator/token?detail=yes` diambil dengan `$GET.detail`. Nilai ini akan sama dengan `$REQUEST.detail` jika menggunakan method `GET`. Karena pada konfigurasi telah didefinisikan`METHOD=POST`, maka nilai ini hanya bisa diambil dengan `$GET.detail` karena `$REQUEST` hanya mengacu kepada request body yang dikirim.
+From the example above, the input from the URL `/universal-simulator/token?detail=yes` is taken with `$GET.detail`. This value will be equal to `$REQUEST.detail` if using the `GET` method. Because the configuration has defined `METHOD=POST`, this value can only be retrieved with `$GET.detail` because `$REQUEST` only refers to the request body sent.
 
-Pengambilan data dari body dapat dilakukan dengan dua cara yaitu `$REQUEST` dan `$POST`. Ingat bahwa `$POST` hanya bisa digunakan jika `REQUEST_TYPE=application/x-www-form-urlencoded` dan `Content-type: application/x-www-form-urlencoded`. Untuk content type lain, harus menggunakan `$RQUEST`.
+Retrieval of data from the body can be done in two ways, namely `$REQUEST` and `$POST`. Note that `$POST` can only be used if `REQUEST_TYPE=application/x-www-form-urlencoded` and `Content-type: application/x-www-form-urlencoded`. For other content types, must use `$RQUEST`.
 
-## Fungsi $CALC()
+## $CALC() Function
 
-Fungsi `$CALC()` sangan berguna untuk melakukan operasi matematika di mana `$INPUT` menjadi salah satu operannya.
+The `$CALC()` function is very useful for performing mathematical operations where `$INPUT` is one of the operands.
 
-Sebagai contoh: pengguna akan menambahkan jumlah tagihan dengan admin fee. Jika tagihan disimpan di dalam variabel `$INPUT.AMOUNT` dan admin fee disimpan dalam variabel `$INPUT.FEE`, maka dapat ditulis dengan `$CALC($INPUT.AMOUNT + $INPUT.FEE)`. Jika admin fee adalah nilai tetap yaitu 2500, maka dapat ditulis dengan `$CALC($INPUT.AMOUNT + 2500)`.
+For example: the user will add the bill amount with admin fee. If the invoice is stored in the variable `$INPUT.AMOUNT` and the admin fee is stored in the variable `$INPUT.FEE`, it can be written as `$CALC($INPUT.AMOUNT + $INPUT.FEE)`. If the admin fee is a fixed value of 2500, it can be written as `$CALC($INPUT.AMOUNT + 2500)`.
 
-Fungsi `$CALC()` juga dapat menghitung rumus dalam pasangan kurung. Contoh: `$CALC($INPUT.AMOUNT + $INPUT.FEE + ($INPUT.AMOUNT * 10/100))` dan sebagainya. Perhatikan bahwa jumlah kurung buka harus sama dengan jumlah kurung tutup. 
+The `$CALC()` function can also calculate formulas in brackets. Example: `$CALC($INPUT.AMOUNT + $INPUT.FEE + ($INPUT.AMOUNT * 10/100))` and so on. Note that the number of opening brackets must equal the number of closing brackets.
 
 ```ini
 PATH=/biller/post/json
@@ -485,13 +485,13 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
-## Fungsi $DATE()
+## $DATE() Function
 
-Fungsi `$DATE()` berguna untuk membuat tanggal dan jam secara otomatis. Tanggal dan jam akan mengikuti waktu server. Pengguna dapat menggunakan daerah waktu.
+The `$DATE()` function is useful for generating the date and time automatically. The date and time will follow the server time. User can use time area.
 
-Format `$DATE()` mengikuti format pada bahasa pemrograman PHP. Berikut ini merupakan penjelasan dari format `$DATE()` pada bahasa pemrograman PHP. Untuk menyisipkan karakter konstan pada fungsi `$DATE()`, awali dengan `\`. Misalnya `$DATE('Y-m-d\TH:i:s.000\Z', 'UTC+7')` akan menampilkan `2020-10:10T20:20:20.000Z`. Perhatikan bahwa `\T` akan menjadi `T` dan `\Z` akan menjadi `Z`.
+The `$DATE()` format follows the format in the PHP programming language. The following is an explanation of the `$DATE()` format in the PHP programming language. To insert a constant character in the `$DATE()` function, prefix it with `\`. For example `$DATE('Y-m-d\TH:i:s.000\Z', 'UTC+7')` will return `2020-10:10T20:20:20,000Z`. Note that `\T` will become `T` and `\Z` will become `Z`.
 
-| format character  | Description | Example returned values |
+| Format character  | Description | Example returned values |
 |-------------------|------------ |------------------------ |
 | Day | --- | --- |
 | d | Day of the month, 2 digits with leading zeros | 01 to 31 |
@@ -541,15 +541,15 @@ Format `$DATE()` mengikuti format pada bahasa pemrograman PHP. Berikut ini merup
 
 **Sumber**: https://www.php.net/manual/en/datetime.format.php 
 
-## Fungsi $ISVALIDTOKEN()
+## $ISVALIDTOKEN() Function
 
-Fungsi ini digunakan pada kondisi untuk memvalidasi token yang dikirimkan melalui `Authorization: Bearer`. Simulator akan mengambil token yang dikirimkan melalui header dengan key `Autorization`. Token ini kemudian akan divalidasi sesuai dengan konfigurasi server. Apabila token tersebut benar, `$ISVALIDTOKEN()` akan bernilai `true`. Sebaliknya, apabila token tersebut salah, `$ISVALIDTOKEN()` akan bernilai `false`. Simulator hanya akan memvalidasi token yang dibuat oleh simulator itu sendiri.
+This function is used in conditions to validate tokens sent via `Authorization: Bearer`. The simulator will fetch the token sent via the header with the key `Authorization`. This token will then be validated according to the server configuration. If the token is true, `$ISVALIDTOKEN()` will be `true`. Otherwise, if the token is false, `$ISVALIDTOKEN()` will return `false`. The simulator will only validate tokens generated by the simulator itself.
 
-**Cara Membuat Token**
+**How to Create Token**
 
-Agar simulator dapat membuat token, buatlah sebuah file konfigurasi. Output dari konfigurasi harus mengandung `$TOKEN.JWT`. Informasi lain seperti `$TOKEN.EXPIRE_AT` dan `$TOKEN.EXPIRE_IN` dapat pula ditambahkan.
+In order for the simulator to generate tokens, create a configuration file. The output of the configuration must contain `$TOKEN.JWT`. Other information such as `$TOKEN.EXPIRE_AT` and `$TOKEN.EXPIRE_IN` can also be added.
 
-**Konfigurasi Request Token**
+**Configure Request Token**
 
 ```ini
 PATH=/auth
@@ -578,11 +578,11 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
-**Cara Memvalidasi Token**
+**How to Validate Token**
 
-Untuk melakukan validasi token, caranya sangat mudah. Cukup dengan membuat kondisi `$ISVALIDTOKEN()`. Simulator akan mengambil token yang dikirim dan memvalidasi token tersebut. 
+To do token validation, it's very easy. It is enough to create the condition `$ISVALIDTOKEN()`. The simulator will take the token sent and validate the token.
 
-**Konfigurasi Validasi Token**
+**Token Validation Configuration**
 
 ```ini
 PATH=/Universal-REST-Simulator/va-status
@@ -655,9 +655,9 @@ $OUTPUT.BODY={\
 {[ENDIF]}\
 ```
 
-Konfigurasi di atas memperlihatkan contoh cara memvalidasi token. Perlu dicatat bahwa `$INPUT.USERNAME=$AUTHORIZATION_BASIC.USERNAME` dan `$INPUT.PASSWORD=$AUTHORIZATION_BASIC.PASSWORD` tidak dapat lagi digunakan karena key `Authorization` sudah digunakan untuk mengirimkan token. Meskipun demikian, Anda masih tetap dapat menggunakan key lain.
+The configuration above shows an example of how to validate a token. Note that `$INPUT.USERNAME=$AUTHORIZATION_BASIC.USERNAME` and `$INPUT.PASSWORD=$AUTHORIZATION_BASIC.PASSWORD` can no longer be used because the `Authorization` key has already been used to send tokens. However, you can still use other keys.
 
-**Konfigurasi Validasi Token dengan Tambahahan Header**
+**Configure Token Validation with Additional Header**
 
 ```ini
 PATH=/Universal-REST-Simulator/va-status
