@@ -1,11 +1,12 @@
 <?php
-
 require dirname(__FILE__)."/lib.inc/config.php";
 require dirname(__FILE__)."/lib.inc/vendor/autoload.php";
 use \Firebase\JWT\JWT;
 
 error_reporting(E_ALL);
+
 // Functions
+
 function parse_config($context_path, $document_root = null)
 {
 	if($document_root == null)
@@ -14,6 +15,7 @@ function parse_config($context_path, $document_root = null)
 	}
 	$config = $document_root."/".$context_path;
 	$file_content = file_get_contents($config);
+	
 	// Fixing new line
 	// Some operating system may have different style
 	$file_content = str_replace("\n", "\r\n", $file_content);
@@ -58,6 +60,7 @@ function parse_config($context_path, $document_root = null)
 		}
 		$j++;
 	}
+
 	// Parse raw file to raw configuration with it properties
 	$parsed = array();
 	foreach($array as $idx=>$content)
@@ -290,26 +293,7 @@ function validate_token($string, $token_sent)
 		{
 			$total_length = strlen($string);
 			$start = stripos($string, '$string');
-			$p1 = 0;
-			$rem = 0;
-			$found = false;
-			do
-			{
-				$f1 = substr($string, $start+$p1, 1);
-				$f2 = substr($string, $start+$p1, 1);
-				if($f1 == "(")
-				{
-					$rem++;
-					$found = true;
-				}
-				if($f2 == ")")
-				{
-					$rem--;
-					$found = true;
-				}
-				$p1++;
-			}
-			while($rem > 0 || !$found); 
+			$p1 = find_bracket_position($string, $start); 
 			$formula = substr($string, $start, $p1);
 			$fm1 = trim($formula, " \r\n\t ");
 			$fm1 = substr($fm1, 6, strlen($fm1)-7);
@@ -549,26 +533,7 @@ function replace_date($string)
 		{
 			$total_length = strlen($string);
 			$start = stripos($string, '$DATE');
-			$p1 = 0;
-			$rem = 0;
-			$found = false;
-			do
-			{
-				$f1 = substr($string, $start+$p1, 1);
-				$f2 = substr($string, $start+$p1, 1);
-				if($f1 == "(")
-				{
-					$rem++;
-					$found = true;
-				}
-				if($f2 == ")")
-				{
-					$rem--;
-					$found = true;
-				}
-				$p1++;
-			}
-			while($rem > 0 || !$found); 
+			$p1 = find_bracket_position($string, $start);
 			$formula = substr($string, $start, $p1);
 			$fm1 = trim($formula, " \r\n\t ");
 			$fm1 = substr($fm1, 6, strlen($fm1)-7);
@@ -593,26 +558,7 @@ function replace_number_format($string)
 		{
 			$total_length = strlen($string);
 			$start = stripos($string, '$NUMBERFORMAT');
-			$p1 = 0;
-			$rem = 0;
-			$found = false;
-			do
-			{
-				$f1 = substr($string, $start+$p1, 1);
-				$f2 = substr($string, $start+$p1, 1);
-				if($f1 == "(")
-				{
-					$rem++;
-					$found = true;
-				}
-				if($f2 == ")")
-				{
-					$rem--;
-					$found = true;
-				}
-				$p1++;
-			}
-			while($rem > 0 || !$found); 
+			$p1 = $p1 = find_bracket_position($string, $start);
 			$formula = substr($string, $start, $p1);
 			$fm1 = trim($formula, " \r\n\t ");
 			$fm1 = substr($fm1, 13, strlen($fm1)-7);
@@ -639,26 +585,7 @@ function replace_substring($string)
 		{
 			$total_length = strlen($string);
 			$start = stripos($string, '$SUBSTRING');
-			$p1 = 0;
-			$rem = 0;
-			$found = false;
-			do
-			{
-				$f1 = substr($string, $start+$p1, 1);
-				$f2 = substr($string, $start+$p1, 1);
-				if($f1 == "(")
-				{
-					$rem++;
-					$found = true;
-				}
-				if($f2 == ")")
-				{
-					$rem--;
-					$found = true;
-				}
-				$p1++;
-			}
-			while($rem > 0 || !$found); 
+			$p1 = $p1 = find_bracket_position($string, $start);
 			$formula = substr($string, $start, $p1);
 			$fm1 = trim($formula, " \r\n\t ");
 			$fm1 = substr($fm1, 10, strlen($fm1)-7);
@@ -685,26 +612,7 @@ function replace_uppercase($string)
 		{
 			$total_length = strlen($string);
 			$start = stripos($string, '$UPPERCASE');
-			$p1 = 0;
-			$rem = 0;
-			$found = false;
-			do
-			{
-				$f1 = substr($string, $start+$p1, 1);
-				$f2 = substr($string, $start+$p1, 1);
-				if($f1 == "(")
-				{
-					$rem++;
-					$found = true;
-				}
-				if($f2 == ")")
-				{
-					$rem--;
-					$found = true;
-				}
-				$p1++;
-			}
-			while($rem > 0 || !$found); 
+			$p1 = find_bracket_position($string, $start); 
 			$formula = substr($string, $start, $p1);
 			$fm1 = trim($formula, " \r\n\t ");
 			$fm1 = substr($fm1, 10, strlen($fm1)-7);
@@ -731,26 +639,7 @@ function replace_lowercase($string)
 		{
 			$total_length = strlen($string);
 			$start = stripos($string, '$LOWERCASE');
-			$p1 = 0;
-			$rem = 0;
-			$found = false;
-			do
-			{
-				$f1 = substr($string, $start+$p1, 1);
-				$f2 = substr($string, $start+$p1, 1);
-				if($f1 == "(")
-				{
-					$rem++;
-					$found = true;
-				}
-				if($f2 == ")")
-				{
-					$rem--;
-					$found = true;
-				}
-				$p1++;
-			}
-			while($rem > 0 || !$found); 
+			$p1 = find_bracket_position($string, $start); 
 			$formula = substr($string, $start, $p1);
 			$fm1 = trim($formula, " \r\n\t ");
 			$fm1 = substr($fm1, 10, strlen($fm1)-7);
@@ -769,6 +658,30 @@ function replace_lowercase($string)
 	}
 	return $string;
 }
+function find_bracket_position($string, $start)
+{
+	$p1 = 0;
+	$rem = 0;
+	$found = false;
+	do
+	{
+		$f1 = substr($string, $start+$p1, 1);
+		$f2 = substr($string, $start+$p1, 1);
+		if($f1 == "(")
+		{
+			$rem++;
+			$found = true;
+		}
+		if($f2 == ")")
+		{
+			$rem--;
+			$found = true;
+		}
+		$p1++;
+	}
+	while($rem > 0 || !$found); 
+	return $p1;
+}
 function replace_calc($string)
 {
 	
@@ -778,26 +691,8 @@ function replace_calc($string)
 		{
 			$total_length = strlen($string);
 			$start = stripos($string, '$CALC');
-			$p1 = 0;
-			$rem = 0;
-			$found = false;
-			do
-			{
-				$f1 = substr($string, $start+$p1, 1);
-				$f2 = substr($string, $start+$p1, 1);
-				if($f1 == "(")
-				{
-					$rem++;
-					$found = true;
-				}
-				if($f2 == ")")
-				{
-					$rem--;
-					$found = true;
-				}
-				$p1++;
-			}
-			while($rem > 0 || !$found); 
+			$p1 = find_bracket_position($string, $start);
+			
 			$formula = substr($string, $start, $p1);
 			$fm1 = trim($formula, " \r\n\t ");
 			$fm1 = substr($fm1, 6, strlen($fm1)-7);
