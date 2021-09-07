@@ -17,19 +17,24 @@ function fix_document_root($document_root)
 	}
 	return $document_root;
 }
-
+function fix_carriage_return($data)
+{
+	$data = str_replace("\n", "\r\n", $data);
+	$data = str_replace("\r\r\n", "\r\n", $data);
+	$data = str_replace("\r", "\r\n", $data);
+	$data = str_replace("\r\n\n", "\r\n", $data);
+	return $data;
+}
 function parse_config($context_path, $document_root = null)
 {
 	$document_root = fix_document_root($document_root);
 	$config = $document_root."/".$context_path;
 	$file_content = file_get_contents($config);
+	$file_content = fix_carriage_return($file_content);
 	
 	// Fixing new line
 	// Some operating system may have different style
-	$file_content = str_replace("\n", "\r\n", $file_content);
-	$file_content = str_replace("\r\r\n", "\r\n", $file_content);
-	$file_content = str_replace("\r", "\r\n", $file_content);
-	$file_content = str_replace("\r\n\n", "\r\n", $file_content);
+	
 	
 	$lines = explode("\r\n", $file_content);
 	$array = array();
@@ -511,13 +516,13 @@ function date_with_tz($fmt, $tz)
 
 function eval_date($args)
 {
-	$args = trim(substr($args, 5), SPACE_TRIMMER);
+	
+	$args = trim(substr($args, 4), SPACE_TRIMMER);
 	$args = substr($args, 1, strlen($args) - 2);
 	$parts = preg_split("/(?:'[^']*'|)\K\s*(,\s*|$)/", $args);
 	$result = array_filter($parts, function ($value) {
 		return ($value !== '');
 	});
-	
 	if(count($result) == 1)
 	{
 		// no time zone	
@@ -543,7 +548,6 @@ function eval_date($args)
 		}
 		$fmt = str_replace("'", "", trim($result[0]));
 		$tz = str_replace("'", "", trim($result[1]));
-		
 		return date_with_tz($fmt, $tz);
 	}
 }
@@ -1010,7 +1014,7 @@ function send_callback($output)
 		$headers = array();
 		if(isset($output['CALLBACK_HEADER']))
 		{
-			$header = trim($output['CALLBACK_HEADER'], SPACE_TRIMMER);
+			$header = fix_carriage_return(trim($output['CALLBACK_HEADER'], SPACE_TRIMMER));
 			if(strlen($header) > 2)
 			{
 				$headers = explode("\r\n", $header);				
