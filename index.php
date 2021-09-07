@@ -4,15 +4,23 @@ require dirname(__FILE__)."/lib.inc/vendor/autoload.php";
 use \Firebase\JWT\JWT;
 
 error_reporting(E_ALL);
+define("SPACE_TRIMMER", " \t\r\n ");
+define("EOL", "{[EOL]}");
 
 // Functions
 
-function parse_config($context_path, $document_root = null)
+function fix_document_root($document_root)
 {
 	if($document_root == null)
 	{
 		$document_root = dirname(__FILE__);
 	}
+	return $document_root;
+}
+
+function parse_config($context_path, $document_root = null)
+{
+	$document_root = fix_document_root($document_root);
 	$config = $document_root."/".$context_path;
 	$file_content = file_get_contents($config);
 	
@@ -30,7 +38,7 @@ function parse_config($context_path, $document_root = null)
 	$j = 0;
 
 	// If line ended with \, do not explode it as array
-	foreach($lines as $idx=>$line)
+	foreach($lines as $line)
 	{
 		if(endsWith($line, "\\"))
 		{
@@ -52,7 +60,7 @@ function parse_config($context_path, $document_root = null)
 		$array[$i] .= $line;
 		if($j > 0)
 		{
-			$array[$i] .= "{[EOL]}";
+			$array[$i] .= EOL;
 		}
 		if(!$nl)
 		{
@@ -63,7 +71,7 @@ function parse_config($context_path, $document_root = null)
 
 	// Parse raw file to raw configuration with it properties
 	$parsed = array();
-	foreach($array as $idx=>$content)
+	foreach($array as $content)
 	{
 		if(stripos($content, "=") > 0)
 		{
@@ -102,10 +110,10 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 	parse_str($query, $get_data);
 	// Parsing input
 	$rule = $config['PARSING_RULE'];
-	$rule = trim(str_replace("\\{[EOL]}", "\r\n", $rule), " \\ ");
-	if(endsWith($rule, '{[EOL]}'))
+	$rule = trim(str_replace("\\".EOL, "\r\n", $rule), " \\ ");
+	if(endsWith($rule, EOL))
 	{
-		$rule = substr($rule, 0, strlen($rule) - strlen('{[EOL]}'));
+		$rule = substr($rule, 0, strlen($rule) - strlen(EOL));
 	}
 	$arr = explode("\r\n", $rule);
 	$res = array();
@@ -285,6 +293,11 @@ function is_valid_jwt($token_sent)
 	}
 }
 
+function is_valid_quoted($fm1)
+{
+	return (startsWith($fm1, "'") && endsWith($fm1, "'")) || (startsWith($fm1, '"') && endsWith($fm1, '"'));
+}
+
 function validate_token($string, $token_sent)
 {
 	if(stripos($string, '$ISVALIDTOKEN') !== false)
@@ -295,10 +308,10 @@ function validate_token($string, $token_sent)
 			$start = stripos($string, '$string');
 			$p1 = find_bracket_position($string, $start); 
 			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, " \r\n\t ");
+			$fm1 = trim($formula, SPACE_TRIMMER);
 			$fm1 = substr($fm1, 6, strlen($fm1)-7);
-			$fm1 = trim($fm1, " \r\n\t ");
-			if((startsWith($fm1, "'") && endsWith($fm1, "'")) || (startsWith($fm1, '"') && endsWith($fm1, '"')))
+			$fm1 = trim($fm1, SPACE_TRIMMER);
+			if(is_valid_quoted($fm1))
 			{
 				$fm1 = substr($fm1, 1, strlen($fm1)-2);
 			}
@@ -364,14 +377,14 @@ function process_transaction($parsed, $request)
 	$transaction_rule = $parsed['TRANSACTION_RULE'];
 	$transaction_rule = trim($transaction_rule, "\\");
 	$transaction_rule = str_replace("\\{[EOL]}$"."OUTPUT.", "\\{[EOL]}\r\n$"."OUTPUT.", $transaction_rule);
-	if(endsWith($transaction_rule, '{[EOL]}'))
+	if(endsWith($transaction_rule, EOL))
 	{
-		$transaction_rule = substr($transaction_rule, 0, strlen($transaction_rule) - strlen('{[EOL]}'));
+		$transaction_rule = substr($transaction_rule, 0, strlen($transaction_rule) - strlen(EOL));
 	}
 	$arr = explode('{[ENDIF]}', $transaction_rule);
 	$return_data = array();
 	$token_generated = null;
-	foreach($arr as $idx=>$data)
+	foreach($arr as $data)
 	{
 		if(stripos($data, "{[THEN]}") > 0)
 		{
@@ -395,7 +408,7 @@ function process_transaction($parsed, $request)
 				
 				
 			}
-			$rcondition = trim($rcondition, " \t\r\n ");
+			$rcondition = trim($rcondition, SPACE_TRIMMER);
 			if(stripos($rcondition, '{[IF]}') === 0)
 			{
 				$rcondition = str_ireplace('{[IF]}', 'if', $rcondition);
@@ -406,7 +419,7 @@ function process_transaction($parsed, $request)
 			if($test)
 			{
 				$arr3 = explode("\r\n", $rline);
-				foreach($arr3 as $idx2=>$result)
+				foreach($arr3 as $result)
 				{
 					// TODO Parse result
 					$str = preg_replace( '/[^a-z0-9\.\$_]/i', ' ', $result); 
@@ -438,7 +451,7 @@ function process_transaction($parsed, $request)
 					$result = replace_uppercase($result);
 					$result = replace_lowercase($result);
 					$result = replace_calc($result);
-					$result = ltrim($result, " \t\r\n ");
+					$result = ltrim($result, SPACE_TRIMMER);
 					$arr6 = explode("=", $result, 2);
 					$variable = $arr6[0];
 					$value = $arr6[1];
@@ -462,9 +475,43 @@ function process_transaction($parsed, $request)
 	return $return_data;
 }
 
+function date_without_tz($args1)
+{
+	if(startsWith($args1, "'"))
+	{
+		$args1 = substr($args1, 1);
+	}
+	if(endsWith($args1, "'"))
+	{
+		$args1 = substr($args1, 0, strlen($args1) - 1);
+	}
+	return date($args1);
+}
+function date_with_tz($fmt, $tz)
+{
+	if(stripos($tz, 'UTC') !== false)
+	{
+		$tz1 = (str_replace("UTC", "", $tz) * 1);	
+		$tz2 = date('Z')/3600;		
+		$ret = date($fmt, time(0) + (($tz1 - $tz2) * 3600));			
+	}
+	else if(stripos($tz, 'GMT') !== false)
+	{
+		$tz1 = (str_replace("GMT", "", $tz) * 1);	
+		$tz2 = date('Z')/3600;		
+		$ret = date($fmt, time(0) + (($tz1 - $tz2) * 3600));			
+	}
+	else
+	{
+		date_default_timezone_set($tz);
+		$ret = date($fmt);			
+	}
+	return $ret;
+}
+
 function eval_date($args)
 {
-	$args = trim(substr($args, 5), " \t\r\n ");
+	$args = trim(substr($args, 5), SPACE_TRIMMER);
 	$args = substr($args, 1, strlen($args) - 2);
 	$parts = preg_split("/(?:'[^']*'|)\K\s*(,\s*|$)/", $args);
 	$result = array_filter($parts, function ($value) {
@@ -473,16 +520,8 @@ function eval_date($args)
 	
 	if(count($result) == 1)
 	{
-		// no time zone
-		if(startsWith($result[0], "'"))
-		{
-			$result[0] = substr($result[0], 1);
-		}
-		if(endsWith($result[0], "'"))
-		{
-			$result[0] = substr($result[0], 0, strlen($result[0]) - 1);
-		}
-		return date($result[0]);
+		// no time zone	
+		return date_without_tz($result[0]);
 	}
 	else if(count($result) == 2)
 	{
@@ -505,23 +544,7 @@ function eval_date($args)
 		$fmt = str_replace("'", "", trim($result[0]));
 		$tz = str_replace("'", "", trim($result[1]));
 		
-		if(stripos($tz, 'UTC') !== false)
-		{
-			$tz1 = (str_replace("UTC", "", $tz) * 1);	
-			$tz2 = date('Z')/3600;		
-			return date($fmt, time(0) + (($tz1 - $tz2) * 3600));			
-		}
-		else if(stripos($tz, 'GMT') !== false)
-		{
-			$tz1 = (str_replace("GMT", "", $tz) * 1);	
-			$tz2 = date('Z')/3600;		
-			return date($fmt, time(0) + (($tz1 - $tz2) * 3600));			
-		}
-		else
-		{
-			date_default_timezone_set($tz);
-			return date($fmt);			
-		}
+		return date_with_tz($fmt, $tz);
 	}
 }
 
@@ -535,9 +558,9 @@ function replace_date($string)
 			$start = stripos($string, '$DATE');
 			$p1 = find_bracket_position($string, $start);
 			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, " \r\n\t ");
+			$fm1 = trim($formula, SPACE_TRIMMER);
 			$fm1 = substr($fm1, 6, strlen($fm1)-7);
-			$fm1 = trim($fm1, " \r\n\t ");
+			$fm1 = trim($fm1, SPACE_TRIMMER);
 			$result = eval_date('date('.$fm1.')');
 			
 			$string = str_ireplace($formula, $result, $string);
@@ -560,9 +583,9 @@ function replace_number_format($string)
 			$start = stripos($string, '$NUMBERFORMAT');
 			$p1 = $p1 = find_bracket_position($string, $start);
 			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, " \r\n\t ");
+			$fm1 = trim($formula, SPACE_TRIMMER);
 			$fm1 = substr($fm1, 13, strlen($fm1)-7);
-			$fm1 = trim($fm1, " \r\n\t ");
+			$fm1 = trim($fm1, SPACE_TRIMMER);
 			$fm1 = ltrim($fm1, '(');
 			$fm1 = rtrim($fm1, ')');
 			$result = "";
@@ -587,9 +610,9 @@ function replace_substring($string)
 			$start = stripos($string, '$SUBSTRING');
 			$p1 = $p1 = find_bracket_position($string, $start);
 			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, " \r\n\t ");
+			$fm1 = trim($formula, SPACE_TRIMMER);
 			$fm1 = substr($fm1, 10, strlen($fm1)-7);
-			$fm1 = trim($fm1, " \r\n\t ");
+			$fm1 = trim($fm1, SPACE_TRIMMER);
 			$fm1 = ltrim($fm1, '(');
 			$fm1 = rtrim($fm1, ')');
 			$result = "";
@@ -614,9 +637,9 @@ function replace_uppercase($string)
 			$start = stripos($string, '$UPPERCASE');
 			$p1 = find_bracket_position($string, $start); 
 			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, " \r\n\t ");
+			$fm1 = trim($formula, SPACE_TRIMMER);
 			$fm1 = substr($fm1, 10, strlen($fm1)-7);
-			$fm1 = trim($fm1, " \r\n\t ");
+			$fm1 = trim($fm1, SPACE_TRIMMER);
 			$fm1 = ltrim($fm1, '(');
 			$fm1 = rtrim($fm1, ')');
 			$result = "";
@@ -641,9 +664,9 @@ function replace_lowercase($string)
 			$start = stripos($string, '$LOWERCASE');
 			$p1 = find_bracket_position($string, $start); 
 			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, " \r\n\t ");
+			$fm1 = trim($formula, SPACE_TRIMMER);
 			$fm1 = substr($fm1, 10, strlen($fm1)-7);
-			$fm1 = trim($fm1, " \r\n\t ");
+			$fm1 = trim($fm1, SPACE_TRIMMER);
 			$fm1 = ltrim($fm1, '(');
 			$fm1 = rtrim($fm1, ')');
 			$result = "";
@@ -694,9 +717,9 @@ function replace_calc($string)
 			$p1 = find_bracket_position($string, $start);
 			
 			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, " \r\n\t ");
+			$fm1 = trim($formula, SPACE_TRIMMER);
 			$fm1 = substr($fm1, 6, strlen($fm1)-7);
-			$fm1 = trim($fm1, " \r\n\t ");
+			$fm1 = trim($fm1, SPACE_TRIMMER);
 			if((startsWith($fm1, "'") && endsWith($fm1, "'")) || (startsWith($fm1, '"') && endsWith($fm1, '"')))
 			{
 				$fm1 = substr($fm1, 1, strlen($fm1)-2);
@@ -816,7 +839,6 @@ function parse_match_url($config_path, $request_path)
 		'param_list'=>$params,
 		'param_values'=>$values
 		);
-		
 }
 
 function is_match_path($config_path, $request_path)
@@ -988,7 +1010,7 @@ function send_callback($output)
 		$headers = array();
 		if(isset($output['CALLBACK_HEADER']))
 		{
-			$header = trim($output['CALLBACK_HEADER'], " \t\r\n ");
+			$header = trim($output['CALLBACK_HEADER'], SPACE_TRIMMER);
 			if(strlen($header) > 2)
 			{
 				$headers = explode("\r\n", $header);				
