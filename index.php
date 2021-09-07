@@ -516,7 +516,7 @@ function date_with_tz($fmt, $tz)
 
 function eval_date($args)
 {
-	
+	$args = trim($args, SPACE_TRIMMER);
 	$args = trim(substr($args, 4), SPACE_TRIMMER);
 	$args = substr($args, 1, strlen($args) - 2);
 	$parts = preg_split("/(?:'[^']*'|)\K\s*(,\s*|$)/", $args);
@@ -816,15 +816,11 @@ function parse_match_url($config_path, $request_path)
 				$nextval = $arr1[$i+1];
 				$start = $cur + strlen($curval);
 				$end = stripos($request_path, $nextval, $start);
-				$arr2[] = substr($request_path, $lastpost, $start - $lastpost);
-				
-				$lastpost = $end;
-				
-				$values[$params[$j]] = substr($request_path, $start, $end-$start);
-				
+				$arr2[] = substr($request_path, $lastpost, $start - $lastpost);				
+				$lastpost = $end;			
+				$values[$params[$j]] = substr($request_path, $start, $end-$start);			
 				$cur = $end;
-				$j++;
-				
+				$j++;			
 			}
 			$arr2[] = substr($request_path, $lastpost);
 		}
@@ -886,8 +882,8 @@ function is_match_path_wildcard($config_path, $request_path)
 		}
 	}
 	return $oke;
-	
 }
+
 function get_config_file($dir, $context_path)
 {
 	if ($handle = opendir($dir)) 
@@ -971,6 +967,7 @@ function send_response_header($headers)
 		}
 	}
 }
+
 function get_token()
 {
 	$token_sent = "";
