@@ -1064,7 +1064,7 @@ $OUTPUT.BODY=\<?xml version="1.0" encoding="UTF-8"?>\
 
 ## Callback
 
-Some simulators send callbacks due to asynchronous processes. Universal REST Simulator also supports callbacks. The callback will be sent after the request has been parsed before delaying (if any).
+Some simulators send callbacks due to asynchronous processes. Universal REST Simulator also supports callbacks. The callback will be sent after the request has been parsed before delaying response (if any).
 
 To add a callback, some configuration needs to be made on `TRANSACTION_RULE` which is as follows:
 
@@ -1103,7 +1103,8 @@ $OUTPUT.DELAY=0\
 $OUTPUT.CALLBACK_URL=http://localhost/test/\
 $OUTPUT.CALLBACK_METHOD=POST\
 $OUTPUT.CALLBACK_TYPE=application/xml\
-$OUTPUT.CALLBACK_HEADER=\X-Server-Name: Universal REST Simulator\
+$OUTPUT.CALLBACK_HEADER=X-Server-Name: Universal REST Simulator\
+$OUTPUT.CALLBACK_DELAY=1500\
 X-Response-Code: 00\
 X-Response-Text: Success\
 $OUTPUT.CALLBACK_DELAY=200\
@@ -1119,7 +1120,7 @@ $OUTPUT.CALLBACK_BODY=<?xml version="1.0" encoding="UTF-8"?>\
 	<msg>Ini output dari callback Transaksi ini dikenakan biaya Rp. 250</msg>\
 	<refid>$INPUT.REF_NUMBER</refid>\
 <data>\
-$OUTPUT.HEADER=\X-Server-Name: Universal REST Simulator\
+$OUTPUT.HEADER=X-Server-Name: Universal REST Simulator\
 X-Response-Code: 00\
 X-Response-Text: Success\
 $OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\

@@ -527,6 +527,12 @@ function eval_date($args)
 			$tz2 = date('Z')/3600;		
 			return date($fmt, time(0) + (($tz1 - $tz2) * 3600));			
 		}
+		else if(stripos($tz, 'GMT') !== false)
+		{
+			$tz1 = (str_replace("GMT", "", $tz) * 1);	
+			$tz2 = date('Z')/3600;		
+			return date($fmt, time(0) + (($tz1 - $tz2) * 3600));			
+		}
 		else
 		{
 			date_default_timezone_set($tz);
