@@ -269,7 +269,7 @@ $INPUT.REF_NUMBER=$REQUEST.data.customer_reference_number
 
 JSON is usually used in `POST` or `PUT` methods. In the above configuration, `$INPUT.PRODUCT` will take the value from `$REQUEST.data.destination_bank_code` which is `ROOT.data.destination_bank_code`. where `ROOT` is a JSON object. Thus, when a user makes a request with
 
-```http
+```
 POST /bank/config2 HTTP/1.1 
 Host: 127.0.0.1
 Content-type: application/json
@@ -304,7 +304,7 @@ $INPUT.REF_NUMBER=$REQUEST.refno
 
 XML is usually used in `POST` or `PUT` methods. In the above configuration, `$INPUT.PRODUCT` will take the value from `$REQUEST.product_code` which is `ROOT.product_code`. where `ROOT` is the first level tag of the XML. Thus, when a user makes a request with
 
-```http
+```
 POST /bank/config3 HTTP/1.1 
 Host: 127.0.0.1
 Content-type: application/xml
@@ -384,7 +384,7 @@ The configuration above shows that the path requires the `POST` method and other
 
 > Sample Request
 
-```http
+```
 POST /universal-simulator/token?detail=yes HTTP/1.1 
 Host: 127.0.0.1
 Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=
@@ -829,7 +829,7 @@ For standard HTTP Status, users just need to write the code. For example `$OUTPU
 
 > Sample Request
 
-```http
+```
 GET /biller/config1?product_code=10000&customer_no=081266612126&refno=5473248234 HTTP/1.1 
 Host: 127.0.0.1
 Content-type: application/json
@@ -900,7 +900,7 @@ On a JSON request, it is possible that the `key` of JSON contains characters oth
 
 > Contoh Request
 
-```http
+```
 POST /bank/config2 HTTP/1.1 
 Host: 127.0.0.1
 Content-type: application/json
@@ -979,7 +979,7 @@ $OUTPUT.BODY=\
 
 > Sample Request
 
-```http
+```
 POST /bank/config3 HTTP/1.1 
 Host: 127.0.0.1
 Content-type: application/xml
