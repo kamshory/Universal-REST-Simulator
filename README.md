@@ -487,7 +487,7 @@ $OUTPUT.BODY={\
 
 ## $DATE() Function
 
-The `$DATE()` function is useful for generating the date and time automatically. The date and time will follow the server time. User can use time area.
+The `$DATE()` function is useful for generating the date and time automatically. The date and time will follow the server time. User can use time zone.
 
 The `$DATE()` format follows the format in the PHP programming language. The following is an explanation of the `$DATE()` format in the PHP programming language. To insert a constant character in the `$DATE()` function, prefix it with `\`. For example `$DATE('Y-m-d\TH:i:s.000\Z', 'UTC+7')` will return `2020-10:10T20:20:20,000Z`. Note that `\T` will become `T` and `\Z` will become `Z`.
 
