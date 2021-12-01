@@ -19,7 +19,7 @@ $appConfig->jwtUserEmail = "email@domain.tld";
  * Path of configuration files
  */
 $configDir = @getenv("CONFIG_DIR");
-$useAbsolutePath = @getenv("USE_RELATIVE_PATH");
+$useRelativePath = @getenv("USE_RELATIVE_PATH");
 $wildcardURLToRequest = @getenv("WILDCARD_URL_TO_REQUEST");
 
 if(empty($configDir))
@@ -30,13 +30,13 @@ if(empty($configDir))
 	$configDir = dirname(dirname(__FILE__))."/config";
     putenv("CONFIG_DIR=" . $configDir);
 }
-if(empty($useAbsolutePath))
+if(empty($useRelativePath))
 {
     /**
      * Use default value
      */
-    $useAbsolutePath = "false";
-    putenv("USE_RELATIVE_PATH=$useAbsolutePath");
+    $useRelativePath = "false";
+    putenv("USE_RELATIVE_PATH=$useRelativePath");
 }
 if(empty($wildcardURLToRequest))
 {
@@ -48,7 +48,7 @@ if(empty($wildcardURLToRequest))
 }
 
 define("CONFIG_DIR", $configDir);
-define("USE_RELATIVE_PATH", stripos($useAbsolutePath, "true") !== false);
+define("USE_RELATIVE_PATH", stripos($useRelativePath, "true") !== false);
 define("WILDCARD_URL_TO_REQUEST", stripos($wildcardURLToRequest, "true") !== false);
 define("SPACE_TRIMMER", " \t\r\n ");
 define("EOL", "{[EOL]}");
