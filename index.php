@@ -1,11 +1,8 @@
 <?php
+error_reporting(0);
 require_once dirname(__FILE__)."/lib.inc/config.php";
 require_once dirname(__FILE__)."/lib.inc/vendor/autoload.php";
 use \Firebase\JWT\JWT;
-
-error_reporting(0);
-
-$config_dir = CONFIG_DIR;
 
 // Functions
 
@@ -1048,9 +1045,7 @@ function send_callback($output)
 		}
 
 		$body = @$output['CALLBACK_BODY'];
-		$content_length = strlen($body);
-
-		
+		$content_length = strlen($body);		
 		
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -1151,15 +1146,17 @@ function send_callback($output)
 // End of functions
 
 
+$config_dir = CONFIG_DIR;
 
-
-// Get context path
+// Get context path from URL
 $context_path = get_context_path();
 
 // Get URL
 $url = get_url();
-// Select configuration file
+
+// Select matched configuration file
 $parsed = get_config_file($config_dir, $context_path);
+
 if($parsed !== null && !empty($parsed))
 {
 	// Get request headers
