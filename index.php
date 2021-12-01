@@ -1232,7 +1232,7 @@ else
 		$scheme = "https";
 	}
 	header("Content-type: text/html");
-	?><p>No method and path match. Please check path on <a href="/checkpath/">Check Path</a></p><?php
+	echo 'No method and path match. Please check path on <a href="/checkpath/">Check Path</a></p>';
 }
 
 ?>
