@@ -36,10 +36,10 @@ function parse_config($context_path, $document_root = null)
 	}
 
 	$file_content = file_get_contents($config);
-	$file_content = fix_carriage_return($file_content);
-	
+
 	// Fixing new line
 	// Some operating system may have different style
+	$file_content = fix_carriage_return($file_content);
 	
 	$lines = explode("\r\n", $file_content);
 	$array = array();
@@ -381,7 +381,6 @@ function generate_token()
 	$lastname = $appConfig->jwtUserLastName;
 	$email = $appConfig->jwtUserEmail;
 
-
 	$lifetime = $appConfig->jwtNotValidAfter;
 
 	$secret_key = $appConfig->jwtSecret;
@@ -399,7 +398,6 @@ function generate_token()
 		"data" => array(
 	));
 
-
 	$jwt = JWT::encode($token, $secret_key);
 	return array(
 		"JWT"=>$jwt,
@@ -410,7 +408,6 @@ function generate_token()
 
 function process_transaction($parsed, $request)
 {
-
 	$token_sent = get_token();
 	$content_type = $parsed['RESPONSE_TYPE'];
 	$transaction_rule = $parsed['TRANSACTION_RULE'];
@@ -1232,8 +1229,10 @@ else
 	{
 		$scheme = "https";
 	}
+	$response = 'No method and path match. Please check path on <a href="/checkpath/">Check Path</a></p>';
 	header("Content-type: text/html");
-	echo 'No method and path match. Please check path on <a href="/checkpath/">Check Path</a></p>';
+	header("Content-length: ".strlen($response));
+	echo $response;
 }
 
 ?>
