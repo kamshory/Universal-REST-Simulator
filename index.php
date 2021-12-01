@@ -1,8 +1,9 @@
 <?php
-error_reporting(0);
 require_once dirname(__FILE__)."/lib.inc/config.php";
 require_once dirname(__FILE__)."/lib.inc/vendor/autoload.php";
 use \Firebase\JWT\JWT;
+
+error_reporting(0);
 
 // Functions
 
