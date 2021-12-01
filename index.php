@@ -3,11 +3,7 @@ require_once dirname(__FILE__)."/lib.inc/config.php";
 require_once dirname(__FILE__)."/lib.inc/vendor/autoload.php";
 use \Firebase\JWT\JWT;
 
-error_reporting(E_ALL);
-
-define("SPACE_TRIMMER", " \t\r\n ");
-define("EOL", "{[EOL]}");
-
+error_reporting(0);
 
 $config_dir = CONFIG_DIR;
 
@@ -1154,7 +1150,7 @@ function send_callback($output)
 }
 // End of functions
 
-error_reporting(0);
+
 
 
 // Get context path

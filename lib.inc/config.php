@@ -50,5 +50,7 @@ if(empty($wildcardURLToRequest))
 define("CONFIG_DIR", $configDir);
 define("USE_RELATIVE_PATH", stripos($useAbsolutePath, "true") !== false);
 define("WILDCARD_URL_TO_REQUEST", stripos($wildcardURLToRequest, "true") !== false);
+define("SPACE_TRIMMER", " \t\r\n ");
+define("EOL", "{[EOL]}");
 
 ?>
