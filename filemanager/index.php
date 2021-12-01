@@ -17,7 +17,7 @@ if(!$dir) $dir =  'base';
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Planetbiru File Manager</title>
+<title>Universal REST Simulator - File Manager</title>
 <link rel="shortcut icon" href="style/images/icon.png" type="image/jpeg" />
 <link rel="stylesheet" type="text/css" href="js/jquery/jquery-ui.min.css">
 <link rel="stylesheet" type="text/css" href="style/file-type.css" />

@@ -1,12 +1,27 @@
 <?php
+require_once dirname(dirname(__FILE__))."/lib.inc/config.php";
+
 // Functions
-function parse_config($context_path, $document_root = null)
+function fix_document_root($document_root)
 {
 	if($document_root == null)
 	{
 		$document_root = dirname(__FILE__);
 	}
-	$config = $document_root."/".$context_path;
+	return $document_root;
+}
+function parse_config($context_path, $document_root = null)
+{
+	if($document_root !== null)
+	{
+		$document_root = fix_document_root($document_root);
+		$config = $document_root."/".$context_path;
+	}
+	else
+	{
+		$config = $context_path;
+	}
+
 	$file_content = file_get_contents($config);
 	// Fixing new line
 	// Some operating system may have different style
@@ -68,6 +83,7 @@ function parse_config($context_path, $document_root = null)
 
 function get_config_file($dir)
 {
+	$document_root = (USE_RELATIVE_PATH)?dirname(dirname(__FILE__)):null;
 	$result = array();
 	if ($handle = opendir($dir)) 
 	{
@@ -82,8 +98,8 @@ function get_config_file($dir)
 			{
 				continue;
 			}
-			$filepath = $file;	
-			$prsd = parse_config($filepath, dirname(dirname(__FILE__))."/config");
+			$filepath = rtrim($dir, "/")."/".$file;	
+			$prsd = parse_config($filepath, $document_root);
 			$cpath = $prsd['PATH'];
 			$cmehod = $prsd['METHOD'];
 			if(!isset($result[$cpath]))
@@ -125,10 +141,9 @@ function endsWith( $haystack, $needle )
 }
 
 
+error_reporting(0);
 
-error_reporting(E_ALL);
-
-$config_dir = dirname(dirname(__FILE__))."/config";
+$config_dir = CONFIG_DIR;
 
 
 	
@@ -227,5 +242,7 @@ $parsed = get_config_file($config_dir);
 		?>
 	</tbody>
 </table>
+
+<p>Go to <a href="../filemanager/">File Manager</a></p>
 </body>
 </html>

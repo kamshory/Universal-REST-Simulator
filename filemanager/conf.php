@@ -1,9 +1,12 @@
 <?php
 date_default_timezone_set("Asia/Jakarta");
+
+require_once dirname(dirname(__FILE__))."/lib.inc/config.php";
+
 if(!isset($cfg)) $cfg = new StdClass();
 $cfg->authentification_needed = true;		
 /* When Kams File Manager is used on online system, it must be set true.*/
-$cfg->rootdir = dirname(dirname(__FILE__))."/config";	 
+$cfg->rootdir = CONFIG_DIR;	 
 /* Root directory for uploaded file. Use .htaccess file to protect this directory from executing PHP files.*/
 $cfg->hiddendir = array();	 
 /* File or directory under root directory to be hidden and forbidden to access it.*/
@@ -29,7 +32,7 @@ $cfg->cache_max_age_dir = 120; 				/* Maximum age for directory thumbnail cache 
 
 $cfg->delete_forbidden_extension = true;	
 /* Delete forbidden files on upload, rename, copy, or extract operation */
-$cfg->forbidden_extension = array('php', 'exe', 'sh', 'bash');
+$cfg->forbidden_extension = array('exe', 'sh', 'bash');
 
 /* Note
    You can permit user to upload images but not other type for security reason.

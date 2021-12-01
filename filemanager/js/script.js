@@ -1,7 +1,6 @@
 /*
 ** Copyright Kamshory Developer 2010-2016 
 ** All rights reserved
-** Join Planetbiru http://www.planetbiru.com
 */
 var angle = 0;
 var fliph = 0;
@@ -2334,12 +2333,11 @@ else
 function about(){
 var html = ''+
 '<table width="100%" border="0" cellpadding="0" cellspacing="0" class="dialog-table dialog-about">'+
-'<tr><td width="40%">Module Name</td><td>Planetbiru File Manager</td></tr>'+
+'<tr><td width="40%">Module Name</td><td>Universal REST Simulator</td></tr>'+
 '<tr><td>Version</td><td>2.2</td></tr>'+
 '<tr><td>Developer</td><td><a href="https://github.com/kamshory/" target="_blank">Kamshory</a></td></tr>'+
 '<tr><td>Release Date</td><td>2012-10-20</td></tr>'+
 '<tr><td>Price</td><td>30 USD</td></tr>'+
-'<tr><td>Sponsored Link</td><td><a href="http://www.planetbiru.com" target="_blank">Planetbiru</a></td></tr>'+
 '<tr><td>Information</td><td><a href="javascript:;" onclick="return showInformation();">Click Here</a></td></tr>'+
 '</table>';
 overlayDialog(html, 320, 140);

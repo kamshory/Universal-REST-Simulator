@@ -52,7 +52,6 @@ if(!defined('FILTER_SANITIZE_POINT'))
 	define('FILTER_SANITIZE_POINT', 500);
 }
 
-
 function kh_filter_input($type, $variable_name, $filter=FILTER_DEFAULT, $options=null)
 {
 	switch($type)

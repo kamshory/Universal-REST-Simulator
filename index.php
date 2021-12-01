@@ -1,11 +1,15 @@
 <?php
-require dirname(__FILE__)."/lib.inc/config.php";
-require dirname(__FILE__)."/lib.inc/vendor/autoload.php";
+require_once dirname(__FILE__)."/lib.inc/config.php";
+require_once dirname(__FILE__)."/lib.inc/vendor/autoload.php";
 use \Firebase\JWT\JWT;
 
 error_reporting(E_ALL);
+
 define("SPACE_TRIMMER", " \t\r\n ");
 define("EOL", "{[EOL]}");
+
+
+$config_dir = CONFIG_DIR;
 
 // Functions
 
@@ -26,15 +30,22 @@ function fix_carriage_return($data)
 	return $data;
 }
 function parse_config($context_path, $document_root = null)
-{
-	$document_root = fix_document_root($document_root);
-	$config = $document_root."/".$context_path;
+{	
+	if($document_root !== null)
+	{
+		$document_root = fix_document_root($document_root);
+		$config = $document_root."/".$context_path;
+	}
+	else
+	{
+		$config = $context_path;
+	}
+
 	$file_content = file_get_contents($config);
 	$file_content = fix_carriage_return($file_content);
 	
 	// Fixing new line
 	// Some operating system may have different style
-	
 	
 	$lines = explode("\r\n", $file_content);
 	$array = array();
@@ -115,6 +126,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 	parse_str($query, $get_data);
 	// Parsing input
 	$rule = $config['PARSING_RULE'];
+	$rule = str_replace("\\", "\\".EOL, $rule);
 	$rule = trim(str_replace("\\".EOL, "\r\n", $rule), " \\ ");
 	if(endsWith($rule, EOL))
 	{
@@ -122,18 +134,64 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 	}
 	$arr = explode("\r\n", $rule);
 	$res = array();
+
+	$url_data = array();
+	// Parse URL
+	if(stripos($config['PATH'], '{[') !== false && stripos($config['PATH'], ']}') !== false)
+	{
+		$start = stripos($config['PATH'], '{[');
+		$end = stripos($config['PATH'], ']}');
+		
+		if($start === false || $end === false)
+		{
+			$base_path = $config['PATH'];
+		}
+		else
+		{
+			$base_path = substr($config['PATH'], 0, $start);
+			$wildcard_data = trim(substr($context_path, $start), "/");
+			$wildcard_variable = trim(substr($config['PATH'], $start), "/");
+			$arr1 = explode("/", $wildcard_variable);
+			$arr2 = explode("/", $wildcard_data);
+			foreach($arr1 as $key=>$val)
+			{
+				if(startsWith($val, '{[') && endsWith($val, ']}'))
+				{
+					$par = trim(str_replace(array('{[', ']}'), '', $val));
+					$url_data[$par] = $arr2[$key];
+				}		
+			}
+		}	
+	}
 	foreach($arr as $idx=>$line)
 	{
+		if(startsWith($line, EOL))
+		{
+			$line = substr($line, strlen(EOL));
+		}
+		if(endsWith($line, EOL))
+		{
+			$line = substr($line, 0, strlen($line)-strlen(EOL));
+		}
 		if(stripos($line, "=") > 0)
 		{
 			$arr2 = explode("=", $line, 2);			
 			// Parse from headers
-			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$HEADER.') === 0)
+					if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$HEADER.') === 0)
 			{
 				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
-				$value = trim($headers[$key]);
+				$key2 = trim(substr(trim($arr2[1]), strlen('$HEADER.')));
+				$value = trim($headers[$key2]);
 				$res[$key] = isset($value)?$value:'';
 			}
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$URL.') === 0)
+			{
+				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+				$key2 = trim(substr(trim($arr2[1]), strlen('$URL.')));
+				$value = trim($url_data[$key2]);
+				$res[$key] = isset($value)?$value:'';
+			}
+			
 			// Get UUID
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && trim($arr2[1]) == '$SYSTEM.UUID')
 			{
@@ -231,6 +289,15 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 					$value = eval('return @$obj->'.$attr.';');					
 					$res[$key] = isset($value)?$value:'';
 				}
+				if(WILDCARD_URL_TO_REQUEST)
+				{
+					$tst = trim(substr(trim($arr2[1]), strlen('$REQUEST.')));	
+					if(!empty($tst) && isset($url_data[$tst]))
+					{
+						$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+						$res[$key] = $url_data[$tst];
+					}
+				}
 			}
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$REQUEST[') === 0)
 			{
@@ -252,34 +319,6 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 			}
 		}
 	}
-	// Parse URL
-	if(stripos($config['PATH'], '{[') !== false && stripos($config['PATH'], ']}') !== false)
-	{
-		$start = stripos($config['PATH'], '{[');
-		$end = stripos($config['PATH'], ']}');
-		
-		if($start === false || $end === false)
-		{
-			$base_path = $config['PATH'];
-		}
-		else
-		{
-			$base_path = substr($config['PATH'], 0, $start);
-			$wildcard_data = trim(substr($context_path, $start), "/");
-			$wildcard_variable = trim(substr($config['PATH'], $start), "/");
-			$arr1 = explode("/", $wildcard_variable);
-			$arr2 = explode("/", $wildcard_data);
-			foreach($arr1 as $key=>$val)
-			{
-				if(startsWith($val, '{[') && endsWith($val, ']}'))
-				{
-					$par = trim(str_replace(array('{[', ']}'), '', $val));
-					$res[$par] = $arr2[$key];
-				}		
-			}
-		}	
-	}
-	
 	return $res;
 }
 
@@ -377,6 +416,7 @@ function generate_token()
 
 function process_transaction($parsed, $request)
 {
+
 	$token_sent = get_token();
 	$content_type = $parsed['RESPONSE_TYPE'];
 	$transaction_rule = $parsed['TRANSACTION_RULE'];
@@ -410,8 +450,6 @@ function process_transaction($parsed, $request)
 					$var = substr($word, strlen('$INPUT.'));
 					$rcondition = str_replace($word, '$request[\''.$var.'\']', $rcondition);
 				}
-				
-				
 			}
 			$rcondition = trim($rcondition, SPACE_TRIMMER);
 			if(stripos($rcondition, '{[IF]}') === 0)
@@ -831,6 +869,8 @@ function parse_match_url($config_path, $request_path)
 			$values[$params[0]] = substr($request_path, strlen($arr1[0]));
 		}
 	}
+	$arr1 = remove_slash($arr1);
+	$arr2 = remove_slash($arr2);
 	return array(
 		'config_path'=>$config_path,
 		'request_path'=>$request_path,
@@ -839,6 +879,19 @@ function parse_match_url($config_path, $request_path)
 		'param_list'=>$params,
 		'param_values'=>$values
 		);
+}
+
+function remove_slash($arr)
+{
+	$arr1 = $arr;
+	foreach($arr as $idx=>$val)
+	{
+		if($idx > 0 && $val == "/")
+		{
+			unset($arr1[$idx]);
+		}
+	}
+	return $arr1;
 }
 
 function is_match_path($config_path, $request_path)
@@ -886,6 +939,8 @@ function is_match_path_wildcard($config_path, $request_path)
 
 function get_config_file($dir, $context_path)
 {
+	$document_root = (USE_RELATIVE_PATH)?dirname(__FILE__):null;
+	$parsed = null;
 	if ($handle = opendir($dir)) 
 	{
 		while (false !== ($file = readdir($handle))) 
@@ -895,7 +950,7 @@ function get_config_file($dir, $context_path)
 				continue;
 			}
 			$filepath = rtrim($dir, "/")."/".$file;	
-			$prsd = parse_config($filepath);
+			$prsd = parse_config($filepath, $document_root);
 			if(is_match_path($prsd['PATH'], $context_path) && $prsd['METHOD'] == $_SERVER["REQUEST_METHOD"])
 			{
 				$parsed = $prsd;
@@ -998,6 +1053,9 @@ function send_callback($output)
 
 		$body = @$output['CALLBACK_BODY'];
 		$content_length = strlen($body);
+
+		
+		
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -1051,7 +1109,45 @@ function send_callback($output)
 		{
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		}
+		error_log("Send callback to : ".$url);
+
+		$url_info = parse_url($url);
+		$path = $url_info['path'];
+		$query = @$url_info['query'];
+		if(!empty($query))
+		{
+			$path .= "?".$query;
+		}
+		$cannonical_headers = fix_header_key($headers);
+		if(!isset($cannonical_headers['HOST']))
+		{
+			$target_host = $url_info['host'];
+			$port = $url_info['port'] * 1;
+			$scheme = $url_info['scheme'];
+			if($port != 0)
+			{
+				if($scheme == "http" && $port != 80)
+				{
+					$target_host .= ":".$port;
+				}
+				if($scheme == "https" && $port != 443)
+				{
+					$target_host .= ":".$port;
+				}
+			}
+			$headers[] = "Host: ".$target_host;
+		}
+		$debug = $output['CALLBACK_METHOD']." ".$path." HTTP/1.1\r\n";
+		$debug .= implode("\r\n", $headers)."\r\n";
+		if(!empty($body))
+		{
+			$debug .= "\r\n".$body;
+		}
+
+		error_log("HTTP Request     : \r\n".$debug);
+		
 		$res = curl_exec($ch);
+		error_log("Callback sent");
 		curl_close($ch);
 	}
 	return $res;
@@ -1060,18 +1156,15 @@ function send_callback($output)
 
 error_reporting(0);
 
-$config_dir = "config";
-
 
 // Get context path
 $context_path = get_context_path();
 
 // Get URL
 $url = get_url();
-	
 // Select configuration file
 $parsed = get_config_file($config_dir, $context_path);
-if(!empty($parsed))
+if($parsed !== null && !empty($parsed))
 {
 	// Get request headers
 	$request_headers = get_request_headers();
@@ -1081,9 +1174,11 @@ if(!empty($parsed))
 
 	// Get request body
 	$request_data = get_request_body($parsed, $url);
+	
 
 	// Parse request
 	$request = parse_input($parsed, $request_headers, $request_data, $context_path, $query);
+	
 	// Process the transaction
 	$output = process_transaction($parsed, $request);
 
@@ -1131,6 +1226,20 @@ if(!empty($parsed))
 			echo $response;
 		}
 	}
+}
+else
+{
+	http_response_code("404");
+	if((@$_SERVER['HTTP_X_FORWARDED_PROTO'] != 'https') && (empty($_SERVER['HTTPS']) || @$_SERVER['HTTPS'] === "off"))
+	{
+		$scheme = "http";
+	}
+	else
+	{
+		$scheme = "https";
+	}
+	header("Content-type: text/html");
+	?><p>No method and path match. Please check path on <a href="/checkpath/">Check Path</a></p><?php
 }
 
 ?>

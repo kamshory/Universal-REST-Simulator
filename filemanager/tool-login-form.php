@@ -10,7 +10,7 @@ if(!file_exists(dirname(__FILE__)."/.htpasswd"))
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Planetbiru File Manager</title>
+<title>Universal REST Simulator - File Manager</title>
 <link rel="shortcut icon" href="../static/images/16x16.png" type="image/jpeg" />
 <link rel="stylesheet" type="text/css" href="style/login.css" />
 </head>
@@ -18,7 +18,7 @@ if(!file_exists(dirname(__FILE__)."/.htpasswd"))
 <div class="all">
 <div class="box">
 	<div class="box-inner">
-        <div class="box-title">Planetbiru File Manager</div>
+        <div class="box-title">Universal REST Simulator</div>
         <div class="box-form">
         <form id="form1" name="form1" method="post" action="login.php">
         <div class="label">Username</div>
