@@ -1036,6 +1036,7 @@ function send_callback($output)
 	$timeout = @$output['CALLBACK_TIMEOUT'] * 0.001;
 	if(stripos($url, "://") !== false)
 	{
+		$callback_http_version = "1.1";
 		$callbackDelay = @$output['CALLBACK_DELAY'] * 1000;
 		if($callbackDelay > 0)
 		{
@@ -1065,7 +1066,7 @@ function send_callback($output)
 			}
 			if(stripos($header, "User-agent: ") === false)
 			{
-				$headers[] = 'User-agent: Universal REST Simulator';
+				$headers[] = 'User-agent: '.USER_AGENT;
 			}
 		}
 		if(strtoupper($output['CALLBACK_METHOD']) == 'POST')
@@ -1126,7 +1127,7 @@ function send_callback($output)
 			}
 			$headers[] = "Host: ".$target_host;
 		}
-		$debug = $output['CALLBACK_METHOD']." ".$path." HTTP/1.1\r\n";
+		$debug = $output['CALLBACK_METHOD']." ".$path." HTTP/".$callback_http_version."\r\n";
 		$debug .= implode("\r\n", $headers)."\r\n";
 		if(!empty($body))
 		{
@@ -1164,8 +1165,7 @@ if($parsed !== null && !empty($parsed))
 	$query = get_query($url);
 
 	// Get request body
-	$request_data = get_request_body($parsed, $url);
-	
+	$request_data = get_request_body($parsed, $url);	
 
 	// Parse request
 	$request = parse_input($parsed, $request_headers, $request_data, $context_path, $query);

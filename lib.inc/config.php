@@ -52,5 +52,6 @@ define("USE_RELATIVE_PATH", stripos($useRelativePath, "true") !== false);
 define("WILDCARD_URL_TO_REQUEST", stripos($wildcardURLToRequest, "true") !== false);
 define("SPACE_TRIMMER", " \t\r\n ");
 define("EOL", "{[EOL]}");
+define("USER_AGENT", "Universal REST Simulator");
 
 ?>
