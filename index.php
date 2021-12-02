@@ -171,7 +171,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 		{
 			$arr2 = explode("=", $line, 2);			
 			// Parse from headers
-					if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$HEADER.') === 0)
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$HEADER.') === 0)
 			{
 				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
 				$key2 = trim(substr(trim($arr2[1]), strlen('$HEADER.')));
