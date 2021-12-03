@@ -1142,8 +1142,47 @@ function send_callback($output)
 	}
 	return $res;
 }
+function send_response($output)
+{
+	if(isset($output['STATUS']))
+	{
+		$status = trim($output['STATUS']);
+		$arr = explode(' ', $status, 2);
+		if(count($arr) > 1)
+		{
+			header($_SERVER["SERVER_PROTOCOL"].' '.$status);
+		}
+		else
+		{
+			http_response_code($output['STATUS']);
+		}
+	}
+	
+	if(isset($output['DELAY']))
+	{
+		$delay = @$output['DELAY'] * 1;			
+		if($delay > 0)
+		{
+			usleep($delay * 1000);
+		}
+	}
+	if(isset($output['HEADER']))
+	{
+		send_response_header($output['HEADER']);
+	}
+	if(isset($parsed['RESPONSE_TYPE']))
+	{
+		$content_type = $parsed['RESPONSE_TYPE'];
+		header("Content-type: $content_type");
+	}
+	if(isset($output['BODY']))
+	{
+		$response = @$output['BODY'];
+		header("Content-length: ".strlen($response));
+		echo $response;
+	}
+}
 // End of functions
-
 
 $config_dir = CONFIG_DIR;
 
@@ -1176,45 +1215,11 @@ if($parsed !== null && !empty($parsed))
 	// Finally, send response to client
 	if(!empty($output))
 	{
-		if(isset($output['STATUS']))
-		{
-			$status = trim($output['STATUS']);
-			$arr = explode(' ', $status, 2);
-			if(count($arr) > 1)
-			{
-				header($_SERVER["SERVER_PROTOCOL"].' '.$status);
-			}
-			else
-			{
-				http_response_code($output['STATUS']);
-			}
-		}
+		send_response($output);
+
 		if(isset($output['CALLBACK_URL']))
 		{
 			$clbk = send_callback($output);
-		}
-		if(isset($output['DELAY']))
-		{
-			$delay = @$output['DELAY'] * 1;			
-			if($delay > 0)
-			{
-				usleep($delay * 1000);
-			}
-		}
-		if(isset($output['HEADER']))
-		{
-			send_response_header($output['HEADER']);
-		}
-		if(isset($parsed['RESPONSE_TYPE']))
-		{
-			$content_type = $parsed['RESPONSE_TYPE'];
-			header("Content-type: $content_type");
-		}
-		if(isset($output['BODY']))
-		{
-			$response = @$output['BODY'];
-			header("Content-length: ".strlen($response));
-			echo $response;
 		}
 	}
 }
