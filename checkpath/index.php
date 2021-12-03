@@ -84,6 +84,7 @@ function parse_config($context_path, $document_root = null)
 function get_config_file($dir)
 {
 	$document_root = (USE_RELATIVE_PATH)?dirname(dirname(__FILE__)):null;
+
 	$result = array();
 	if ($handle = opendir($dir)) 
 	{
@@ -99,6 +100,11 @@ function get_config_file($dir)
 				continue;
 			}
 			$filepath = rtrim($dir, "/")."/".$file;	
+			$filepathFileManager = $filepath;
+			if(!USE_RELATIVE_PATH)
+			{
+				$filepathFileManager = ltrim(substr($filepathFileManager, strlen($dir)), "/\\");
+			}
 			$prsd = parse_config($filepath, $document_root);
 			$cpath = $prsd['PATH'];
 			$cmehod = $prsd['METHOD'];
@@ -110,7 +116,7 @@ function get_config_file($dir)
 			$result[$cpath]['DATA'][] = array(
 				'PATH'=>$cpath,
 				'METHOD'=>$cmehod,
-				'FILE'=>$filepath
+				'FILE'=>$filepathFileManager
 			);
 			
 		}

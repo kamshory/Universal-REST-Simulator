@@ -1234,7 +1234,19 @@ else
 	{
 		$scheme = "https";
 	}
-	$response = 'No method and path match. Please check path on <a href="/checkpath/">Check Path</a></p>';
+	$response = '<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Path Not Found</title>
+	</head>
+	<body>
+		<h1>Path Not Foud</h1>
+		<p>No method and path match. Please check path on <a href="/checkpath/">Check Path</a></p>
+	</body>
+</html>';
 	header("Content-type: text/html");
 	header("Content-length: ".strlen($response));
 	echo $response;
