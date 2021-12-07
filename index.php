@@ -1031,6 +1031,7 @@ function get_token()
 
 function send_callback($output)
 {
+	file_put_contents("log.txt", print_r($output, true));
 	$res = "";
 	$url = @$output['CALLBACK_URL'];
 	$timeout = @$output['CALLBACK_TIMEOUT'] * 0.001;
