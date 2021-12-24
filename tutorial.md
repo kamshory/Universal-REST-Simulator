@@ -33,7 +33,7 @@
 29. [Fungsi $CALC()](#fungsi-calc)
 30. [Fungsi $ISVALIDTOKEN()](#fungsi-isvalidtoken)
 31. [Fungsi $NUMBERFORMAT()](#fungsi-numberformat)
-32. [Kode PHP Natif()](#kode-php-natif)
+32. [Kode PHP Natif](#kode-php-natif)
 
 ## Sekilas Tentang Universal REST Simulator
 
