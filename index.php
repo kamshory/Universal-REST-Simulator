@@ -81,15 +81,74 @@ function parse_config($context_path, $document_root = null)
 
 	// Parse raw file to raw configuration with it properties
 	$parsed = array();
-	foreach($array as $content)
-	{
-		if(stripos($content, "=") > 0)
+	if(has_eval($lines))
+	{	
+		foreach($array as $content)
 		{
-			$arr = explode("=", trim($content), 2);
-			$parsed[trim($arr[0])] = trim($arr[1]);
+			if(stripos($content, "=") > 0)
+			{
+				$arr = explode("=", trim($content), 2);
+				$key = trim($arr[0]);
+				if($key == 'METHOD' || $key == 'PATH')
+				{
+					$parsed[$key] = trim($arr[1]);
+				}
+			}
+		}
+		$code2eval = get_php_code($file_content);
+		$parsed['PHP_CODE'] = $code2eval;
+	}
+	else
+	{
+		foreach($array as $content)
+		{
+			if(stripos($content, "=") > 0)
+			{
+				$arr = explode("=", trim($content), 2);
+				$parsed[trim($arr[0])] = trim($arr[1]);
+			}
 		}
 	}
 	return $parsed;
+}
+function get_php_code($file_content)
+{
+	$php_codes = array();
+	$file_content = "\r\n".$file_content."\r\n";
+	$arr1 = explode('{[EVAL_PHP_END]}', $file_content);
+	
+	foreach($arr1 as $code1)
+	{
+		if(stripos($code1, '{[EVAL_PHP_BEGIN]}') !== false)
+		{
+			$arr2 = explode('{[EVAL_PHP_BEGIN]}', $code1, 2);
+			$php_codes[] = trim($arr2[1], "\r\n\t");
+		}
+	}
+	return $php_codes;
+}
+
+function has_eval($lines)
+{
+	$begin = false;
+	$end = false;
+	foreach($lines as $line)
+	{
+		if(trim($line) == '{[EVAL_PHP_BEGIN]}')
+		{
+			$begin = true;
+			break;
+		}
+	}
+	foreach($lines as $line)
+	{
+		if(trim($line) == '{[EVAL_PHP_END]}')
+		{
+			$end = true;
+			break;
+		}
+	}
+	return $begin && $end;
 }
 
 function fix_array_key($request_data)
@@ -186,6 +245,25 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 				$res[$key] = isset($value)?$value:'';
 			}
 			
+			// Get Random
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && startsWith(trim($arr2[1]), '$SYSTEM.RANDOM'))
+			{
+				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+				$val = trim($arr2[1]);
+				$val =  preg_replace("/[^0-9,]/", "", $val);
+				$arr = explode(",", $val);
+				$min= $arr[0] * 1;
+				$max = $arr[1] * 1;
+				if($min < $max)
+				{
+					$randomVal = mt_rand($min, $max);		
+				}
+				else
+				{
+					$randomVal = mt_rand($max, $min);
+				}	
+				$res[$key] = $randomVal;
+			}
 			// Get UUID
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && trim($arr2[1]) == '$SYSTEM.UUID')
 			{
@@ -485,6 +563,8 @@ function process_transaction($parsed, $request)
 					$result = replace_uppercase($result);
 					$result = replace_lowercase($result);
 					$result = replace_calc($result);
+					$result = replace_random($result);
+					$result = replace_uuid($result);
 					$result = ltrim($result, SPACE_TRIMMER);
 					$arr6 = explode("=", $result, 2);
 					$variable = $arr6[0];
@@ -769,6 +849,72 @@ function replace_calc($string)
 	return $string;
 }
 
+function replace_uuid($string)
+{
+	if(stripos($string, '$SYSTEM.UUID') !== false)
+	{
+		do
+		{
+			$formula = '$SYSTEM.UUID';
+			$result = uniqid();
+			$string = str_replace_first($formula, $result, $string);
+		}
+		while(stripos($string, '$SYSTEM.UUID') !== false);
+	}
+	return $string;
+}
+
+function replace_random($string)
+{
+	if(stripos($string, '$RANDOM') !== false)
+	{
+		do
+		{
+			$total_length = strlen($string);
+			$start = stripos($string, '$RANDOM');
+			$p1 = find_bracket_position($string, $start);
+			$formula = substr($string, $start, $p1);
+			$fm1 = trim($formula, SPACE_TRIMMER);
+			$fm1 = substr($fm1, 8, strlen($fm1)-9);
+			$fm1 = trim($fm1, SPACE_TRIMMER);
+			if(stripos($fm1, ",") !== false)
+			{
+				$arr = explode(",", $fm1);
+				$arr[0] = preg_replace("/[^0-9]/", "", $arr[0]);
+				$arr[1] = preg_replace("/[^0-9]/", "", $arr[1]);
+				$min= $arr[0] * 1;
+				$max = $arr[1] * 1;
+				if($min < $max)
+				{
+					$result = mt_rand($min, $max);		
+				}
+				else
+				{
+					$result = mt_rand($max, $min);
+				}				
+			}
+			else
+			{
+				$result = mt_rand();
+			}
+				
+			$string = str_replace_first($formula, $result, $string);
+			if($start + $p1 >= $total_length)
+			{
+				break;
+			}
+		}
+		while(stripos($string, '$RANDOM') !== false);
+	}
+	return $string;
+}
+
+function str_replace_first($search, $replace, $subject)
+{
+    $search = '/'.preg_quote($search, '/').'/';
+    return preg_replace($search, $replace, $subject, 1);
+}
+
 function get_query($url)
 {
 	return parse_url($url, PHP_URL_QUERY);
@@ -779,6 +925,7 @@ function get_request_body($parsed, $url)
 	if($parsed['METHOD'] == 'GET')
 	{
 		$query = get_query($url);
+		error_log("HTTP Request     : \r\n".$query);
 		parse_str($query, $request_data);
 	}
 	else if($parsed['METHOD'] == 'POST' || $parsed['METHOD'] == 'PUT')
@@ -786,17 +933,20 @@ function get_request_body($parsed, $url)
 		if(stripos($parsed['REQUEST_TYPE'], '/x-www-form-urlencoded') !== false)
 		{
 			$query = file_get_contents("php://input");
+			error_log("HTTP Request     : \r\n".$query);
 			parse_str($query, $request_data);
 		}
 		else if(stripos($parsed['REQUEST_TYPE'], '/json') !== false)
 		{
 			$input_buffer = file_get_contents("php://input");
+			error_log("HTTP Request     : \r\n".$input_buffer);
 			$request_data = json_decode($input_buffer, true);
 			$request_data = fix_array_key($request_data);
 		}
 		else if(stripos($parsed['REQUEST_TYPE'], '/xml') !== false)
 		{
 			$input_buffer = file_get_contents("php://input");
+			error_log("HTTP Request     : \r\n".$input_buffer);
 			$xml = simplexml_load_string($input_buffer);
 			$request_data = json_decode(json_encode($xml), true);
 			$request_data = fix_array_key($request_data);
@@ -804,6 +954,7 @@ function get_request_body($parsed, $url)
 		else if(stripos($parsed['REQUEST_TYPE'], '/soap+xml') !== false)
 		{
 			$input_buffer = file_get_contents("php://input");
+			error_log("HTTP Request     : \r\n".$input_buffer);
 			$input_buffer = str_ireplace(array('<soap:', '</soap:'), array('<', '</'), $input_buffer);
 			$xml = simplexml_load_string($input_buffer);
 			$request_data = json_decode(json_encode($xml), true);
@@ -815,7 +966,6 @@ function get_request_body($parsed, $url)
 
 function parse_match_url($config_path, $request_path)
 {
-
 	// Parsing
 	$arr1 = explode(']}', $config_path);
 	$arr2 = array();
@@ -869,7 +1019,7 @@ function parse_match_url($config_path, $request_path)
 		'request_path_list'=>$arr2,
 		'param_list'=>$params,
 		'param_values'=>$values
-		);
+	);
 }
 
 function remove_slash($arr)
@@ -1014,6 +1164,58 @@ function send_response_header($headers)
 	}
 }
 
+function drop_content_length($headers)
+{
+	$arr = explode("\r\n", $headers);
+	$result = array();
+	foreach($arr as $header)
+	{
+		if(stripos(trim($header), 'content-length:') !== 0)
+		{
+			$result[] = $header;
+		}
+	}
+	return implode("\r\n", $result);
+}
+
+function parse_response_header($raw_headers)
+{
+	$hdr = array();
+	if(isset($raw_headers) && !empty($raw_headers))
+	{
+		$arr = explode("\r\n", $raw_headers);
+		foreach($arr as $header)
+		{
+			$header = trim($header, " \t\r\n");
+			if(stripos($header, ":") > 0)
+			{
+				$row = explode(":", $header, 2);
+				$key = trim(strtoupper(str_replace("-", "_", $row[0])));
+				$hdr[] = array($key=>trim($row[1]));
+			}
+		}
+	}	
+	return $hdr;
+}
+
+function contains_key($headers, $key)
+{
+	if(isset($header) && is_array($headers))
+	{
+		foreach($headers as $idx=>$val)
+		{
+			if(isset($val[$key]))
+			{
+				return true;
+			}
+		}
+	}
+	else 
+	{
+		return false;
+	}
+}
+
 function get_token()
 {
 	$token_sent = "";
@@ -1030,8 +1232,7 @@ function get_token()
 }
 
 function send_callback($output)
-{
-	file_put_contents("log.txt", print_r($output, true));
+{	
 	$res = "";
 	$url = @$output['CALLBACK_URL'];
 	$timeout = @$output['CALLBACK_TIMEOUT'] * 0.001;
@@ -1109,8 +1310,16 @@ function send_callback($output)
 		{
 			$path .= "?".$query;
 		}
-		$cannonical_headers = fix_header_key($headers);
-		if(!isset($cannonical_headers['HOST']))
+		$hostFound = false;
+		foreach($headers as $hdr)
+		{
+			if(stripos($hdr, 'Host: ') === 0)
+			{
+				$hostFound = true;
+				break;
+			}
+		}
+		if(!$hostFound)
 		{
 			$target_host = $url_info['host'];
 			$port = $url_info['port'] * 1;
@@ -1143,7 +1352,7 @@ function send_callback($output)
 	}
 	return $res;
 }
-function send_response($output)
+function send_response($output, $parsed)
 {
 	if(isset($output['STATUS']))
 	{
@@ -1158,7 +1367,6 @@ function send_response($output)
 			http_response_code($output['STATUS']);
 		}
 	}
-	
 	if(isset($output['DELAY']))
 	{
 		$delay = @$output['DELAY'] * 1;			
@@ -1167,15 +1375,31 @@ function send_response($output)
 			usleep($delay * 1000);
 		}
 	}
+	
+	$send_content_type = false;
 	if(isset($output['HEADER']))
 	{
-		send_response_header($output['HEADER']);
+		$raw_header = $output['HEADER'];
+		$response_header = parse_response_header($raw_header);
+		$send_content_type = contains_key($response_header, "CONTENT_TYPE");
+		// drop coontent length
+		$raw_header = drop_content_length($raw_header);
+		send_response_header($raw_header);
 	}
-	if(isset($parsed['RESPONSE_TYPE']))
+	if(!$send_content_type)
 	{
-		$content_type = $parsed['RESPONSE_TYPE'];
-		header("Content-type: $content_type");
+		if(isset($output['TYPE']))
+		{
+			$content_type = $output['TYPE'];
+			header("Content-type: $content_type");
+		}
+		else if(isset($parsed['RESPONSE_TYPE']))
+		{
+			$content_type = $parsed['RESPONSE_TYPE'];
+			header("Content-type: $content_type");
+		}
 	}
+	
 	if(isset($output['BODY']))
 	{
 		$response = @$output['BODY'];
@@ -1183,6 +1407,31 @@ function send_response($output)
 		echo $response;
 	}
 }
+
+function get_user_browser(){
+	$fullUserBrowser = (!empty($_SERVER['HTTP_USER_AGENT'])? 
+	$_SERVER['HTTP_USER_AGENT']:getenv('HTTP_USER_AGENT'));
+	$userBrowser = explode(')', $fullUserBrowser);
+	$userBrowser = $userBrowser[count($userBrowser)-1];
+  
+	if((!$userBrowser || $userBrowser === '' || $userBrowser === ' ' || strpos($userBrowser, 'like Gecko') === 1) && strpos($fullUserBrowser, 'Windows') !== false){
+	  return 'Internet-Explorer';
+	} else if((strpos($userBrowser, 'Edge/') !== false || strpos($userBrowser, 'Edg/') !== false) && strpos($fullUserBrowser, 'Windows') !== false){
+	  return 'Microsoft-Edge';
+	} else if(strpos($userBrowser, 'Chrome/') === 1 || strpos($userBrowser, 'CriOS/') === 1){
+	  return 'Google-Chrome';
+	} else if(strpos($userBrowser, 'Firefox/') !== false || strpos($userBrowser, 'FxiOS/') !== false){
+	  return 'Mozilla-Firefox';
+	} else if(strpos($userBrowser, 'Safari/') !== false && strpos($fullUserBrowser, 'Mac') !== false){
+	  return 'Safari';
+	} else if(strpos($userBrowser, 'OPR/') !== false && strpos($fullUserBrowser, 'Opera Mini') !== false){
+	  return 'Opera-Mini';
+	} else if(strpos($userBrowser, 'OPR/') !== false){
+	  return 'Opera';
+	}
+	return false;
+}
+  
 // End of functions
 
 $config_dir = CONFIG_DIR;
@@ -1198,59 +1447,76 @@ $parsed = get_config_file($config_dir, $context_path);
 
 if($parsed !== null && !empty($parsed))
 {
-	// Get request headers
-	$request_headers = get_request_headers();
-	
-	// Get query
-	$query = get_query($url);
-
-	// Get request body
-	$request_data = get_request_body($parsed, $url);	
-
-	// Parse request
-	$request = parse_input($parsed, $request_headers, $request_data, $context_path, $query);
-	
-	// Process the transaction
-	$output = process_transaction($parsed, $request);
-
-	// Finally, send response to client
-	if(!empty($output))
+	if(isset($parsed['PHP_CODE']) && is_array($parsed['PHP_CODE']))
 	{
-		send_response($output);
-
-		if(isset($output['CALLBACK_URL']))
+		foreach($parsed['PHP_CODE'] as $php_code)
 		{
-			$clbk = send_callback($output);
+			eval($php_code);
+		}
+	}
+	else
+	{
+		// Get request headers
+		$request_headers = get_request_headers();
+		
+		// Get query
+		$query = get_query($url);
+
+		// Get request body
+		$request_data = get_request_body($parsed, $url);	
+
+		// Parse request
+		$request = parse_input($parsed, $request_headers, $request_data, $context_path, $query);
+		
+		// Process the transaction
+		$output = process_transaction($parsed, $request);
+
+		// Finally, send response to client
+		if(!empty($output))
+		{
+			send_response($output, $parsed);
+
+			if(isset($output['CALLBACK_URL']))
+			{
+				$clbk = send_callback($output);
+			}
 		}
 	}
 }
 else
 {
 	http_response_code("404");
-	if((@$_SERVER['HTTP_X_FORWARDED_PROTO'] != 'https') && (empty($_SERVER['HTTPS']) || @$_SERVER['HTTPS'] === "off"))
+	if(get_user_browser())
 	{
-		$scheme = "http";
+		include "404.php";
 	}
 	else
 	{
-		$scheme = "https";
+		if((@$_SERVER['HTTP_X_FORWARDED_PROTO'] != 'https') && (empty($_SERVER['HTTPS']) || @$_SERVER['HTTPS'] === "off"))
+		{
+			$scheme = "http";
+		}
+		else
+		{
+			$scheme = "https";
+		}
+		$response = '<!DOCTYPE html>
+		<html lang="en">
+		<head>
+			<meta charset="UTF-8">
+			<meta http-equiv="X-UA-Compatible" content="IE=edge">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Path Not Found</title>
+		</head>
+		<body>
+			<h1>Path Not Foud</h1>
+			<p>No method and path match. Please check path on <a href="/checkpath/">Check Path</a></p>
+		</body>
+	</html>';
+		header("Content-type: text/html");
+		header("Content-length: ".strlen($response));
+		echo $response;
 	}
-	$response = '<!DOCTYPE html>
-	<html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Path Not Found</title>
-	</head>
-	<body>
-		<h1>Path Not Foud</h1>
-		<p>No method and path match. Please check path on <a href="/checkpath/">Check Path</a></p>
-	</body>
-</html>';
-	header("Content-type: text/html");
-	header("Content-length: ".strlen($response));
-	echo $response;
 }
 
 ?>
