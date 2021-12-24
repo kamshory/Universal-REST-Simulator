@@ -802,3 +802,7 @@ margin:8px 0px 0px 8px;
 	line-height:1.5;
 	height:24px;
 }
+textarea:focus, textarea:focus-visible, textarea:focus-within,
+input[type="text"]:focus, input[type="text"]:focus-visible, input[type="text"]:focus-within{
+	outline: none;
+}
