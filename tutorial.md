@@ -33,6 +33,7 @@
 29. [Fungsi $CALC()](#fungsi-calc)
 30. [Fungsi $ISVALIDTOKEN()](#fungsi-isvalidtoken)
 31. [Fungsi $NUMBERFORMAT()](#fungsi-numberformat)
+32. [Kode PHP Natif()](#kode-php-natif)
 
 ## Sekilas Tentang Universal REST Simulator
 
@@ -2718,3 +2719,58 @@ Content-Lengh: 291
 }
 ```
 
+## Kode PHP Natif
+
+Pada beberapa kasus, simulator tidak dapat dibuat dengan file konfigurasi saja. Proses yang terlalu rumit harus ditangani oleh bahasa pemrograman termasuk menyimpan data transaksi ke database atau sistem file.
+
+Universal REST Simulator memungkinkan pengguna untuk membuat sendiri kode PHP natif. 
+
+Cara ini sebenarnya tidak direkomendasikan karena dapat membahayakan simulator. Namun dapat dilakukan jika pengguna memahami bahasa PHP dengan baik.
+
+Untuk menuliskan kode PHP natif pada simulator sangat mudah. Pertama, tentukan METHOD dan PATH kemudian tulis kode PHP di antara `{[EVAL_PHP_BEGIN]}` dan `{[EVAL_PHP_END]}`
+
+Parsing data input saja dilakukan secara manual tergantung dari `method` dan `content-type` yang dikirim oleh klien.
+
+Contoh Konfigurasi
+
+```
+METHOD=POST
+PATH=/encrypted/payload/
+
+{[EVAL_PHP_BEGIN]}
+function encryptEBC($key, $payload){
+    return bin2hex(openssl_encrypt($payload, 'aes-128-ecb', $key, OPENSSL_RAW_DATA));
+}
+function decriptEBC($key, $payload){
+    return openssl_decrypt(hex2bin($payload), 'aes-128-ecb', $key, OPENSSL_RAW_DATA);
+}
+
+$rc = '00';
+$key = "iY87^R76R%e4d7tD";
+
+$clientID = @$_POST['login'];
+$pwd = @$_POST['pwd'];
+$terminal = @$_POST['terminal'];
+$customer = @$_POST['customer'];
+$trx_date = @$_POST['trx_date'];
+$trx_type = @$_POST['trx_type'];
+$sequence_id = @$_POST['sequence_id'];
+
+$tx_amount = @$_POST['tx_amount'];
+$isreversal = @$_POST['isreversal'];
+
+$pwd = decriptEBC($key, $pwd);
+$terminal = decriptEBC($key, $terminal);
+$customer = decriptEBC($key, $customer);
+
+$trx_date = decriptEBC($key, $trx_date);
+$trx_type = decriptEBC($key, $trx_type);
+$sequence_id = decriptEBC($key, $sequence_id);
+if($customer == '0725553725')
+{
+    $rc = '00';
+}
+header("Content-type: text/plain");
+echo "$rc:$sequence_id";
+{[EVAL_PHP_END]}
+```

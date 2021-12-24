@@ -1170,6 +1170,62 @@ $OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
 {[ENDIF]}\
 ```
 
+## Native PHP Code
+
+In some cases, the simulator cannot be created with a configuration file alone. Processes that are too complex to be handled by programming languages include saving transaction data to a database or file system.
+
+Universal REST Simulator allows users to create their own native PHP code.
+
+This method is actually not recommended because it can harm the simulator. But it can be done if the user understands the PHP language well.
+
+To write native PHP code on the simulator is very easy. First define METHOD and PATH then write PHP code between `{[EVAL_PHP_BEGIN]}` and `{[EVAL_PHP_END]}`
+
+Parsing only input data is done manually depending on the `method` and `content-type` sent by the client.
+
+Example Configuration
+
+```
+METHOD=POST
+PATH=/encrypted/payload/
+
+{[EVAL_PHP_BEGIN]}
+function encryptEBC($key, $payload){
+    return bin2hex(openssl_encrypt($payload, 'aes-128-ecb', $key, OPENSSL_RAW_DATA));
+}
+function decriptEBC($key, $payload){
+    return openssl_decrypt(hex2bin($payload), 'aes-128-ecb', $key, OPENSSL_RAW_DATA);
+}
+
+$rc = '00';
+$key = "iY87^R76R%e4d7tD";
+
+$clientID = @$_POST['login'];
+$pwd = @$_POST['pwd'];
+$terminal = @$_POST['terminal'];
+$customer = @$_POST['customer'];
+$trx_date = @$_POST['trx_date'];
+$trx_type = @$_POST['trx_type'];
+$sequence_id = @$_POST['sequence_id'];
+
+$tx_amount = @$_POST['tx_amount'];
+$isreversal = @$_POST['isreversal'];
+
+$pwd = decriptEBC($key, $pwd);
+$terminal = decriptEBC($key, $terminal);
+$customer = decriptEBC($key, $customer);
+
+$trx_date = decriptEBC($key, $trx_date);
+$trx_type = decriptEBC($key, $trx_type);
+$sequence_id = decriptEBC($key, $sequence_id);
+if($customer == '0725553725')
+{
+    $rc = '00';
+}
+header("Content-type: text/plain");
+echo "$rc:$sequence_id";
+{[EVAL_PHP_END]}
+```
+
 ## File Manager
 
 Universal REST Simulator comes with a file manager for creating, modifying and deleting configuration files. The file manager is equipped with a username and password to enter into it. The file manager can be accessed with the path `/filemanager/` from the document root of the simulator.

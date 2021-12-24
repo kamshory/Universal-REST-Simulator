@@ -219,6 +219,7 @@ $parsed = get_config_file($config_dir);
 		$(document).on('change keyup', '.filter-area input[type="text"]', function(e2){
 			filterFile($(this))
 		});
+		$('.data-block:first input').focus();
 	});
 	</script>
 </head>
