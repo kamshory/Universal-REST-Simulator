@@ -83,6 +83,8 @@ Konfigurasi simulator diatur oleh file-file yang disimpan di dalam direktori `/c
 
 File yang berada di dalam direktori (tidak di `base directory`) tidak akan dibaca oleh simulator. Dengan demikian, apabila pengguna ingin mengarsipkan konfigurasi yang sudah tidak digunakan lagi cukup membuat sebuah direktori dan memasukkan file-file konfigurasi yang tidak digunakan ke dalam direktori tersebut.
 
+Jika Universal REST Simulator dijalankan di dalam Docker atau container sejenis, sangat disarankan untuk melakukan binding direktori sehingga file-file konfigurasi berada di luar container. Hal ini bertujuan untuk mencegah file konfigurasi hilang saat melakukan update atau restart service. Penggunaan `volumes` pada Docker juga dapat dilakukan untuk tujuan ini.
+
 Pada saat simulator menerima request dari klien, simulator akan mencari file konfigurasi yang cocok dengan method dan path dari request yang diterima. Apabila simulator menemukan file yang sesuai, maka simulator akan berhenti mencari file dan menggunakan konfigurasi pada file yang tersebut. File konfigurasi yang tidak dapat diparsing dengan benar akan diabaikan dan tidak akan menyebabkan kerusakan pada simulator.
 
 File konfigurasi Universal REST Simulator dapat memiliki ekstensi apapun. Akan tetapi, untuk memudahkan penulisan, disarankan menggunakan ekstensi `.ini`.

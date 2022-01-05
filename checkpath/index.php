@@ -146,20 +146,10 @@ function endsWith( $haystack, $needle )
     return substr( $haystack, -$length ) === $needle;
 }
 
-
 error_reporting(0);
-
 $config_dir = CONFIG_DIR;
-
-
-	
-// Select configuration file
 $parsed = get_config_file($config_dir);
-//header("Content-type: application/json");
-//echo json_encode($parsed, JSON_PRETTY_PRINT);
-
-?>
-<!DOCTYPE html>
+?><!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">

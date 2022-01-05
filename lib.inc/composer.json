@@ -1,5 +1,6 @@
 {
     "require": {
-        "firebase/php-jwt": "^5.2"
+        "firebase/php-jwt": "^5.2",
+        "erusev/parsedown": "^1.7"
     }
 }
