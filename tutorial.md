@@ -20,7 +20,7 @@
 16. [Simulator Sederhana Input dari URL](#simulator-sederhana-input-dari-url)
 17. [Simulator Sederhana Input dari Header](#simulator-sederhana-input-dari-header)
 18. [Simulator Sederhana Input dari Basic Authorization](#simulator-sederhana-input-dari-basic-authorization)
-19. [Simulator Sederhana Output UUID](#simulator-sederhana-output-uuid)
+19. [Simulator Sederhana System UUID](#simulator-sederhana-system-uuid)
 20. [Simulator Sederhana Input Array](#simulator-sederhana-input-array)
 21. [Simulator Sederhana Input Object dan Array](#simulator-sederhana-input-object-dan-array)
 22. [HTTP Status Standard](#http-status-standard)
@@ -1785,7 +1785,7 @@ Content-Lengh: 291
 }
 ```
 
-## Simulator Sederhana Output UUID
+## Simulator Sederhana System UUID
 
 Pada beberapa kasus, pengguna mungkin membutuhkan respon dengan ID yang dinamik dan unik. Universal REST Simulator memungkinkan pengguna untuk menghasilkan UUID. 
 
