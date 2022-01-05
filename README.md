@@ -123,15 +123,15 @@ The input matrix and methods of Universal REST Simulator are as follows:
 
 | Method | Content Tpe                         | Data Source  | Alternative Object              |
 | ------ | ----------------------------------- | ------------ | --------------------- |
-| `GET`  | `applicatiom/x-www-form-urlencoded` | Header, URL, <br>Basic Authorization, <br>GET  | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
-| `POST` | `applicatiom/x-www-form-urlencoded` | Header, Body, <br>Basic Authorization, <br>GET, POST | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$POST` |
-| `POST` | `applicatiom/json`                  | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
-| `POST` | `applicatiom/xml`                   | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
-| `POST` | `applicatiom/soap+xml`              | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
-| `PUT`  | `applicatiom/x-www-form-urlencoded` | Header, Body, <br>Basic Authorization, <br>GET, PUT | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$PUT` |
-| `PUT`  | `applicatiom/json`                  | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
-| `PUT`  | `applicatiom/xml`                   | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
-| `PUT`  | `applicatiom/soap+xml`              | Header, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `GET`  | `applicatiom/x-www-form-urlencoded` | Header, URL, <br>Basic Authorization, <br>GET  | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `POST` | `applicatiom/x-www-form-urlencoded` | Header, URL, Body, <br>Basic Authorization, <br>GET, POST | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$POST` |
+| `POST` | `applicatiom/json`                  | Header, URL, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `POST` | `applicatiom/xml`                   | Header, URL, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `POST` | `applicatiom/soap+xml`              | Header, URL, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `PUT`  | `applicatiom/x-www-form-urlencoded` | Header, URL, Body, <br>Basic Authorization, <br>GET, PUT | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$PUT` |
+| `PUT`  | `applicatiom/json`                  | Header, URL, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `PUT`  | `applicatiom/xml`                   | Header, URL, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `PUT`  | `applicatiom/soap+xml`              | Header, URL, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
 
 **Input from Objects and Arrays**
 
@@ -731,6 +731,143 @@ $OUTPUT.BODY={\
     }\
 }\
 {[ENDIF]}\
+```
+
+## $SYSTEM.RANDOM() Function
+
+**Parameter**
+
+Optional
+
+`integer param1`
+
+`integer param2`
+
+If `param1` and `param2` are not present, this function will generate random integer from `mt_rand()` function on native PHP.
+
+If `param1` is present and `param2` is not present, this function will generate random integer from `mt_rand(0, abs(param1))` function on native PHP.
+
+If `param1` and `param2` are present, this function will generate random integer from `mt_rand(min(abs(param1), abs(param2)), max(abs(param1), abs(param2)))` function on native PHP.
+
+## $JSON.REQUEST() Function
+
+**Parameter**
+
+Optional
+
+`string selector`
+
+`boolean asText`, default `false`
+
+If `selector` and `asText` are not present, this function will return whole request as JSON object.
+
+If `selector` is present and `asText` is not present, this function will return JSON object from request by selector given.
+
+If `selector` is present and `asText` is present, this function will return JSON object from request by selector given. If `asText` is `true`, this function will convert JSON object to string and escape it.
+
+Example Request
+
+```
+{
+  "transaction_id": "164084965152152228",
+  "request": {
+    "data": {
+      "lastBalance": "59978",
+      "dateTime": "2017-11-11 10:10:10.123",
+      "approvalCode": "CCD970377BCD",
+      "dataToSam": "12121233345454323",
+      "merchantId": "TESTMID1",
+      "session": "sessionid123",
+      "terminalId": "TESTTID1",
+      "cardNumber": "6032984002487720"
+    },
+    "command": "update-balance"
+  },
+  "partner_info": {
+    "partnerID": 80,
+    "adapterEndpoint": "http://localhost:3000/process-biller"
+  },
+  "client_name": "Alto Remitance",
+  "client_id": 1
+}
+```
+
+`$JSON.REQUEST()` or `$JSON.REQUEST('')` will return JSON object
+
+```
+{
+  "transaction_id": "164084965152152228",
+  "request": {
+    "data": {
+      "lastBalance": "59978",
+      "dateTime": "2017-11-11 10:10:10.123",
+      "approvalCode": "CCD970377BCD",
+      "dataToSam": "12121233345454323",
+      "merchantId": "TESTMID1",
+      "session": "sessionid123",
+      "terminalId": "TESTTID1",
+      "cardNumber": "6032984002487720"
+    },
+    "command": "update-balance"
+  },
+  "partner_info": {
+    "partnerID": 80,
+    "adapterEndpoint": "http://localhost:3000/process-biller"
+  },
+  "client_name": "Alto Remitance",
+  "client_id": 1
+}
+```
+
+`$JSON.REQUEST('request')` will return JSON object
+
+```
+{
+    "data": {
+      "lastBalance": "59978",
+      "dateTime": "2017-11-11 10:10:10.123",
+      "approvalCode": "CCD970377BCD",
+      "dataToSam": "12121233345454323",
+      "merchantId": "TESTMID1",
+      "session": "sessionid123",
+      "terminalId": "TESTTID1",
+      "cardNumber": "6032984002487720"
+    },
+    "command": "update-balance"
+}
+```  
+
+`$JSON.REQUEST('request.data')` will return JSON object
+```
+{
+	"lastBalance": "59978",
+	"dateTime": "2017-11-11 10:10:10.123",
+	"approvalCode": "CCD970377BCD",
+	"dataToSam": "12121233345454323",
+	"merchantId": "TESTMID1",
+	"session": "sessionid123",
+	"terminalId": "TESTTID1",
+	"cardNumber": "6032984002487720"
+}
+```
+
+`$JSON.REQUEST('request.data', false)` will return JSON object
+```
+{
+	"lastBalance": "59978",
+	"dateTime": "2017-11-11 10:10:10.123",
+	"approvalCode": "CCD970377BCD",
+	"dataToSam": "12121233345454323",
+	"merchantId": "TESTMID1",
+	"session": "sessionid123",
+	"terminalId": "TESTTID1",
+	"cardNumber": "6032984002487720"
+}
+```
+
+`$JSON.REQUEST('request.data', true)` will return string
+```
+"{\"lastBalance\":\"59978\",\"dateTime\":\"2017-11-11 10:10:10.123\",\"approvalCode\":\"CCD970377BCD\",\"dataToSam\":\"12121233345454323\",\"merchantId\":\"TESTMID1\",\"session\":\"sessionid123\",\"terminalId\":\"TESTTID1\",\"cardNumber\":\"6032984002487720\"}"
 ```
 
 ## Selection of Conditions

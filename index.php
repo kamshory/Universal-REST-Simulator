@@ -15,6 +15,7 @@ function fix_document_root($document_root)
 	}
 	return $document_root;
 }
+
 function fix_carriage_return($data)
 {
 	$data = str_replace("\n", "\r\n", $data);
@@ -23,6 +24,7 @@ function fix_carriage_return($data)
 	$data = str_replace("\r\n\n", "\r\n", $data);
 	return $data;
 }
+
 function parse_config($context_path, $document_root = null)
 {	
 	if($document_root !== null)
@@ -111,6 +113,7 @@ function parse_config($context_path, $document_root = null)
 	}
 	return $parsed;
 }
+
 function get_php_code($file_content)
 {
 	$php_codes = array();
@@ -250,19 +253,120 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 			{
 				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
 				$val = trim($arr2[1]);
-				$val =  preg_replace("/[^0-9,]/", "", $val);
-				$arr = explode(",", $val);
-				$min= $arr[0] * 1;
-				$max = $arr[1] * 1;
-				if($min < $max)
+				$val =  trim(preg_replace("/[^0-9,]/", "", $val));
+				if(empty($val))
 				{
-					$randomVal = mt_rand($min, $max);		
+					$res[$key] = mt_rand();
 				}
 				else
 				{
-					$randomVal = mt_rand($max, $min);
-				}	
-				$res[$key] = $randomVal;
+					if(stripos($val, ",") !== false)
+					{
+						$arr = explode(",", $val);
+						$min= $arr[0] * 1;
+						$max = $arr[1] * 1;
+						if($min < $max)
+						{
+							$randomVal = mt_rand($min, $max);		
+						}
+						else
+						{
+							$randomVal = mt_rand($max, $min);
+						}	
+						$res[$key] = $randomVal;
+					}
+					else
+					{
+						$max = abs($val * 1);
+						$res[$key] = mt_rand(0, $max);
+					}					
+				}
+			}
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && startsWith(trim($arr2[1]), '$JSON.REQUEST'))
+			{
+				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
+				$val = trim($arr2[1]);
+				$val = substr($val, strlen('$JSON.REQUEST'));
+				if(startsWith($val, '(') && endsWith($val, ')'))
+				{
+					$val = substr($val, 1, strlen($val)-2);
+				}
+				$input = file_get_contents("php://input");
+				if(empty($val))
+				{
+					try
+					{
+						$obj = json_decode($input, true);
+						$res[$key] = $obj;
+					}
+					catch(Exception $e)
+					{
+						$res[$key] = 'null';
+					}
+				}
+				else
+				{					
+					$params = parse_params($val);								
+					if(count($params) == 1)
+					{
+						$params[1] = 'false';
+					}
+					try
+					{
+						if(empty($params[0]))
+						{
+							$obj = json_decode($input, true);
+							$value = $obj;
+							if(strtolower($params[1]) == 'true' || $params[1] == '1')
+							{
+								$res[$key] = json_encode(json_encode(isset($value)?$value:'null'));
+							}
+							else
+							{
+								$res[$key] = json_encode(isset($value)?$value:'null');
+							}							
+						}
+						else if(stripos($params[0], '[') !== false && stripos($params[0], ']')) 
+						{
+							// parse as associated array
+							$obj = json_decode($input, true);
+							$attr = $params[0];
+							if(!startsWith($attr, '['))
+							{
+								$arr1 = explode("[", $attr, 2);
+								$attr = '['.$arr1[0].']'.$arr1[1];
+							}
+							$value = eval('return @$obj'.$attr.';');	
+							
+							if(strtolower($params[1]) == 'true' || $params[1] == '1')
+							{
+								$res[$key] = json_encode(isset($value)?$value:'null');
+							}
+							else
+							{
+								$res[$key] = isset($value)?$value:'null';
+							}											
+						} 
+						else 
+						{
+							$obj = json_decode($input);
+							$attr = str_replace(".", "->", $params[0]);					
+							$value = eval('return @$obj->'.$attr.';');	
+							if(strtolower($params[1]) == 'true' || $params[1] == '1')
+							{
+								$res[$key] = json_encode(json_encode(isset($value)?$value:'null'));
+							}
+							else
+							{
+								$res[$key] = json_encode(isset($value)?$value:'null');
+							}	
+						}						
+					}
+					catch(Exception $e)
+					{
+						$res[$key] = 'null';
+					}
+				}				
 			}
 			// Get UUID
 			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && trim($arr2[1]) == '$SYSTEM.UUID')
@@ -430,8 +534,7 @@ function validate_token($string, $token_sent)
 			if(is_valid_quoted($fm1))
 			{
 				$fm1 = substr($fm1, 1, strlen($fm1)-2);
-			}
-			
+			}			
 			if(is_valid_jwt($token_sent))
 			{
 				$result = "true";	
@@ -473,8 +576,8 @@ function generate_token()
 		"iat" => $issuedat_claim,
 		"nbf" => $notbefore_claim,
 		"exp" => $expire_claim,
-		"data" => array(
-	));
+		"data" => array()
+	);
 
 	$jwt = JWT::encode($token, $secret_key);
 	return array(
@@ -580,8 +683,7 @@ function process_transaction($parsed, $request)
 						$value = str_ireplace('{[|]}', '', $value);
 						$return_data[$variable] = $value;	
 					}
-				}		
-				
+				}						
 				break;
 			}
 		}
@@ -591,16 +693,9 @@ function process_transaction($parsed, $request)
 
 function date_without_tz($args1)
 {
-	if(startsWith($args1, "'"))
-	{
-		$args1 = substr($args1, 1);
-	}
-	if(endsWith($args1, "'"))
-	{
-		$args1 = substr($args1, 0, strlen($args1) - 1);
-	}
 	return date($args1);
 }
+
 function date_with_tz($fmt, $tz)
 {
 	if(stripos($tz, 'UTC') !== false)
@@ -623,19 +718,33 @@ function date_with_tz($fmt, $tz)
 	return $ret;
 }
 
-function eval_date($args)
+function parse_params($args)
 {
 	$args = trim($args, SPACE_TRIMMER);
-	$args = trim(substr($args, 4), SPACE_TRIMMER);
-	$args = substr($args, 1, strlen($args) - 2);
 	$parts = preg_split("/(?:'[^']*'|)\K\s*(,\s*|$)/", $args);
 	$result = array_filter($parts, function ($value) {
 		return ($value !== '');
 	});
+	if(empty($result) && !empty($args)) 
+	{
+		$args = trim($args);
+		if(stripos($args, ',') === false && startsWith($args, "'") && endsWith($args, "'"))
+		{
+			return array($args);
+		}
+	}
 	if(count($result) == 1)
 	{
 		// no time zone	
-		return date_without_tz($result[0]);
+		if(startsWith($result[0], "'"))
+		{
+			$result[0] = substr($result[0], 1);
+		}
+		if(endsWith($result[0], "'"))
+		{
+			$result[0] = substr($result[0], 0, strlen($result[0]) - 1);
+		}
+		return array($result[0]);
 	}
 	else if(count($result) == 2)
 	{
@@ -655,9 +764,27 @@ function eval_date($args)
 		{
 			$result[1] = substr($result[1], 0, strlen($result[1]) - 1);
 		}
-		$fmt = str_replace("'", "", trim($result[0]));
-		$tz = str_replace("'", "", trim($result[1]));
-		return date_with_tz($fmt, $tz);
+		$result[0] = str_replace("'", "", trim($result[0]));
+		$result[1] = str_replace("'", "", trim($result[1]));
+		return array($result[0], $result[1]);
+	}
+}
+
+function eval_date($args)
+{
+	$args = trim($args, SPACE_TRIMMER);
+	if(startsWith($args, 'date('))
+	{
+		$args = substr($args, 5, strlen($args) - 5);
+	}
+	$result = parse_params($args);
+	if(count($result) == 1)
+	{
+		return date_without_tz($result[0]);
+	}
+	else if(count($result) == 2)
+	{
+		return date_with_tz($result[0], $result[1]);
 	}
 }
 
@@ -686,6 +813,7 @@ function replace_date($string)
 	}
 	return $string;
 }
+
 function replace_number_format($string)
 {
 	if(stripos($string, '$NUMBERFORMAT') !== false)
@@ -713,6 +841,7 @@ function replace_number_format($string)
 	}
 	return $string;
 }
+
 function replace_substring($string)
 {
 	if(stripos($string, '$SUBSTRING') !== false)
@@ -740,6 +869,7 @@ function replace_substring($string)
 	}
 	return $string;
 }
+
 function replace_uppercase($string)
 {
 	if(stripos($string, '$UPPERCASE') !== false)
@@ -767,6 +897,7 @@ function replace_uppercase($string)
 	}
 	return $string;
 }
+
 function replace_lowercase($string)
 {
 	if(stripos($string, '$LOWERCASE') !== false)
@@ -794,6 +925,7 @@ function replace_lowercase($string)
 	}
 	return $string;
 }
+
 function find_bracket_position($string, $start)
 {
 	$p1 = 0;
@@ -818,6 +950,7 @@ function find_bracket_position($string, $start)
 	while($rem > 0 || !$found); 
 	return $p1;
 }
+
 function replace_calc($string)
 {
 	
@@ -1231,8 +1364,24 @@ function get_token()
 	return $token_sent;
 }
 
-function send_callback($output)
-{	
+function send_callback($output) {
+	if(ASYNC_ENABLE)
+	{
+		send_callback_async($output);
+	}
+	else
+	{
+		send_callback_sync($output);
+	}
+}
+
+function send_callback_async($output)
+{
+	send_callback_sync($output);
+}
+
+function send_callback_sync($output)
+{
 	$res = "";
 	$url = @$output['CALLBACK_URL'];
 	$timeout = @$output['CALLBACK_TIMEOUT'] * 0.001;
@@ -1352,6 +1501,7 @@ function send_callback($output)
 	}
 	return $res;
 }
+
 function send_response($output, $parsed)
 {
 	if(isset($output['STATUS']))
@@ -1386,6 +1536,7 @@ function send_response($output, $parsed)
 		$raw_header = drop_content_length($raw_header);
 		send_response_header($raw_header);
 	}
+	
 	if(!$send_content_type)
 	{
 		if(isset($output['TYPE']))
@@ -1501,22 +1652,20 @@ else
 			$scheme = "https";
 		}
 		$response = '<!DOCTYPE html>
-		<html lang="en">
-		<head>
-			<meta charset="UTF-8">
-			<meta http-equiv="X-UA-Compatible" content="IE=edge">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>Path Not Found</title>
-		</head>
-		<body>
-			<h1>Path Not Foud</h1>
-			<p>No method and path match. Please check path on <a href="/checkpath/">Check Path</a></p>
-		</body>
-	</html>';
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Path Not Found</title>
+</head>
+<body>
+	<h1>Path Not Foud</h1>
+	<p>No method and path match. Please check path on <a href="/checkpath/">Check Path</a></p>
+</body>
+</html>';
 		header("Content-type: text/html");
 		header("Content-length: ".strlen($response));
 		echo $response;
 	}
 }
-
-?>

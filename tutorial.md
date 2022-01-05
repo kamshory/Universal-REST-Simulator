@@ -33,21 +33,28 @@
 29. [Fungsi $CALC()](#fungsi-calc)
 30. [Fungsi $ISVALIDTOKEN()](#fungsi-isvalidtoken)
 31. [Fungsi $NUMBERFORMAT()](#fungsi-numberformat)
-32. [Kode PHP Natif](#kode-php-natif)
+32. [Fungsi $SYSTEM.RANDOM()](#fungsi-systemrandom)
+33. [Fungsi $JSON.REQUEST()](#fungsi-jsonrequest)
+34. [Kode PHP Natif](#kode-php-natif)
 
 ## Sekilas Tentang Universal REST Simulator
 
 Universal REST Simulator adalah simulator REST untuk membuat simulator server aplikasi. Simulator ini akan mensimulasikan respon dari sebuah sistem saat diberi request tertentu. Universal REST Simulator menggunakan protokol HTTP dengan method `GET`, `POST` dan `PUT` dengan tipe request `x-www-form-urlencode`, `JSON` dan `XML`. Tipe respon dapat berupa `text`, `HTML`, `XML`, `JSON` maupun `CSV`.
 
+Sebenarnya simulator REST hanya perlu memberikan respon sesuai dengan request yang diberikan. Akan tetapi, jika aplikasi harus mengolah kembali respon dari simulator untuk proses berikutnya, maka diperlukan sebuah proses pada simulator yang dapat memberikan respon sesuai dengan yang diharapkan.
+
 Universal REST Simulator mengambil input dari request klien melalui beberapa cara yaitu sebagai berikut:
 
-1. `$HEADER` yaitu request header dengan  nama header yang eksplisit
-2. `$AUTHORIZATION_BASIC` yaitu username dan password pada basic authentication
-3. `$URL` yaitu nilai yang cocok dari pola URL dengan membandingkan antara URL pada file konfigurasi dengan URL pada request dari klien
-4. `$GET` yaitu nilai yang diambil dari parameter yang dikirimkan melalui URL dengan pengkodean `x-www-form-urlencode`
-5. `$POST` yaitu nilai yang diambil dari body request dengan method `POST` dengan pengkodean `x-www-form-urlencode`
-6. `$PUT` yaitu nilai yang diambil dari body request dengan method `PUT` dengan pengkodean `x-www-form-urlencode`
+1. `$HEADER` yaitu request header dengan  nama header yang eksplisit.
+2. `$AUTHORIZATION_BASIC` yaitu username dan password pada basic authentication.
+3. `$URL` yaitu nilai yang cocok dari pola URL dengan membandingkan antara URL pada file konfigurasi dengan URL pada request dari klien.
+4. `$GET` yaitu nilai yang diambil dari parameter yang dikirimkan melalui URL dengan pengkodean `x-www-form-urlencode`.
+5. `$POST` yaitu nilai yang diambil dari body request dengan method `POST` dengan pengkodean `x-www-form-urlencode`.
+6. `$PUT` yaitu nilai yang diambil dari body request dengan method `PUT` dengan pengkodean `x-www-form-urlencode`.
 7. `$REQUEST` tergantung dari method yang digunakan pada file konfigurasi. Berbeda dengan `$GET`, `$PUT` dan `$POST` yang hanya mendukung `x-www-form-urlencode`, `$REQUEST` mendukung *content type* `x-www-form-urlencode`, JSON dan XML baik objek maupun array.
+8. `$JSON.REQUEST` mengambil JSON dari request `POST` dan `PUT`. Data yang diambil dapat berupa `JSON object` maupun `string` tergantung dari parameter yang dimasukkan. 
+
+Selain input dari klien, Universal REST Simulator juga dapat membuat data dari sistem seperti `$SYSTEM.RANDOM()`, `$DATE()`, `$SYSTEM.UUID` dan lain-lain. Universal REST Simulator juga dapat membuat dan memvalidasi `JWT` atau `JSON Web Token`.
 
 Output dari Universal REST Simulator adalah HTTP Status, header respon dan body respon.
 
@@ -168,6 +175,21 @@ Parsing rule digunakan untuk memparsing request dari klien. Sumber data yang dig
 5. `$POST` yaitu nilai yang diambil dari body request dengan method `POST` dengan pengkodean `x-www-form-urlencode`
 6. `$PUT` yaitu nilai yang diambil dari body request dengan method `PUT` dengan pengkodean `x-www-form-urlencode`
 7. `$REQUEST` yaitu alternatif dari `$GET`, `$POST` dan `$PUT` tergantung dari method yang digunakan pada file konfigurasi. Berbeda dengan `$GET`, `$PUT` dan `$POST` yang hanya mendukung `x-www-form-urlencode`, `$REQUEST` mendukung *content type* `x-www-form-urlencode`, JSON dan XML baik objek maupun array.
+
+Matriks input ditampilkan pada tabel berikut:
+
+| Method | Content Tpe                         | Data Source  | Alternative Object              |
+| ------ | ----------------------------------- | ------------ | --------------------- |
+| `GET`  | `applicatiom/x-www-form-urlencoded` | Header, URL, <br>Basic Authorization, <br>GET  | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `POST` | `applicatiom/x-www-form-urlencoded` | Header, URL, Body, <br>Basic Authorization, <br>GET, POST | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$POST` |
+| `POST` | `applicatiom/json`                  | Header, URL, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `POST` | `applicatiom/xml`                   | Header, URL, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `POST` | `applicatiom/soap+xml`              | Header, URL, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `PUT`  | `applicatiom/x-www-form-urlencoded` | Header, URL, Body, <br>Basic Authorization, <br>GET, PUT | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET`, `$PUT` |
+| `PUT`  | `applicatiom/json`                  | Header, URL, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `PUT`  | `applicatiom/xml`                   | Header, URL, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+| `PUT`  | `applicatiom/soap+xml`              | Header, URL, Body, <br>Basic Authorization, <br>GET | `$HEADER`, `$URL`, `$REQUEST`, <br>`$AUTHORIZATION_BASIC`, <br>`$GET` |
+
 
 Nilai yang diambil dari request disimpan pada variabel yang diawali dengan `$INPUT.` dan diikuti dengan nama unik dari variabel tersebut.
 
@@ -2221,9 +2243,9 @@ Content-Length: 359
 
 ## Memvalidasi Token
 
-Untuk memvalidasi token, pengguna cukup menambahkan fungsi `$ISVALIDTOKEN()` pada kondisi yang akan diuji. Saat menemukan fungsi `$ISVALIDTOKEN()`, Universal REST Simulator langsung memproses header `Authorization: Bearer ...` yang ada pada request header dan menguji apakah token yang diberikan valid atau tidak. Jika valid, fungsi `$ISVALIDTOKEN()` akan bernilau `true` namun jika tidak valid, maka fungsi `$ISVALIDTOKEN()` akan bernilai false.
+Untuk memvalidasi token, pengguna cukup menambahkan fungsi `$ISVALIDTOKEN()` pada kondisi yang akan diuji. Saat menemukan fungsi `$ISVALIDTOKEN()`, Universal REST Simulator langsung memproses header `Authorization: Bearer ...` yang ada pada request header dan menguji apakah token yang diberikan valid atau tidak. Jika valid, fungsi `$ISVALIDTOKEN()` akan bernilai `true` namun jika tidak valid, maka fungsi `$ISVALIDTOKEN()` akan bernilai `false`.
 
-Universal REST Simulator dapat memvalidasi token untuk method `GET`, `POST` maupun `PUT`. Path untuk memvalidasi token tidak ada hubungannya dengan path ketika melakukan request token. Simulator akan memvalidasi token secara independen tanpa terkait dengan path dan header lain.
+Universal REST Simulator dapat memvalidasi token untuk method `GET`, `POST` maupun `PUT`. Path untuk memvalidasi token tidak ada hubungannya dengan path ketika melakukan request token. Simulator akan memvalidasi token secara independen tanpa terkait dengan path dan header lain. Universal REST Simulator hanya dapat memvalidasi token yang dibuatnya sendiri. Pengaturan credential token dapat dilakukan dengan mengubah nilai setiap atribut dari objek `$appConfig` di file `/lib.inc/config.php`. Dengan demikian, jika diperlukan untuk memvalidasi token yang dibuat oleh Universal REST Simulator yang terpasang pada server lain dapat dilakukan dengan cara menyamakan nilai dari atribut objek `$appConfig` pada server-server terkait.
 
 ```ini
 PATH=/va-status
@@ -2303,11 +2325,12 @@ Callback adalah proses lanjutan yang dilakukan oleh Universal REST Simulator set
 Selain endpoint callback, ada beberapa parameter callback yang dapat ditentukan di dalam file konfigurasi, di antaranya adalah sebagai berikut:
 
  1. `$OUTPUT.CALLBACK_URL` adalah URL yang dituju pada proses callback.
- 2.  `$OUTPUT.CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
- 3.  `$OUTPUT.CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
+ 2. `$OUTPUT.CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
+ 3. `$OUTPUT.CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
  4. `$OUTPUT.CALLBACK_TIMEOUT` adalah timeout untuk callback.
- 5. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback.
- 6. `$OUTPUT.CALLBACK_BODY` adalah request body untuk callback.
+ 5. `$OUTPUT.CALLBACK_DELAY` adalah delay untuk callback.
+ 6. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback.
+ 7. `$OUTPUT.CALLBACK_BODY` adalah request body untuk callback.
 
 Contoh Konfigurasi:
 
@@ -2534,7 +2557,7 @@ Format `$DATE()` mengikuti format pada bahasa pemrograman PHP. Berikut ini merup
 
 ## Fungsi $CALC()
 
-Fungsi `$CALC()` sangan berguna untuk melakukan operasi matematika di mana `$INPUT` menjadi salah satu operannya.
+Fungsi `$CALC()` sangat berguna untuk melakukan operasi matematika di mana `$INPUT` menjadi salah satu operandnya.
 
 Sebagai contoh: pengguna akan menambahkan jumlah tagihan dengan admin fee. Jika tagihan disimpan di dalam variabel `$INPUT.AMOUNT` dan admin fee disimpan dalam variabel `$INPUT.FEE`, maka dapat ditulis dengan `$CALC($INPUT.AMOUNT + $INPUT.FEE)`. Jika admin fee adalah nilai tetap yaitu 2500, maka dapat ditulis dengan `$CALC($INPUT.AMOUNT + 2500)`.
 
@@ -2721,17 +2744,374 @@ Content-Lengh: 291
 }
 ```
 
+## Fungsi $SYSTEM.RANDOM()
+
+**Parameter**
+
+Opsional
+
+`integer param1`
+
+`integer param2`
+
+Jika `param1` dan `param2` tidak ada, fungsi ini akan menghasilkan bilangan bulat acak dari fungsi `mt_rand()` pada PHP asli.
+
+Jika `param1` ada dan `param2` tidak ada, fungsi ini akan menghasilkan bilangan bulat acak dari fungsi `mt_rand(0, abs(param1))` pada PHP asli.
+
+Jika ada `param1` dan `param2`, fungsi ini akan menghasilkan bilangan bulat acak dari fungsi `mt_rand(min(abs(param1), abs(param2)), max(abs(param1), abs(param2)))` pada PHP asli.
+
+## Fungsi $JSON.REQUEST()
+
+**Parameter**
+
+Opsional
+
+`string selector`
+
+`boolean asText`, default `false`
+
+Jika `selector` dan `asText` tidak diberikan, fungsi ini akan mengembalikan seluruh JSON object dari request.
+
+Jika `selector` diberikan dan `asText` tidak diberikan, fungsi ini akan mengembalikan JSON object dari request sesuai dengan `selector`.
+
+Jika `selector` diberikan dan `asText` diberikan, fungsi ini akan mengembalikan JSON object dari request sesuai dengan `selector`. Jika `asText` adalah `true`, fungsi ini akan mengkonversi JSON object dari `selector` menjadi string yang diescape.
+
+Pada beberapa kasus, pengguna perlu menirimkan kembali request JSON dari klien di respon. Pengguna dapat mengambil request secara keseluruhan maupun salah satu properti dari JSON. Pengguna dapat mengambilnya sebagai objek JSON maupun sebagai string.
+
+Contoh Request
+
+```
+{
+  "transaction_id": "164084965152152228",
+  "request": {
+    "data": {
+      "lastBalance": "59978",
+      "dateTime": "2017-11-11 10:10:10.123",
+      "approvalCode": "CCD970377BCD",
+      "dataToSam": "12121233345454323",
+      "merchantId": "TESTMID1",
+      "session": "sessionid123",
+      "terminalId": "TESTTID1",
+      "cardNumber": "6032984002487720"
+    },
+    "command": "update-balance"
+  },
+  "partner_info": {
+    "partnerID": 80,
+    "adapterEndpoint": "http://localhost:3000/process-biller"
+  },
+  "client_name": "Alto Remitance",
+  "client_id": 1
+}
+```
+
+`$JSON.REQUEST()` atau `$JSON.REQUEST('')` akan mengembalikan JSON object yaitu:
+
+```
+{
+  "transaction_id": "164084965152152228",
+  "request": {
+    "data": {
+      "lastBalance": "59978",
+      "dateTime": "2017-11-11 10:10:10.123",
+      "approvalCode": "CCD970377BCD",
+      "dataToSam": "12121233345454323",
+      "merchantId": "TESTMID1",
+      "session": "sessionid123",
+      "terminalId": "TESTTID1",
+      "cardNumber": "6032984002487720"
+    },
+    "command": "update-balance"
+  },
+  "partner_info": {
+    "partnerID": 80,
+    "adapterEndpoint": "http://localhost:3000/process-biller"
+  },
+  "client_name": "Alto Remitance",
+  "client_id": 1
+}
+```
+
+`$JSON.REQUEST('request')` akan mengembalikan JSON object yaitu:
+
+```
+{
+    "data": {
+      "lastBalance": "59978",
+      "dateTime": "2017-11-11 10:10:10.123",
+      "approvalCode": "CCD970377BCD",
+      "dataToSam": "12121233345454323",
+      "merchantId": "TESTMID1",
+      "session": "sessionid123",
+      "terminalId": "TESTTID1",
+      "cardNumber": "6032984002487720"
+    },
+    "command": "update-balance"
+}
+```  
+
+`$JSON.REQUEST('request.data')` akan mengembalikan JSON object yaitu:
+
+```
+{
+	"lastBalance": "59978",
+	"dateTime": "2017-11-11 10:10:10.123",
+	"approvalCode": "CCD970377BCD",
+	"dataToSam": "12121233345454323",
+	"merchantId": "TESTMID1",
+	"session": "sessionid123",
+	"terminalId": "TESTTID1",
+	"cardNumber": "6032984002487720"
+}
+```
+
+`$JSON.REQUEST('request.data', false)` akan mengembalikan JSON object yaitu:
+
+```
+{
+	"lastBalance": "59978",
+	"dateTime": "2017-11-11 10:10:10.123",
+	"approvalCode": "CCD970377BCD",
+	"dataToSam": "12121233345454323",
+	"merchantId": "TESTMID1",
+	"session": "sessionid123",
+	"terminalId": "TESTTID1",
+	"cardNumber": "6032984002487720"
+}
+```
+
+`$JSON.REQUEST('request.data', true)` akan mengembalikan string yaitu:
+
+```
+"{\"lastBalance\":\"59978\",\"dateTime\":\"2017-11-11 10:10:10.123\",\"approvalCode\":\"CCD970377BCD\",\"dataToSam\":\"12121233345454323\",\"merchantId\":\"TESTMID1\",\"session\":\"sessionid123\",\"terminalId\":\"TESTTID1\",\"cardNumber\":\"6032984002487720\"}"
+```
+
+Jika ingin mengambil element tertentu dari array, `$JSON.REQUEST('request.data', false)` dapat ditulis dengan `$JSON.REQUEST('[request][data]', false)` dan `$JSON.REQUEST('request.data', true)` dapat ditulis dengan `$JSON.REQUEST('[request][data]', true)`. Dengan demikian, untuk mengambil data `bill` ke 2 dari request berikut:
+
+```
+{
+  "transaction_id": "164084965152152228",
+  "request": {
+    "data": {
+      "lastBalance": "59978",
+      "dateTime": "2017-11-11 10:10:10.123",
+      "approvalCode": "CCD970377BCD",
+      "dataToSam": "12121233345454323",
+      "merchantId": "TESTMID1",
+      "session": "sessionid123",
+      "terminalId": "TESTTID1",
+      "cardNumber": "6032984002487720",
+      "bill": [
+          {
+              "date": "2017-10-11",
+              "amount": 120000
+          },
+          {
+              "date": "2017-11-11",
+              "amount": 350000
+          }
+      ]
+    },
+    "command": "update-balance"
+  },
+  "partner_info": {
+    "partnerID": 80,
+    "adapterEndpoint": "http://localhost:3000/process-biller"
+  },
+  "client_name": "Alto Remitance",
+  "client_id": 1
+}
+```
+
+dapat ditulis dengan `$JSON.REQUEST('[request][data][1]', false)`. Ingat bahwa index array selalu diawali dengan 0. Pada kasus di atas, `$JSON.REQUEST('[request][data][1]', false)` akan mengembalikan JSON object yaitu:
+
+```
+{
+    "date": "2017-11-11",
+    "amount": 350000
+}
+```
+
+dan `$JSON.REQUEST('[request][data][1]', true)` akan mengembalikan string yaitu:
+
+```
+"{\n    \"date\": \"2017-11-11\",\n    \"amount\": 350000\n}"
+```
+
+
+Contoh Konfigurasi
+
+```
+METHOD=POST
+PATH=/process-biller
+
+REQUEST_TYPE=application/json
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=$INPUT.COMMAND=$REQUEST.request.command\
+$INPUT.CARD_NUMBER=$REQUEST.request.data.cardNumber\
+$INPUT.LAST_BALANCE=$REQUEST.request.data.lastBalance\
+$INPUT.APPROVAL_CODE=$REQUEST.request.data.approvalCode\
+$INPUT.RESPONSE_FROM_SAM=$REQUEST.request.data.dataToSam\
+$INPUT.SESSION=$REQUEST.request.data.session\
+$INPUT.DATA=$JSON.REQUEST('request.data', false)
+
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.COMMAND == 'get-balance')\
+{[THEN]}\
+$OUTPUT.STATUS=200\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"command": "$INPUT.COMMAND",\
+	"time_stamp": "$DATE('Y-m-d\TH:i:s', 'UTC').000Z",\
+	"data": {\
+		"message": "9000"\
+	},\
+	"message_to_provider":$INPUT.DATA,\
+	"message_from_provider": "{\r\n \"data\": {\r\n \"message\": \"9000\"\r\n }\r\n}",\
+	"time_stamp": "$DATE('Y-m-d H:i:s', 'UTC+3')"\
+}\
+{[ENDIF]}\
+{[IF]} ($INPUT.COMMAND == 'update-balance')\
+{[THEN]}\
+$OUTPUT.STATUS=200 OK\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"command": "$INPUT.COMMAND",\
+	"time_stamp": "$DATE('Y-m-d\TH:i:s', 'UTC').000Z",\
+	"data": {\
+		"lastBalance": "$INPUT.LAST_BALANCE",\
+		"amount": "20000",\
+		"approvalCode": "$INPUT.APPROVAL_CODE",\
+		"responseFromSam": "$INPUT.RESPONSE_FROM_SAM",\
+		"cardNumber": "$INPUT.CARD_NUMBER"\
+	},\
+	"message_to_provider":$INPUT.DATA,\
+	"message_from_provider": "{\r\n	\"data\": { \r\n		\"lastBalance\": \"$INPUT.LAST_BALANCE\", \r\n		\"amount\": \"20000\", \r\n		\"approvalCode\": \"$INPUT.APPROVAL_CODE\", \r\n		\"responseFromSam\": \"$INPUT.RESPONSE_FROM_SAM\", \r\n		\"cardNumber\": \"$INPUT.CARD_NUMBER\" \r\n	} \r\n}"\
+}\
+{[ENDIF]}\
+{[IF]} ($INPUT.COMMAND == 'confirm-balance')\
+{[THEN]}\
+$OUTPUT.STATUS=200 OK\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"command": "$INPUT.COMMAND",\
+	"time_stamp": "$DATE('Y-m-d\TH:i:s', 'UTC').000Z",\
+	"data": {\
+		"session": "$INPUT.SESSION",\
+		"cardNumber": "$INPUT.CARD_NUMBER"\
+	},\
+	"message_to_provider":$INPUT.DATA,\
+	"message_from_provider": "{}"\
+}\
+{[ENDIF]}\
+{[IF]} ($INPUT.COMMAND == 'card-command')\
+{[THEN]}\
+$OUTPUT.STATUS=200 OK\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"command": "$INPUT.COMMAND",\
+	"time_stamp": "$DATE('Y-m-d\TH:i:s', 'UTC').000Z",\
+	"data": {\
+		"message": "9948594365465-989\n"\
+	},\
+	"message_to_provider":$INPUT.DATA,\
+	"message_from_provider": "{\"data\":{\"message\":\"9948594365465-989\\n\"}}"\
+}\
+{[ENDIF]}\
+{[IF]} ($INPUT.COMMAND == 'reverse-balance')\
+{[THEN]}\
+$OUTPUT.STATUS=200 OK\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"command": "$INPUT.COMMAND",\
+	"time_stamp": "$DATE('Y-m-d\TH:i:s', 'UTC').000Z",\
+	"data": {\
+		"approvalCode": "$INPUT.APPROVAL_CODE",\
+		"cardNumber": "$INPUT.CARD_NUMBER"\
+	},\
+	"message_to_provider":$INPUT.DATA,\
+	"message_from_provider": "{\r\n	\"data\": {\r\n		\"approvalCode\": \"$INPUT.APPROVAL_CODE\",\r\n				\"cardNumber\": \"$INPUT.CARD_NUMBER\"\r\n	} \r\n}"\
+}\
+{[ENDIF]}\
+{[IF]} ($INPUT.COMMAND == 'transaction-history')\
+{[THEN]}\
+$OUTPUT.STATUS=200 OK\
+$OUTPUT.DELAY=0\
+$OUTPUT.BODY={\
+	"command": "$INPUT.COMMAND",\
+	"time_stamp": "$DATE('Y-m-d\TH:i:s', 'UTC').000Z",\
+	"data": {\
+		"message": "90000"\
+	},\
+	"message_to_provider":$INPUT.DATA,\
+	"message_from_provider": "{\"data\":{\"message\":\"90000\"}}"\
+}\
+{[ENDIF]}\
+```
+
+Contoh Request
+
+```
+POST /process-biller HTTP/1.1
+Host: 127.0.0.1
+User-Agent: Service
+Accept: application/json
+Content-Type: application/json
+Content-Length: 512
+
+{
+  "transaction_id": "164084311750751184",
+  "request": {
+    "data": {
+      "cardAttribute": "09091607595453006BA8009000",
+      "lastBalance": "2500",
+      "amount": "0",
+      "approvalCode": "CCD970377BCD",
+      "cardInfo": "6032984002487795180801207024050300910301060000000000032091B0790781A29D250353DBF97C96CE510D17C800000000000000000000035E92D2FFFF9000",
+      "cardUUID": "2F865948"
+    },
+    "command": "transaction-history"
+  },
+  "client_name": "Alto Remitance",
+  "client_id": 1
+}
+```
+
+Contoh Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Lengh: 515
+
+{
+	"command": "transaction-history",
+	"time_stamp": "2021-12-30T05:45:19.000Z",
+	"data": {
+		"message": "90000"
+	},
+	"message_to_provider":"{\"cardAttribute\":\"09091607595453006BA8009000\",\"lastBalance\":\"2500\",\"amount\":\"0\",\"approvalCode\":\"CCD970377BCD\",\"cardInfo\":\"6032984002487795180801207024050300910301060000000000032091B0790781A29D250353DBF97C96CE510D17C800000000000000000000035E92D2FFFF9000\",\"cardUUID\":\"2F865948\"}",
+	"message_from_provider": "{\"data\":{\"message\":\"90000\"}}"
+}
+```
+
 ## Kode PHP Natif
 
-Pada beberapa kasus, simulator tidak dapat dibuat dengan file konfigurasi saja. Proses yang terlalu rumit harus ditangani oleh bahasa pemrograman termasuk menyimpan data transaksi ke database atau sistem file.
+Pada beberapa kasus, simulator tidak dapat dibuat dengan file konfigurasi saja. Proses yang terlalu rumit seperti membaca atau menyimpan data transaksi ke database atau sistem file, melakukan enkripsi dan dekripsi, mengkonversi data dari satu bentuk ke bentuk lain, dan sebagainya harus ditangani oleh bahasa pemrograman.
 
-Universal REST Simulator memungkinkan pengguna untuk membuat sendiri kode PHP natif. 
+Universal REST Simulator memungkinkan pengguna untuk membuat sendiri kode PHP natif. Cara ini sebenarnya tidak direkomendasikan karena dapat membahayakan simulator. Namun jika pengguna memahami bahasa PHP dengan baik, maka cara ini dapat dilakukan dan akan memberikan hasil yang lebih baik pula.
 
-Cara ini sebenarnya tidak direkomendasikan karena dapat membahayakan simulator. Namun dapat dilakukan jika pengguna memahami bahasa PHP dengan baik.
+Untuk menuliskan kode PHP natif pada simulator sangat mudah. Pertama, tentukan `METHOD` dan `PATH` kemudian tulis kode PHP di antara `{[EVAL_PHP_BEGIN]}` dan `{[EVAL_PHP_END]}`
 
-Untuk menuliskan kode PHP natif pada simulator sangat mudah. Pertama, tentukan METHOD dan PATH kemudian tulis kode PHP di antara `{[EVAL_PHP_BEGIN]}` dan `{[EVAL_PHP_END]}`
+Parsing data input tentu saja dilakukan secara manual tergantung dari `method` dan `content-type` yang dikirim oleh klien.
 
-Parsing data input saja dilakukan secara manual tergantung dari `method` dan `content-type` yang dikirim oleh klien.
+Apabila file konfigurasi mengandung `{[EVAL_PHP_BEGIN]}` dan `{[EVAL_PHP_END]}`, maka yang akan diproses hanyalah `METHOD` dan `PATH` saja. Konfigurasi selain `METHOD` dan `PATH` akan diabaikan. Simulator akan mengalihkan proses pada kode di antara `{[EVAL_PHP_BEGIN]}` dan `{[EVAL_PHP_END]}`.
+
+Pengguna boleh membuat lebih dari satu blok `{[EVAL_PHP_BEGIN]}` dan `{[EVAL_PHP_END]}`. Akan tetapi cara ini sangat tidak disarankan. Selain karena pengguna tidak bisa menuliskan konfigurasi lain di luar blok tersebut, pengiriman `response header` yang dilakukan setelah simulator mengirimkan `response body` juga dianggap sebagai kesalahan pemrograman sehingga simulator mungkin akan mengirimkan HTTP status `500 Internal Server Error`.
+
+Penggunaan Universal REST Simulator untuk kode PHP natif ini lebih kepada penggunaan server HTTP dan interpreter PHP dari simulator yang ada sehingga pengguna tidak perlu membuat server baru untuk membuat beberapa simulator yang mutlak memerlukan kode PHP natif.
 
 Contoh Konfigurasi
 
@@ -2776,3 +3156,7 @@ header("Content-type: text/plain");
 echo "$rc:$sequence_id";
 {[EVAL_PHP_END]}
 ```
+
+Pada contoh di atas, `$sequence_id` dienkripsi oleh klien lalu didekripsi oleh simulator. Algoritma enkripsi tentu saja harus tersedia di PHP di mana simulator berjalan.
+
+Callback dapat dilakukan dengan CURL. Contoh CURL PHP dapat dilihat di https://www.php.net/manual/en/curl.examples.php
