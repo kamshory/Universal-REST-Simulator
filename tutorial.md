@@ -1986,7 +1986,7 @@ HARGA ITEM     : $INPUT.AMOUNT1\
 Contoh Request:
 
 ```http
-POST /objectandarray HTTP/1.1 
+POST /universal-rest-simulator/array HTTP/1.1 
 Host: 127.0.0.1
 Content
 
