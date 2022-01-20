@@ -51,7 +51,7 @@ Universal REST Simulator mengambil input dari request klien melalui beberapa car
 4. `$GET` yaitu nilai yang diambil dari parameter yang dikirimkan melalui URL dengan pengkodean `x-www-form-urlencode`.
 5. `$POST` yaitu nilai yang diambil dari body request dengan method `POST` dengan pengkodean `x-www-form-urlencode`.
 6. `$PUT` yaitu nilai yang diambil dari body request dengan method `PUT` dengan pengkodean `x-www-form-urlencode`.
-7. `$REQUEST` tergantung dari method yang digunakan pada file konfigurasi. Berbeda dengan `$GET`, `$PUT` dan `$POST` yang hanya mendukung `x-www-form-urlencode`, `$REQUEST` mendukung *content type* `x-www-form-urlencode`, JSON dan XML baik objek maupun array.
+7. `$REQUEST` tergantung dari method yang digunakan pada file konfigurasi. Berbeda dengan `$GET`, `$PUT` dan `$POST` yang hanya mendukung `x-www-form-urlencode`, `$REQUEST` mendukung *content type* `x-www-form-urlencode`, `application/json` dan `application/xml` baik objek maupun array.
 8. `$JSON.REQUEST` mengambil JSON dari request `POST` dan `PUT`. Data yang diambil dapat berupa `JSON object` maupun `string` tergantung dari parameter yang dimasukkan. 
 
 Selain input dari klien, Universal REST Simulator juga dapat membuat data dari sistem seperti `$SYSTEM.RANDOM()`, `$DATE()`, `$SYSTEM.UUID` dan lain-lain. Universal REST Simulator juga dapat membuat dan memvalidasi `JWT` atau `JSON Web Token`.
