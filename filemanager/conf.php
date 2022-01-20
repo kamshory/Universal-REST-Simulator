@@ -51,6 +51,8 @@ $cfg->forbidden_extension = array('exe', 'sh', 'bash');
    
    
 */
+$cfg->default_extension = ".ini";
+
 if(strlen(@$cfg->rootdir))
 {
 	if(strlen(@$cfg->rootdir))

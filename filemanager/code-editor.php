@@ -51,7 +51,7 @@ else
     <td><input type="text" name="filename" id="filename" value="<?php echo path_encode($filepath, $cfg->rootdir);?>" autocomplete="off" placeholder="File" required></td>
     <td width="60" style="padding-left:4px;"><input type="button" name="open" id="open" value="Open"></td>
     <td width="60" style="padding-left:4px;"><input type="button" name="save" id="save" value="Save"></td>
-    <td width="100" style="padding-left:4px;"><input type="button" name="tutorial" id="tutorial" value="Tutorial" onclick="window.open('../tutorial/')"></td>
+    <td width="70" style="padding-left:4px;"><input type="button" name="tutorial" id="tutorial" value="Tutorial" onclick="window.open('../tutorial/')"></td>
   </tr>
 </table>
 </div>

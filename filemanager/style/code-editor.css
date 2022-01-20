@@ -22,7 +22,7 @@ body, html{
 	background-repeat:no-repeat;
 	background-position:4px center;
 }
-#open, #save{
+input[type="submit"], input[type="reset"], input[type="button"]{
 	width:100%;
 	-webkit-box-sizing:border-box;
 	-moz-box-sizing:border-box;
@@ -85,6 +85,8 @@ button:hover{
 	color:#984747;
 }
 textarea:focus, textarea:focus-visible, textarea:focus-within,
-input[type="text"]:focus, input[type="text"]:focus-visible, input[type="text"]:focus-within{
+input[type="text"]:focus, input[type="text"]:focus-visible, input[type="text"]:focus-within,
+input[type="number"]:focus, input[type="number"]:focus-visible, input[type="number"]:focus-within
+{
 	outline: none;
 }

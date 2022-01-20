@@ -199,6 +199,7 @@ box-shadow:0px 0px 1px #DDDDDD;
 }
 
 .file-table{
+	border-collapse: collapse;
 }
 .file-table thead td{
 background-color:#437AA3;
@@ -803,6 +804,8 @@ margin:8px 0px 0px 8px;
 	height:24px;
 }
 textarea:focus, textarea:focus-visible, textarea:focus-within,
-input[type="text"]:focus, input[type="text"]:focus-visible, input[type="text"]:focus-within{
+input[type="text"]:focus, input[type="text"]:focus-visible, input[type="text"]:focus-within,
+input[type="number"]:focus, input[type="number"]:focus-visible, input[type="number"]:focus-within
+{
 	outline: none;
 }

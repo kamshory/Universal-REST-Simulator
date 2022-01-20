@@ -66,6 +66,8 @@ File manager pada Universal REST Simulator digunakan utuk membuat, mengubah dan 
 
 Untuk mengakses file manager, buka Universal REST Simulator dengan menggunakan browser web dan masukkan path `/filemanager/` relatif terhadap path Universal REST Simulator.
 
+Link: <a href="/filemanager/" target="_blank">File Manager</a>
+
 ## Check Path
 
 Check path digunakan untuk melihat path dan method yang ada pada semua file konfigurasi. Tujuan dari check path adalah sebagai berikut:
@@ -75,6 +77,8 @@ Check path digunakan untuk melihat path dan method yang ada pada semua file konf
 3. jalan pintas untuk mengubah dan memperbarui file konfigurasi
 
 Untuk mengakses check path, buka Universal REST Simulator dengan menggunakan browser web dan masukkan path `/checkpath/` relatif terhadap path Universal REST Simulator.
+
+Link: <a href="/checkpath/" target="_blank">Check Path</a>
 
 ## File Konfigurasi
 
@@ -225,14 +229,14 @@ TRANSACTION_RULE=\
 {[THEN]}\
 $OUTPUT.STATUS=200 OK\
 $OUTPUT.HEADER=Server: Universal REST Simulator\
-X-Timestamp: $DATE('Y-m-d\\TH:i:s', 'UTC').000Z\
+X-Timestamp: $DATE('Y-m-d\TH:i:s', 'UTC').000Z\
 $OUPUT.BODY={\
     "command": "$INPUT.COMMAND",\
     "data": {\
         "amount": $INPUT.AMOUNT,\
         "currency_code": "$INPUT.CURRENCY_CODE",\
         "reference_number": "$INPUT.REFERENCE_NUMBER",\
-        "time_stamp": "$DATE('Y-m-d\\TH:i:s', 'UTC').000Z"
+        "time_stamp": "$DATE('Y-m-d\TH:i:s', 'UTC').000Z"
     },\
     "response_code": "001",
     "response_text": "Success"
@@ -242,14 +246,14 @@ $OUPUT.BODY={\
 {[THEN]}\
 $OUTPUT.STATUS=403 Forbidden\
 $OUTPUT.HEADER=Server: Universal REST Simulator\
-X-Timestamp: $DATE('Y-m-d\\TH:i:s', 'UTC').000Z\
+X-Timestamp: $DATE('Y-m-d\TH:i:s', 'UTC').000Z\
 $OUPUT.BODY={\
     "command": "$INPUT.COMMAND",\
     "data": {\
         "amount": $INPUT.AMOUNT,\
         "currency_code": "$INPUT.CURRENCY_CODE",\
         "reference_number": "$INPUT.REFERENCE_NUMBER",\
-        "time_stamp": "$DATE('Y-m-d\\TH:i:s', 'UTC').000Z"
+        "time_stamp": "$DATE('Y-m-d\TH:i:s', 'UTC').000Z"
     },\
     "response_code": "051",
     "response_text": "Rejected"

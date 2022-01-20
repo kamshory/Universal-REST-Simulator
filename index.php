@@ -775,7 +775,7 @@ function eval_date($args)
 	$args = trim($args, SPACE_TRIMMER);
 	if(startsWith($args, 'date('))
 	{
-		$args = substr($args, 5, strlen($args) - 5);
+		$args = substr($args, 5, strlen($args) - 6);
 	}
 	$result = parse_params($args);
 	if(count($result) == 1)

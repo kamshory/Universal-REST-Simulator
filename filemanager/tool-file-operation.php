@@ -14,189 +14,183 @@ if($cfg->readonly){
 $rooturl = $cfg->rootdir;
 if(@$_GET['option']=='createdir')
 {
-$dir2 = path_decode(kh_filter_input(INPUT_POST, 'location'), $cfg->rootdir);
-$name = kh_filter_input(INPUT_POST, 'name');
-$name = trim(str_replace(array("../","./","..\\",".\\","\\"),"/",$name),"/\\");
-if(file_exists($dir2))
-{
-	if(!file_exists($dir2."/".$name)){
-		if(mkdir($dir2."/".$name))
-		{
-			echo 'SUCCESS';
+	$dir2 = path_decode(kh_filter_input(INPUT_POST, 'location'), $cfg->rootdir);
+	$name = kh_filter_input(INPUT_POST, 'name');
+	$name = trim(str_replace(array("../","./","..\\",".\\","\\"),"/",$name),"/\\");
+	if(file_exists($dir2))
+	{
+		if(!file_exists($dir2."/".$name)){
+			if(mkdir($dir2."/".$name))
+			{
+				error_log("SUCCESS");
+				echo 'SUCCESS';
+			}
+			else
+			{
+				error_log("FAILED");
+				echo 'FAILED';
+			}
 		}
 		else
 		{
-			echo 'FAILED';
+			error_log("EXIST");
+			echo 'EXIST';
 		}
 	}
 	else
 	{
-		echo 'EXIST';
+		error_log("PARENTNOTEXIST");
+		echo 'PARENTNOTEXIST';
 	}
-}
 }
 if(@$_GET['option']=='createfile')
 {
-$dir2 = path_decode(kh_filter_input(INPUT_POST, 'location'), $cfg->rootdir);
-$name = kh_filter_input(INPUT_POST, 'name');
-$name = trim(str_replace(array("../","./","..\\",".\\","\\"),"/",$name),"/\\");
-if(file_exists($dir2))
-{
-	$tt = getMIMEType($dir2."/".$name);
-	if(in_array($tt->extension, $cfg->forbidden_extension)){
-		die('FORBIDDENEXT');
-	}
-	if(!file_exists($dir2."/".$name)){
-		$fp = fopen($dir2."/".$name, "w");
-		if($fp)
-		{
-			fclose($fp);
-			echo 'SUCCESS';
+	$dir2 = path_decode(kh_filter_input(INPUT_POST, 'location'), $cfg->rootdir);
+	$name = kh_filter_input(INPUT_POST, 'name');
+	$name = trim(str_replace(array("../","./","..\\",".\\","\\"),"/",$name),"/\\");
+	if(file_exists($dir2))
+	{
+		$tt = getMIMEType($dir2."/".$name);
+		if(in_array($tt->extension, $cfg->forbidden_extension)){
+			error_log("FORBIDDENEXT");
+			die('FORBIDDENEXT');
+		}
+		if(!file_exists($dir2."/".$name)){
+			$fp = fopen($dir2."/".$name, "w");
+			if($fp)
+			{
+				fclose($fp);
+				error_log("SUCCESS");
+				echo 'SUCCESS';
+			}
+			else
+			{
+				error_log("FAILED");
+				echo 'FAILED';
+			}
 		}
 		else
 		{
-			echo 'FAILED';
+			error_log("EXIST");
+			echo 'EXIST';
 		}
 	}
 	else
 	{
-		echo 'EXIST';
+		error_log("PARENTNOTEXIST");
+		echo 'PARENTNOTEXIST';
 	}
-}
-deleteforbidden($dir2);
+	deleteforbidden($dir2);
 }
 
 if(@$_GET['option']=='copyfile')
 {
 	
-parse_str(@$_POST['postdata'], $_POST);
-if(isset($_POST) && (@get_magic_quotes_gpc() || @get_magic_quotes_runtime()))
-{
-	array_walk_recursive($_POST, 'array_stripslashes');
-}
-
-$targetdir = path_decode(kh_filter_input(INPUT_POST, 'targetdir'), $cfg->rootdir);
-
-// prepare dir
-$dir = str_replace("\\","/",$targetdir);
-$arr = explode("/", $dir);
-if(is_array($arr))
-{
-	$d2c = "";
-	foreach($arr as $k=>$v)
+	parse_str(@$_POST['postdata'], $_POST);
+	if(isset($_POST) && (@get_magic_quotes_gpc() || @get_magic_quotes_runtime()))
 	{
-		$d2c .= $v;
-		if(strlen($d2c)>=strlen($cfg->rootdir))
-		{
-			if(!file_exists($d2c))
-			{
-				mkdir($d2c);
-			}
-		}
-		$d2c .= "/";
+		array_walk_recursive($_POST, 'array_stripslashes');
 	}
-}
 
+	$targetdir = path_decode(kh_filter_input(INPUT_POST, 'targetdir'), $cfg->rootdir);
 
-$files = @$_POST['file'];
-$filemoved = array();
-$dirmoved = array();
-if(is_array($files))
-{
-	foreach($files as $k=>$file)
+	// prepare dir
+	$dir = str_replace("\\","/",$targetdir);
+	$arr = explode("/", $dir);
+	if(is_array($arr))
 	{
-		$source = path_decode($file, $cfg->rootdir);
-		if(file_exists($source))
+		$d2c = "";
+		foreach($arr as $k=>$v)
 		{
-			if(is_dir($source))
+			$d2c .= $v;
+			if(strlen($d2c)>=strlen($cfg->rootdir))
 			{
-				if($source != $targetdir."/".basename($source))
+				if(!file_exists($d2c))
 				{
-					cp($source, $targetdir."/".basename($source));
+					mkdir($d2c);
+				}
+			}
+			$d2c .= "/";
+		}
+	}
+
+
+	$files = @$_POST['file'];
+	$filemoved = array();
+	$dirmoved = array();
+	if(is_array($files))
+	{
+		foreach($files as $k=>$file)
+		{
+			$source = path_decode($file, $cfg->rootdir);
+			if(file_exists($source))
+			{
+				if(is_dir($source))
+				{
 					if($source != $targetdir."/".basename($source))
 					{
-						$dirmoved[] = $source;
+						cp($source, $targetdir."/".basename($source));
+						if($source != $targetdir."/".basename($source))
+						{
+							$dirmoved[] = $source;
+						}
+					}
+				}
+				else
+				{
+					if($source != $targetdir."/".basename($source))
+					{
+						copy($source, $targetdir."/".basename($source));
+						if($source != $targetdir."/".basename($source))
+						{
+							$filemoved[] = $source;
+						}
 					}
 				}
 			}
-			else
-			{
-				if($source != $targetdir."/".basename($source))
-				{
-					copy($source, $targetdir."/".basename($source));
-					if($source != $targetdir."/".basename($source))
-					{
-						$filemoved[] = $source;
-					}
-				}
-			}
+		}
+		echo 'SUCCESS';
+	}
+	else
+	{
+		echo 'FAILED';
+	}
+	if(isset($_GET['deletesource']))
+	{
+		foreach($dirmoved as $k=>$path)
+		{
+			destroyall($path);
+		}
+		foreach($filemoved as $k=>$path)
+		{
+			@unlink($path);
 		}
 	}
-	echo 'SUCCESS';
-}
-else{
-echo 'FAILED';
-}
-if(isset($_GET['deletesource']))
-{
-	foreach($dirmoved as $k=>$path)
-	{
-		destroyall($path);
-	}
-	foreach($filemoved as $k=>$path)
-	{
-		@unlink($path);
-	}
-}
-deleteforbidden($targetdir, true);
+	deleteforbidden($targetdir, true);
 }
 
 if(@$_GET['option']=='deletefile')
 {
-parse_str(@$_POST['postdata'], $_POST);
-if(isset($_POST) && (@get_magic_quotes_gpc() || @get_magic_quotes_runtime()))
-{
-	array_walk_recursive($_POST, 'array_stripslashes');
-}
-$files = @$_POST['file'];
-if(is_array($files))
-{
-	foreach($files as $k=>$file)
+	parse_str(@$_POST['postdata'], $_POST);
+	if(isset($_POST) && (@get_magic_quotes_gpc() || @get_magic_quotes_runtime()))
 	{
-		$source = path_decode($file, $cfg->rootdir);
-		if(is_dir($source))
-		{
-			destroyall($source);
-		}
-		else
-		{
-			@unlink($source);
-		}
+		array_walk_recursive($_POST, 'array_stripslashes');
 	}
-	echo 'SUCCESS';
-}
-else{
-echo 'FAILED';
-}
-}
-
-if(@$_GET['option']=='renamefile')
-{
-$location = path_decode(kh_filter_input(INPUT_POST, 'location'), $cfg->rootdir);
-$oldname = $location."/".trim(str_replace(array("../","./","..\\",".\\","\\"),"/",kh_filter_input(INPUT_POST, 'oldname')),"/\\");
-$newname = $location."/".trim(str_replace(array("../","./","..\\",".\\","\\"),"/",kh_filter_input(INPUT_POST, 'newname')),"/\\");
-if(file_exists($newname))
-{
-	die('EXIST');
-}
-else
-{
-	$tt = getMIMEType($newname);
-	if(in_array($tt->extension, $cfg->forbidden_extension)){
-		die('FORBIDDENEXT');
-	}
-	if(rename($oldname, $newname))
+	$files = @$_POST['file'];
+	if(is_array($files))
 	{
+		foreach($files as $k=>$file)
+		{
+			$source = path_decode($file, $cfg->rootdir);
+			if(is_dir($source))
+			{
+				destroyall($source);
+			}
+			else
+			{
+				@unlink($source);
+			}
+		}
 		echo 'SUCCESS';
 	}
 	else
@@ -204,32 +198,24 @@ else
 		echo 'FAILED';
 	}
 }
-deleteforbidden(dirname($newname));
-}
 
-if(@$_GET['option']=='extractfile')
+if(@$_GET['option']=='renamefile')
 {
-if(!class_exists('ZipArchive'))
-{
-	die('NOTSUPPORTED');
-}
-$targetdir = path_decode(kh_filter_input(INPUT_POST, 'targetdir'), $cfg->rootdir);
-$filepath = path_decode(kh_filter_input(INPUT_POST, 'filepath'), $cfg->rootdir);
-
-if(file_exists($filepath))
-{
-	if(filesize($filepath)<10)
+	$location = path_decode(kh_filter_input(INPUT_POST, 'location'), $cfg->rootdir);
+	$oldname = $location."/".trim(str_replace(array("../","./","..\\",".\\","\\"),"/",kh_filter_input(INPUT_POST, 'oldname')),"/\\");
+	$newname = $location."/".trim(str_replace(array("../","./","..\\",".\\","\\"),"/",kh_filter_input(INPUT_POST, 'newname')),"/\\");
+	if(file_exists($newname))
 	{
-		echo 'FAILED';
+		die('EXIST');
 	}
 	else
 	{
-		$zip = new ZipArchive;
-		if ($zip->open($filepath) === TRUE) 
+		$tt = getMIMEType($newname);
+		if(in_array($tt->extension, $cfg->forbidden_extension)){
+			die('FORBIDDENEXT');
+		}
+		if(rename($oldname, $newname))
 		{
-			$zip->extractTo($targetdir.'/');
-			$zip->close();
-			deleteforbidden($targetdir, true);
 			echo 'SUCCESS';
 		}
 		else
@@ -237,172 +223,203 @@ if(file_exists($filepath))
 			echo 'FAILED';
 		}
 	}
+	deleteforbidden(dirname($newname));
 }
+
+if(@$_GET['option']=='extractfile')
+{
+	if(!class_exists('ZipArchive'))
+	{
+		die('NOTSUPPORTED');
+	}
+	$targetdir = path_decode(kh_filter_input(INPUT_POST, 'targetdir'), $cfg->rootdir);
+	$filepath = path_decode(kh_filter_input(INPUT_POST, 'filepath'), $cfg->rootdir);
+
+	if(file_exists($filepath))
+	{
+		if(filesize($filepath)<10)
+		{
+			echo 'FAILED';
+		}
+		else
+		{
+			$zip = new ZipArchive;
+			if ($zip->open($filepath) === TRUE) 
+			{
+				$zip->extractTo($targetdir.'/');
+				$zip->close();
+				deleteforbidden($targetdir, true);
+				echo 'SUCCESS';
+			}
+			else
+			{
+				echo 'FAILED';
+			}
+		}
+	}
 }
 
 
 if(@$_GET['option']=='compressfile')
 {
 
-if(!class_exists('ZipArchive'))
-{
-	die('NOTSUPPORTED');
-}
-
-if(isset($_POST['postdata']))
-{
-	parse_str(@$_POST['postdata'], $_POST);
-	if(isset($_POST) && (@get_magic_quotes_gpc() || @get_magic_quotes_runtime()))
+	if(!class_exists('ZipArchive'))
 	{
-		array_walk_recursive($_POST, 'array_stripslashes');
+		die('NOTSUPPORTED');
 	}
-}
-$target = path_decode(kh_filter_input(INPUT_POST, 'targetpath'), $cfg->rootdir);
-if(file_exists($target))
-{
-	die('CONFLICT');
-}
 
-// prepare dir
-$dir = dirname($target);
-$dir = str_replace("\\","/",$dir);
-$arr = explode("/", $dir);
-if(is_array($arr))
-{
-	$d2c = "";
-	foreach($arr as $k=>$v)
+	if(isset($_POST['postdata']))
 	{
-		$d2c .= $v;
-		if(strlen($d2c)>=strlen($cfg->rootdir))
+		parse_str(@$_POST['postdata'], $_POST);
+		if(isset($_POST) && (@get_magic_quotes_gpc() || @get_magic_quotes_runtime()))
 		{
-			if(!file_exists($d2c))
+			array_walk_recursive($_POST, 'array_stripslashes');
+		}
+	}
+	$target = path_decode(kh_filter_input(INPUT_POST, 'targetpath'), $cfg->rootdir);
+	if(file_exists($target))
+	{
+		die('CONFLICT');
+	}
+
+	// prepare dir
+	$dir = dirname($target);
+	$dir = str_replace("\\","/",$dir);
+	$arr = explode("/", $dir);
+	if(is_array($arr))
+	{
+		$d2c = "";
+		foreach($arr as $k=>$v)
+		{
+			$d2c .= $v;
+			if(strlen($d2c)>=strlen($cfg->rootdir))
 			{
-				mkdir($d2c);
+				if(!file_exists($d2c))
+				{
+					mkdir($d2c);
+				}
 			}
-		}
-		$d2c .= "/";
-	}
-}
-
-
-
-$file2compress = @$_POST['sourcepath'];
-if(is_array($file2compress))
-{
-for($i=0;$i<count($file2compress);$i++){
-$file2compress[$i] = path_decode($file2compress[$i], $cfg->rootdir);
-
-if($file2compress[$i] == $target)
-{
-die('CONFLICT');
-}
-
-$arr2 = explode("/",$file2compress[$i]);
-$nslashes=count($arr2);
-if(count($arr2)<$nslashes||$nslashes==0){
-$dir2remove=dirname($file2compress[$i]);
-}
-else
-{
-$dir2remove = dirname($file2compress[0]);
-}
-
-
-if(file_exists($file2compress[$i]))
-{
-	$file_list .= $file2compress[$i]."\r\n";
-		if(filetype($file2compress[$i])=='dir')
-		{
-			dir_list($file2compress[$i]);
+			$d2c .= "/";
 		}
 	}
-}
 
-$file_list = trim($file_list,"\r\n");
-$arrfile = explode("\r\n",$file_list);
-
-if(count($arrfile) && !empty($target))
-{
-$zip = new ZipArchive;
-$res = $zip->open($target, ZipArchive::CREATE);
-if($res === TRUE) 
-{
-	foreach($arrfile as $entry)
+	$file2compress = @$_POST['sourcepath'];
+	if(is_array($file2compress))
 	{
-		$localname = trim(substr($entry, strlen($dir2remove)),"/");
-		if(is_dir($entry))
+		for($i=0;$i<count($file2compress);$i++){
+		$file2compress[$i] = path_decode($file2compress[$i], $cfg->rootdir);
+
+		if($file2compress[$i] == $target)
 		{
-			$zip->addEmptyDir($localname);
+			die('CONFLICT');
+		}
+
+		$arr2 = explode("/",$file2compress[$i]);
+		$nslashes=count($arr2);
+		if(count($arr2)<$nslashes||$nslashes==0)
+		{
+			$dir2remove=dirname($file2compress[$i]);
 		}
 		else
 		{
-			$zip->addFile($entry, $localname);
+			$dir2remove = dirname($file2compress[0]);
 		}
-	} 
-	$zip->close();
-	echo 'SUCCESS';
-	exit();
-}
-else 
-{
-	echo 'FAILED';
-	exit();
-}
-}
-}
+
+
+		if(file_exists($file2compress[$i]))
+		{
+			$file_list .= $file2compress[$i]."\r\n";
+				if(filetype($file2compress[$i])=='dir')
+				{
+					dir_list($file2compress[$i]);
+				}
+			}
+		}
+
+		$file_list = trim($file_list,"\r\n");
+		$arrfile = explode("\r\n",$file_list);
+
+		if(count($arrfile) && !empty($target))
+		{
+			$zip = new ZipArchive;
+			$res = $zip->open($target, ZipArchive::CREATE);
+			if($res === TRUE) 
+			{
+				foreach($arrfile as $entry)
+				{
+					$localname = trim(substr($entry, strlen($dir2remove)),"/");
+					if(is_dir($entry))
+					{
+						$zip->addEmptyDir($localname);
+					}
+					else
+					{
+						$zip->addFile($entry, $localname);
+					}
+				} 
+				$zip->close();
+				echo 'SUCCESS';
+				exit();
+			}
+			else 
+			{
+				echo 'FAILED';
+				exit();
+			}
+		}
+	}
 }
 
 if(@$_GET['option'] == 'transferfile')
 {
-$source = kh_filter_input(INPUT_POST, 'source');
-$location = trim(str_replace(array("../","./","..\\",".\\","\\"),"/",kh_filter_input(INPUT_POST, 'location')),"/\\");
-$name = basename(trim(str_replace(array("../","./","..\\",".\\","\\"),"/",kh_filter_input(INPUT_POST, 'name')),"/\\"));
+	$source = kh_filter_input(INPUT_POST, 'source');
+	$location = trim(str_replace(array("../","./","..\\",".\\","\\"),"/",kh_filter_input(INPUT_POST, 'location')),"/\\");
+	$name = basename(trim(str_replace(array("../","./","..\\",".\\","\\"),"/",kh_filter_input(INPUT_POST, 'name')),"/\\"));
 
-$target = path_decode(rtrim($location, "\\/")."/".trim($name, "\\/"), $cfg->rootdir);
+	$target = path_decode(rtrim($location, "\\/")."/".trim($name, "\\/"), $cfg->rootdir);
 
-$data = @file_get_contents($source);
-if($data === false)
-{
-	$arr = @file($source);
-	if($arr !== false)
+	$data = @file_get_contents($source);
+	if($data === false)
 	{
-		$data = implode("", $arr);
+		$arr = @file($source);
+		if($arr !== false)
+		{
+			$data = implode("", $arr);
+		}
+		else
+		{
+			die('FAILED');
+		}
+	}
+
+	// prepare dir
+	$dir = dirname($target);
+	$dir = str_replace("\\","/",$dir);
+	$arr = explode("/", $dir);
+	if(is_array($arr))
+	{
+		$d2c = "";
+		foreach($arr as $k=>$v)
+		{
+			$d2c .= $v;
+			if(strlen($d2c)>=strlen($cfg->rootdir))
+			{
+				if(!file_exists($d2c))
+				{
+					mkdir($d2c);
+				}
+			}
+			$d2c .= "/";
+		}
+	}
+	if(!file_put_contents($target, $data))
+	{
+		echo "FAILED";
 	}
 	else
 	{
-		die('FAILED');
+		echo 'SUCCESS';
 	}
-}
-
-// prepare dir
-$dir = dirname($target);
-$dir = str_replace("\\","/",$dir);
-$arr = explode("/", $dir);
-if(is_array($arr))
-{
-	$d2c = "";
-	foreach($arr as $k=>$v)
-	{
-		$d2c .= $v;
-		if(strlen($d2c)>=strlen($cfg->rootdir))
-		{
-			if(!file_exists($d2c))
-			{
-				mkdir($d2c);
-			}
-		}
-		$d2c .= "/";
-	}
-}
-if(!file_put_contents($target, $data))
-{
-	echo "FAILED";
-}
-else
-{
-	echo 'SUCCESS';
-}
-
 }
 
 if(@$_GET['option'] == 'get-perms')
