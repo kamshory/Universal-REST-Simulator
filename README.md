@@ -478,7 +478,7 @@ $OUTPUT.BODY={\
    "name": "GOPAY GP-$INPUT.ACCOUNT",\
    "amount": $INPUT.AMOUNT,\
    "admin": 2500,\
-   "total": $CALC('$INPUT.AMOUNT + 2500'),\
+   "total": $CALC($INPUT.AMOUNT + 2500),\
    "transaction_date": "$DATE('d-m-Y H:i:s')",\
    "transaction_code": "000002873147"\
 }\
