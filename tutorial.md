@@ -2927,7 +2927,7 @@ Jika ingin mengambil element tertentu dari array, `$JSON.REQUEST('request.data',
 }
 ```
 
-dapat ditulis dengan `$JSON.REQUEST('[request][data][1]', false)`. Ingat bahwa index array selalu diawali dengan 0. Pada kasus di atas, `$JSON.REQUEST('[request][data][1]', false)` akan mengembalikan JSON object yaitu:
+dapat ditulis dengan `$JSON.REQUEST('[request][data][bill][1]', false)`. Ingat bahwa index array selalu diawali dengan 0. Pada kasus di atas, `$JSON.REQUEST('[request][data][bill][1]', false)` akan mengembalikan JSON object yaitu:
 
 ```
 {
@@ -2936,7 +2936,7 @@ dapat ditulis dengan `$JSON.REQUEST('[request][data][1]', false)`. Ingat bahwa i
 }
 ```
 
-dan `$JSON.REQUEST('[request][data][1]', true)` akan mengembalikan string yaitu:
+dan `$JSON.REQUEST('[request][data][bill][1]', true)` akan mengembalikan string yaitu:
 
 ```
 "{\n    \"date\": \"2017-11-11\",\n    \"amount\": 350000\n}"
@@ -3117,6 +3117,19 @@ Pengguna boleh membuat lebih dari satu blok `{[EVAL_PHP_BEGIN]}` dan `{[EVAL_PHP
 
 Penggunaan Universal REST Simulator untuk kode PHP natif ini lebih kepada penggunaan server HTTP dan interpreter PHP dari simulator yang ada sehingga pengguna tidak perlu membuat server baru untuk membuat beberapa simulator yang mutlak memerlukan kode PHP natif.
 
+Contoh phpinfo()
+
+```
+METHOD=GET
+PATH=/php/info
+
+{[EVAL_PHP_BEGIN]}
+phpinfo();
+{[EVAL_PHP_END]}
+```
+
+Contoh di atas akan menampilkan halaman yang berisi PHPINFO.
+
 Contoh Konfigurasi
 
 ```
@@ -3163,4 +3176,4 @@ echo "$rc:$sequence_id";
 
 Pada contoh di atas, `$sequence_id` dienkripsi oleh klien lalu didekripsi oleh simulator. Algoritma enkripsi tentu saja harus tersedia di PHP di mana simulator berjalan.
 
-Callback dapat dilakukan dengan CURL. Contoh CURL PHP dapat dilihat di https://www.php.net/manual/en/curl.examples.php
+Callback dapat dilakukan dengan CURL. Contoh CURL PHP dapat dilihat di https://www.php.net/manual/en/ref.curl.php

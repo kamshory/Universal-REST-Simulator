@@ -21,6 +21,14 @@ $appConfig->jwtUserEmail = "email@domain.tld";
 $configDir = @getenv("CONFIG_DIR");
 $useRelativePath = @getenv("USE_RELATIVE_PATH");
 $wildcardURLToRequest = @getenv("WILDCARD_URL_TO_REQUEST");
+$asyncEnable = @getenv("ASYNC_ENABLE");
+$userAgent = @getenv("USER_AGENT");
+
+
+$useRelativePathDefault = "false";
+$asyncEnableDefault = "false";
+$wildcardURLToRequestDefault = "false";
+$userAgentDefault = "Universal REST Simulator";
 
 if(empty($configDir))
 {
@@ -35,21 +43,39 @@ if(empty($useRelativePath))
     /**
      * Use default value
      */
-    $useRelativePath = "false";
+    $useRelativePath = $useRelativePathDefault;
     putenv("USE_RELATIVE_PATH=$useRelativePath");
+}
+if(empty($asyncEnable))
+{
+    /**
+     * Use default value
+     */
+    $asyncEnable = $asyncEnableDefault;
+    putenv("ASYNC_ENABLE=$asyncEnable");
 }
 if(empty($wildcardURLToRequest))
 {
     /**
      * Use default value
      */
-    $wildcardURLToRequest = "false";
+    $wildcardURLToRequest = $wildcardURLToRequestDefault;
     putenv("WILDCARD_URL_TO_REQUEST=$wildcardURLToRequest");
 }
+if(empty($userAgent))
+{
+    /**
+     * Use default value
+     */
+    $userAgent = $userAgentDefault;
+    putenv("USER_AGENT=$userAgent");
+}
+
 
 define("CONFIG_DIR", $configDir);
 define("USE_RELATIVE_PATH", stripos($useRelativePath, "true") !== false);
 define("WILDCARD_URL_TO_REQUEST", stripos($wildcardURLToRequest, "true") !== false);
+define("ASYNC_ENABLE", stripos($asyncEnable, "true") !== false);
 define("SPACE_TRIMMER", " \t\r\n ");
 define("EOL", "{[EOL]}");
-define("USER_AGENT", "Universal REST Simulator");
+define("USER_AGENT", $userAgent);

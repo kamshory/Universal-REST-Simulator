@@ -82,3 +82,4 @@ if(file_exists(dirname(__FILE__)."/.htpasswd"))
 1 = password
 2 = type of password (plain, md5, sha1)
 */
+

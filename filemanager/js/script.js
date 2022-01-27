@@ -3135,12 +3135,12 @@ function about() {
 		"" +
 		'<table width="100%" border="0" cellpadding="0" cellspacing="0" class="dialog-table dialog-about">' +
 		'<tr><td width="40%">Module Name</td><td>Universal REST Simulator</td></tr>' +
-		"<tr><td>Version</td><td>2.2</td></tr>" +
+		'<tr><td>Version</td><td>2.2</td></tr>' +
 		'<tr><td>Fork At</td><td><a href="https://github.com/kamshory/Universal-REST-Simulator" target="_blank">Github</a></td></tr>' +
-		"<tr><td>Release Date</td><td>2012-10-20</td></tr>" +
-		"<tr><td>Price</td><td>30 USD</td></tr>" +
+		'<tr><td>Release Date</td><td>2012-10-20</td></tr>' +
+		'<tr><td>Tutorial</td><td><a href="/tutorial/" target="_blank">Open Tutorial</a></td></tr>' +
 		'<tr><td>Information</td><td><a href="javascript:;" onclick="return showInformation();">Click Here</a></td></tr>' +
-		"</table>";
+		'</table>';
 	overlayDialog(html, 320, 140);
 	$(".dialog-about a").css({ "text-decoration": "none" });
 	fixOverlayDialogToInner(".dialog-about");
