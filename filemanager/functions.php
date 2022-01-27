@@ -1293,6 +1293,3 @@ class HTPasswd
 		}
 	}
 }
-
-
-?>

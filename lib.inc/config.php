@@ -53,5 +53,3 @@ define("WILDCARD_URL_TO_REQUEST", stripos($wildcardURLToRequest, "true") !== fal
 define("SPACE_TRIMMER", " \t\r\n ");
 define("EOL", "{[EOL]}");
 define("USER_AGENT", "Universal REST Simulator");
-
-?>
