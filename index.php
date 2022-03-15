@@ -671,7 +671,7 @@ function process_transaction($parsed, $request)
 					$result = ltrim($result, SPACE_TRIMMER);
 					$arr6 = explode("=", $result, 2);
 					$variable = $arr6[0];
-					$value = $arr6[1];
+					$value = @$arr6[1];
 					
 					if(stripos($variable, '$OUTPUT.') === 0)
 					{
@@ -1471,7 +1471,7 @@ function send_callback_sync($output)
 		if(!$hostFound)
 		{
 			$target_host = $url_info['host'];
-			$port = $url_info['port'] * 1;
+			$port = @$url_info['port'] * 1;
 			$scheme = $url_info['scheme'];
 			if($port != 0)
 			{
@@ -1502,8 +1502,24 @@ function send_callback_sync($output)
 	return $res;
 }
 
-function send_response($output, $parsed)
+function send_response($output, $parsed, $async)
 {
+	$response = NULL;
+	if(isset($output['BODY']))
+	{
+		$response = @$output['BODY'];
+	}
+	if($async)
+	{
+		ob_start();
+
+		if($response != NULL)
+		{
+			echo $response;
+		}
+	}
+	
+	
 	if(isset($output['STATUS']))
 	{
 		$status = trim($output['STATUS']);
@@ -1550,13 +1566,27 @@ function send_response($output, $parsed)
 			header("Content-type: $content_type");
 		}
 	}
+	header('Connection: close');
 	
-	if(isset($output['BODY']))
+	if($response != NULL)
 	{
-		$response = @$output['BODY'];
 		header("Content-length: ".strlen($response));
+	}
+	if($async)
+	{
+		ob_end_flush();
+		ob_flush();
+		flush();
+		if(function_exists('fastcgi_finish_request'))
+		{
+			fastcgi_finish_request(); //required for PHP-FPM (PHP > 5.3.3)
+		}
+	}
+	else
+	{
 		echo $response;
 	}
+	
 }
 
 function get_user_browser(){
@@ -1625,7 +1655,7 @@ if($parsed !== null && !empty($parsed))
 		// Finally, send response to client
 		if(!empty($output))
 		{
-			send_response($output, $parsed);
+			send_response($output, $parsed, true);
 
 			if(isset($output['CALLBACK_URL']))
 			{
@@ -1633,6 +1663,7 @@ if($parsed !== null && !empty($parsed))
 			}
 		}
 	}
+	die(); //a must especially if set_time_limit=0 is used and the task ends
 }
 else
 {
