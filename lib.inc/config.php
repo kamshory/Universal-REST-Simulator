@@ -26,7 +26,7 @@ $userAgent = @getenv("USER_AGENT");
 
 
 $useRelativePathDefault = "false";
-$asyncEnableDefault = "false";
+$asyncEnableDefault = "true";
 $wildcardURLToRequestDefault = "false";
 $userAgentDefault = "Universal REST Simulator";
 

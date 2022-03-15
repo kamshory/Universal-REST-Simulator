@@ -1365,23 +1365,6 @@ function get_token()
 }
 
 function send_callback($output) {
-	if(ASYNC_ENABLE)
-	{
-		send_callback_async($output);
-	}
-	else
-	{
-		send_callback_sync($output);
-	}
-}
-
-function send_callback_async($output)
-{
-	send_callback_sync($output);
-}
-
-function send_callback_sync($output)
-{
 	$res = "";
 	$url = @$output['CALLBACK_URL'];
 	$timeout = @$output['CALLBACK_TIMEOUT'] * 0.001;
@@ -1519,7 +1502,6 @@ function send_response($output, $parsed, $async)
 		}
 	}
 	
-	
 	if(isset($output['STATUS']))
 	{
 		$status = trim($output['STATUS']);
@@ -1655,7 +1637,7 @@ if($parsed !== null && !empty($parsed))
 		// Finally, send response to client
 		if(!empty($output))
 		{
-			send_response($output, $parsed, true);
+			send_response($output, $parsed, ASYNC_ENABLE);
 
 			if(isset($output['CALLBACK_URL']))
 			{
