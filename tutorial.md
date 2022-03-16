@@ -2329,12 +2329,12 @@ Callback adalah proses lanjutan yang dilakukan oleh Universal REST Simulator set
 Selain endpoint callback, ada beberapa parameter callback yang dapat ditentukan di dalam file konfigurasi, di antaranya adalah sebagai berikut:
 
  1. `$OUTPUT.CALLBACK_URL` adalah URL yang dituju pada proses callback.
- 2. `$OUTPUT.CALLBACK_METHOD` adalah method dari callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
- 3. `$OUTPUT.CALLBACK_TYPE` adalah content type untuk callback. Content type ini bebas sesuai kebutuhan.
- 4. `$OUTPUT.CALLBACK_TIMEOUT` adalah timeout untuk callback.
- 5. `$OUTPUT.CALLBACK_DELAY` adalah delay untuk callback.
- 6. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback.
- 7. `$OUTPUT.CALLBACK_BODY` adalah request body untuk callback.
+ 2. `$OUTPUT.CALLBACK_METHOD` adalah method dari request callback. Method yang dapat digunakan adalah `GET`, `POST`, dan `PUT`.
+ 3. `$OUTPUT.CALLBACK_TYPE` adalah content type untuk request callback. Content type ini bebas sesuai kebutuhan.
+ 4. `$OUTPUT.CALLBACK_TIMEOUT` adalah timeout untuk request callback.
+ 5. `$OUTPUT.CALLBACK_DELAY` adalah delay untuk request callback. Delay ini dapat digunakan untuk mengatur jarak antara waktu respon dikirim dan waktu callback dikirim. `$OUTPUT.CALLBACK_DELAY` sangat cocok untuk simulator transaksi asinkron.
+ 6. `$OUTPUT.CALLBACK_HEADER` adalah request header untuk callback. Pengguna dapat menambahkan header apapun sesuai dengan protokol HTTP yang digunakan.
+ 7. `$OUTPUT.CALLBACK_BODY` adalah request body untuk callback. Body harus sesuai dengan `$OUTPUT.CALLBACK_TYPE` atau `$OUTPUT.CALLBACK_HEADER` yang diberikan.
 
 Contoh Konfigurasi:
 
@@ -2421,7 +2421,9 @@ $OUTPUT.BODY=<?xml version="1.0" encoding="UTF-8"?>\
 
 ## Menggunakan Delay
 
-Delay atau sleep digunakan untuk menahan proses selama waktu tertentu. Delay sangat berguna untuk test case time out. Simulator akan melakukan sleep selama waktu tertentu sebelum kemudian mengirimkan respon ke klien. Delay pada Universal REST Simulator diatur pada file konfigurasi sesuai dengan kondisi yang telah ditetapkan. Delay memiliki satuan mili detik.
+Delay atau sleep digunakan untuk menahan proses selama waktu tertentu. Untuk menerapkan delay pada respon, gunakan `$OUTPUT.DELAY`. Delay sangat berguna untuk test case time out. Simulator akan melakukan sleep selama waktu tertentu sebelum kemudian mengirimkan respon ke klien. Delay pada Universal REST Simulator diatur pada file konfigurasi sesuai dengan kondisi yang telah ditetapkan. Delay memiliki satuan mili detik.
+
+`$OUTPUT.DELAY` juga akan mempengaruhi mempengaruhi pengiriman callback (jika ada). Pada prinsipnya, callback akan selalu dikirimkan setelah respon dikirim. Dengan demikian, jika `$OUTPUT.DELAY` adalah diset 5000 mili detik dan `$OUTPUT.CALLBACK_DELAY` diset 7000 mili detik, maka respon akan diterima 5 detik setelah request transaksi dikirim dan callback akan diterima 12 detik setelah request transaksi dikirim.
 
 Contoh Konfigurasi:
 
