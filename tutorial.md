@@ -2561,6 +2561,8 @@ Format `$DATE()` mengikuti format pada bahasa pemrograman PHP. Berikut ini merup
 
 **Sumber**: https://www.php.net/manual/en/datetime.format.php 
 
+**Catatan:** Semua karakter yang tidak dikenali dalam string format akan dicetak apa adanya.
+
 ## Fungsi $CALC()
 
 Fungsi `$CALC()` sangat berguna untuk melakukan operasi matematika di mana `$INPUT` menjadi salah satu operandnya.
