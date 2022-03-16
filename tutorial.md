@@ -2652,7 +2652,9 @@ $OUTPUT.BODY={\
 
 ## Fungsi $ISVALIDTOKEN()
 
-Fungsi `$ISVALIDTOKEN()` digunakan pada kondisi untuk memvalidasi token yang dikirimkan melalui `Authorization: Bearer`. Simulator akan mengambil token yang dikirimkan melalui header dengan key `Autorization`. Token ini kemudian akan divalidasi sesuai dengan konfigurasi server. Apabila token tersebut benar, `$ISVALIDTOKEN()` akan bernilai `true`. Sebaliknya, apabila token tersebut salah, `$ISVALIDTOKEN()` akan bernilai `false`. Simulator hanya akan memvalidasi token yang dibuat oleh simulator itu sendiri.
+Fungsi `$ISVALIDTOKEN()` digunakan pada kondisi untuk memvalidasi token yang dikirimkan melalui `Authorization: Bearer`. Simulator akan mengambil token yang dikirimkan melalui header dengan key `Autorization`. Token ini kemudian akan divalidasi sesuai dengan konfigurasi server. Apabila token tersebut benar, `$ISVALIDTOKEN()` akan bernilai `true`. Sebaliknya, apabila token tersebut salah, `$ISVALIDTOKEN()` akan bernilai `false`. 
+
+Fungsi `$ISVALIDTOKEN()` dapat mengkonfirmasi apakah aplikasi sudah mengirimkan token dengan benar sesuai dengan token yang diberikan oleh simulator. Simulator hanya akan memvalidasi token yang dibuat oleh simulator itu sendiri.
 
 ## Fungsi $NUMBERFORMAT()
 
