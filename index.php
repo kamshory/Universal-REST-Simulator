@@ -1180,7 +1180,7 @@ function is_match_path($config_path, $request_path)
 		}
 		else
 		{
-			$match = stripos($request_path."/", $config_path."/") === 0;
+			$match = stripos(rtrim($config_path, "/")."/", rtrim($request_path, "/")."/") === 0;
 		}
 	}
 	else
@@ -1494,6 +1494,10 @@ function send_response($output, $parsed, $async)
 	}
 	if($async)
 	{
+		if(function_exists('ignore_user_abort'))
+		{
+			ignore_user_abort(true);
+		}
 		ob_start();
 
 		if($response != NULL)
@@ -1515,6 +1519,7 @@ function send_response($output, $parsed, $async)
 			http_response_code($output['STATUS']);
 		}
 	}
+	
 	if(isset($output['DELAY']))
 	{
 		$delay = @$output['DELAY'] * 1;			
@@ -1540,20 +1545,22 @@ function send_response($output, $parsed, $async)
 		if(isset($output['TYPE']))
 		{
 			$content_type = $output['TYPE'];
-			header("Content-type: $content_type");
+			header("Content-type: ".trim($content_type));
 		}
 		else if(isset($parsed['RESPONSE_TYPE']))
 		{
 			$content_type = $parsed['RESPONSE_TYPE'];
-			header("Content-type: $content_type");
+			header("Content-type: ".trim($content_type));
 		}
 	}
-	header('Connection: close');
 	
 	if($response != NULL)
 	{
 		header("Content-length: ".strlen($response));
 	}
+
+	header("Connection: close");
+	
 	if($async)
 	{
 		ob_end_flush();
@@ -1561,14 +1568,13 @@ function send_response($output, $parsed, $async)
 		flush();
 		if(function_exists('fastcgi_finish_request'))
 		{
-			fastcgi_finish_request(); //required for PHP-FPM (PHP > 5.3.3)
+			fastcgi_finish_request(); 
 		}
 	}
 	else
 	{
 		echo $response;
 	}
-	
 }
 
 function get_user_browser(){
