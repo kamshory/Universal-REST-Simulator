@@ -249,7 +249,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 			}
 			
 			// Get Random
-			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && startsWith(trim($arr2[1]), '$SYSTEM.RANDOM'))
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$SYSTEM.RANDOM') === 0)
 			{
 				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
 				$val = trim($arr2[1]);
@@ -282,7 +282,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 					}					
 				}
 			}
-			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && startsWith(trim($arr2[1]), '$JSON.REQUEST'))
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$JSON.REQUEST') === 0)
 			{
 				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
 				$val = trim($arr2[1]);
@@ -326,7 +326,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 								$res[$key] = json_encode(isset($value)?$value:'null');
 							}							
 						}
-						else if(stripos($params[0], '[') !== false && stripos($params[0], ']')) 
+						else if(stripos($params[0], '[') !== false && stripos($params[0], ']') !== false) 
 						{
 							// parse as associated array
 							$obj = json_decode($input, true);
@@ -369,7 +369,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 				}				
 			}
 			// Get UUID
-			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && trim($arr2[1]) == '$SYSTEM.UUID')
+			if(stripos(trim($arr2[0]), '$INPUT.') === 0 && stripos(trim($arr2[1]), '$SYSTEM.UUID') === 0)
 			{
 				$key = trim(substr(trim($arr2[0]), strlen('$INPUT.')));
 				$res[$key] = uniqid();
@@ -455,7 +455,8 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 				}
 				else if(stripos($config['REQUEST_TYPE'], '/json') !== false 
 					|| stripos($config['REQUEST_TYPE'], '/xml') !== false
-					|| stripos($config['REQUEST_TYPE'], '/soap+xml') !== false
+					|| (stripos($config['REQUEST_TYPE'], 'soap') !== false 
+						&& stripos($config['REQUEST_TYPE'], 'xml') !== false)
 					)
 				{
 					$obj = json_decode(json_encode($request_data));
@@ -671,7 +672,7 @@ function process_transaction($parsed, $request)
 					$result = ltrim($result, SPACE_TRIMMER);
 					$arr6 = explode("=", $result, 2);
 					$variable = $arr6[0];
-					$value = $arr6[1];
+					$value = @$arr6[1];
 					
 					if(stripos($variable, '$OUTPUT.') === 0)
 					{
@@ -822,7 +823,7 @@ function replace_number_format($string)
 		{
 			$total_length = strlen($string);
 			$start = stripos($string, '$NUMBERFORMAT');
-			$p1 = $p1 = find_bracket_position($string, $start);
+			$p1 = find_bracket_position($string, $start);
 			$formula = substr($string, $start, $p1);
 			$fm1 = trim($formula, SPACE_TRIMMER);
 			$fm1 = substr($fm1, 13, strlen($fm1)-7);
@@ -850,7 +851,7 @@ function replace_substring($string)
 		{
 			$total_length = strlen($string);
 			$start = stripos($string, '$SUBSTRING');
-			$p1 = $p1 = find_bracket_position($string, $start);
+			$p1 = find_bracket_position($string, $start);
 			$formula = substr($string, $start, $p1);
 			$fm1 = trim($formula, SPACE_TRIMMER);
 			$fm1 = substr($fm1, 10, strlen($fm1)-7);
@@ -953,7 +954,6 @@ function find_bracket_position($string, $start)
 
 function replace_calc($string)
 {
-	
 	if(stripos($string, '$CALC') !== false)
 	{
 		do
@@ -1084,7 +1084,7 @@ function get_request_body($parsed, $url)
 			$request_data = json_decode(json_encode($xml), true);
 			$request_data = fix_array_key($request_data);
 		}
-		else if(stripos($parsed['REQUEST_TYPE'], '/soap+xml') !== false)
+		else if(stripos($parsed['REQUEST_TYPE'], 'soap') !== false && stripos($parsed['REQUEST_TYPE'], 'xml') !== false)
 		{
 			$input_buffer = file_get_contents("php://input");
 			error_log("HTTP Request     : \r\n".$input_buffer);
@@ -1180,7 +1180,7 @@ function is_match_path($config_path, $request_path)
 		}
 		else
 		{
-			$match = stripos($request_path."/", $config_path."/") === 0;
+			$match = stripos(rtrim($config_path, "/")."/", rtrim($request_path, "/")."/") === 0;
 		}
 	}
 	else
@@ -1365,23 +1365,6 @@ function get_token()
 }
 
 function send_callback($output) {
-	if(ASYNC_ENABLE)
-	{
-		send_callback_async($output);
-	}
-	else
-	{
-		send_callback_sync($output);
-	}
-}
-
-function send_callback_async($output)
-{
-	send_callback_sync($output);
-}
-
-function send_callback_sync($output)
-{
 	$res = "";
 	$url = @$output['CALLBACK_URL'];
 	$timeout = @$output['CALLBACK_TIMEOUT'] * 0.001;
@@ -1471,7 +1454,7 @@ function send_callback_sync($output)
 		if(!$hostFound)
 		{
 			$target_host = $url_info['host'];
-			$port = $url_info['port'] * 1;
+			$port = @$url_info['port'] * 1;
 			$scheme = $url_info['scheme'];
 			if($port != 0)
 			{
@@ -1502,8 +1485,27 @@ function send_callback_sync($output)
 	return $res;
 }
 
-function send_response($output, $parsed)
+function send_response($output, $parsed, $async)
 {
+	$response = NULL;
+	if(isset($output['BODY']))
+	{
+		$response = @$output['BODY'];
+	}
+	if($async)
+	{
+		if(function_exists('ignore_user_abort'))
+		{
+			ignore_user_abort(true);
+		}
+		ob_start();
+
+		if($response != NULL)
+		{
+			echo $response;
+		}
+	}
+	
 	if(isset($output['STATUS']))
 	{
 		$status = trim($output['STATUS']);
@@ -1517,6 +1519,7 @@ function send_response($output, $parsed)
 			http_response_code($output['STATUS']);
 		}
 	}
+	
 	if(isset($output['DELAY']))
 	{
 		$delay = @$output['DELAY'] * 1;			
@@ -1542,19 +1545,34 @@ function send_response($output, $parsed)
 		if(isset($output['TYPE']))
 		{
 			$content_type = $output['TYPE'];
-			header("Content-type: $content_type");
+			header("Content-type: ".trim($content_type));
 		}
 		else if(isset($parsed['RESPONSE_TYPE']))
 		{
 			$content_type = $parsed['RESPONSE_TYPE'];
-			header("Content-type: $content_type");
+			header("Content-type: ".trim($content_type));
 		}
 	}
 	
-	if(isset($output['BODY']))
+	if($response != NULL)
 	{
-		$response = @$output['BODY'];
 		header("Content-length: ".strlen($response));
+	}
+
+	header("Connection: close");
+	
+	if($async)
+	{
+		ob_end_flush();
+		ob_flush();
+		flush();
+		if(function_exists('fastcgi_finish_request'))
+		{
+			fastcgi_finish_request(); 
+		}
+	}
+	else
+	{
 		echo $response;
 	}
 }
@@ -1625,7 +1643,7 @@ if($parsed !== null && !empty($parsed))
 		// Finally, send response to client
 		if(!empty($output))
 		{
-			send_response($output, $parsed);
+			send_response($output, $parsed, ASYNC_ENABLE);
 
 			if(isset($output['CALLBACK_URL']))
 			{
@@ -1633,6 +1651,7 @@ if($parsed !== null && !empty($parsed))
 			}
 		}
 	}
+	die(); //a must especially if set_time_limit=0 is used and the task ends
 }
 else
 {
