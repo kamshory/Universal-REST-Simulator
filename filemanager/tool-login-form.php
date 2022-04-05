@@ -40,6 +40,7 @@ if(!file_exists(dirname(__FILE__)."/.htpasswd"))
                             <div class="button-area"><input type="hidden" name="ref" id="ref"
                                     value="<?php echo htmlspecialchars(strip_tags($_SERVER['REQUEST_URI']));?>" />
                                 <input type="submit" name="login" id="login" value="Login" class="login-button" />
+                                <a href="generate-user.php" target="_blank">Generate User</a>
                             </div>
                             <div class="clear"></div>
                         </div>

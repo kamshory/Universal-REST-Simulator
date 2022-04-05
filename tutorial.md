@@ -60,11 +60,17 @@ Output dari Universal REST Simulator adalah HTTP Status, header respon dan body 
 
 Universal REST Simulator dilengkapi dengan callback sehingga dapat mengirimkan request ke endpoint tertentu dengan kondisi tertentu sesuai dengan konfigurasi yang dibuat. Pengguna juga dapat mengatur request time out callback.
 
+## Kebutuhan Sistem
+
+Universal REST Simulator berbasis PHP dan server Apache. Dengan demikian, Universal REST Simulator bahkan dapat berjalan pada shared hosting dengan paket yang sangat minim sekalipun.
+
 ## File Manager
 
-File manager pada Universal REST Simulator digunakan utuk membuat, mengubah dan mengatur file konfigurasi simulator. Untuk dapat membuat dan mengatur file konfigurasi simulator, pengguna harus login ke file manager. Username dan password pengguna disimpan dalam file .htpasswd yang disimpan di direktori filemanager di dalam direktori simulator.
+Salah satu fitur penting pada Universal REST Simulator adalah file manager. File manager pada Universal REST Simulator digunakan utuk membuat, mengubah dan mengatur file konfigurasi simulator. Untuk dapat membuat dan mengatur file konfigurasi simulator, pengguna harus login ke file manager. Username dan password pengguna disimpan dalam file .htpasswd yang disimpan di direktori filemanager di dalam direktori simulator.
 
 Untuk mengakses file manager, buka Universal REST Simulator dengan menggunakan browser web dan masukkan path `/filemanager/` relatif terhadap path Universal REST Simulator.
+
+Universal REST Simulator menyediakan alat untuk membuat file login ke File Manager.
 
 Link: <a href="/filemanager/" target="_blank">File Manager</a>
 
