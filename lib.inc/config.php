@@ -23,12 +23,14 @@ $useRelativePath = @getenv("USE_RELATIVE_PATH");
 $wildcardURLToRequest = @getenv("WILDCARD_URL_TO_REQUEST");
 $asyncEnable = @getenv("ASYNC_ENABLE");
 $userAgent = @getenv("USER_AGENT");
+$timeZone = @getenv("SERVER_TIME_ZONE");
 
 
 $useRelativePathDefault = "false";
 $asyncEnableDefault = "true";
 $wildcardURLToRequestDefault = "false";
 $userAgentDefault = "Universal REST Simulator";
+$defaultTimeZone = "Asia/Jakarta";
 
 if(empty($configDir))
 {
@@ -70,7 +72,11 @@ if(empty($userAgent))
     $userAgent = $userAgentDefault;
     putenv("USER_AGENT=$userAgent");
 }
-
+if(empty($timeZone))
+{
+    $timeZone = $defaultTimeZone;
+    putenv("SERVER_TIME_ZONE=$defaultTimeZone");
+}
 
 define("CONFIG_DIR", $configDir);
 define("USE_RELATIVE_PATH", stripos($useRelativePath, "true") !== false);
@@ -79,3 +85,5 @@ define("ASYNC_ENABLE", stripos($asyncEnable, "true") !== false);
 define("SPACE_TRIMMER", " \t\r\n ");
 define("EOL", "{[EOL]}");
 define("USER_AGENT", $userAgent);
+
+date_default_timezone_set($timeZone);

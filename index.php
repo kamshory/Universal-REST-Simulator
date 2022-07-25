@@ -699,17 +699,24 @@ function date_without_tz($args1)
 
 function date_with_tz($fmt, $tz)
 {
+	$offset = 0;
 	if(stripos($tz, 'UTC') !== false)
 	{
 		$tz1 = (str_replace("UTC", "", $tz) * 1);	
-		$tz2 = date('Z')/3600;		
-		$ret = date($fmt, time(0) + (($tz1 - $tz2) * 3600));			
+		$tz2 = date('Z')/3600;	
+		$offset = $tz1 - $tz2;	
+		$time = time();	
+		$tzTime = $time + ($offset * 3600);
+		$ret = date($fmt, $tzTime);				
 	}
 	else if(stripos($tz, 'GMT') !== false)
 	{
 		$tz1 = (str_replace("GMT", "", $tz) * 1);	
-		$tz2 = date('Z')/3600;		
-		$ret = date($fmt, time(0) + (($tz1 - $tz2) * 3600));			
+		$tz2 = date('Z')/3600;
+		$offset = $tz1 - $tz2;	
+		$time = time();	
+		$tzTime = $time + ($offset * 3600);
+		$ret = date($fmt, $tzTime);			
 	}
 	else
 	{
