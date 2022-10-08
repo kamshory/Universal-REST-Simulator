@@ -787,7 +787,7 @@ Example Request
     "partnerID": 80,
     "adapterEndpoint": "http://localhost:3000/process-biller"
   },
-  "client_name": "Alto Remitance",
+  "client_name": "Dora Remitance",
   "client_id": 1
 }
 ```
@@ -814,7 +814,7 @@ Example Request
     "partnerID": 80,
     "adapterEndpoint": "http://localhost:3000/process-biller"
   },
-  "client_name": "Alto Remitance",
+  "client_name": "Dora Remitance",
   "client_id": 1
 }
 ```

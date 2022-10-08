@@ -2816,7 +2816,7 @@ Contoh Request
     "partnerID": 80,
     "adapterEndpoint": "http://localhost:3000/process-biller"
   },
-  "client_name": "Alto Remitance",
+  "client_name": "Dora Remitance",
   "client_id": 1
 }
 ```
@@ -2843,7 +2843,7 @@ Contoh Request
     "partnerID": 80,
     "adapterEndpoint": "http://localhost:3000/process-biller"
   },
-  "client_name": "Alto Remitance",
+  "client_name": "Dora Remitance",
   "client_id": 1
 }
 ```
@@ -2934,7 +2934,7 @@ Jika ingin mengambil element tertentu dari array, `$JSON.REQUEST('request.data',
     "partnerID": 80,
     "adapterEndpoint": "http://localhost:3000/process-biller"
   },
-  "client_name": "Alto Remitance",
+  "client_name": "Dora Remitance",
   "client_id": 1
 }
 ```
@@ -3090,7 +3090,7 @@ Content-Length: 512
     },
     "command": "transaction-history"
   },
-  "client_name": "Alto Remitance",
+  "client_name": "Dora Remitance",
   "client_id": 1
 }
 ```
