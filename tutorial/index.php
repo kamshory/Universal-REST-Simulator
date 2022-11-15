@@ -40,6 +40,7 @@ $html = $md->text($mddata);
         border: 1px solid #DDDDDD;
         border-radius: 10px;
         background-color: #FFFFFF;
+        position: relative;
     }
 
     @media screen and (max-width: 1024px) {
@@ -139,6 +140,11 @@ $html = $md->text($mddata);
         border-radius: 10px;
         border: 3px solid #ffffff;
     }
+    .back-to-top{
+        position: absolute;
+        margin-top: -50px;
+        right: 32px;
+    }
     </style>
 </head>
 
@@ -166,7 +172,20 @@ $html = $md->text($mddata);
                 .split('.').join('')
                 .trim();
             hdr[i].setAttribute('id', txt);
+            var newNode = document.createElement('span');
+            var a = document.createElement('a');
+            var span = document.createElement('span');
+            span.innerText = '[Daftar Isi]';
+            a.href = '#daftar-isi';
+            newNode.appendChild(a);
+            newNode.className = 'back-to-top';
+            a.appendChild(span);
+            insertAfter(newNode, hdr[i])
         }
+    }
+
+    function insertAfter(newNode, existingNode) {
+        existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
     }
     </script>
 </body>
