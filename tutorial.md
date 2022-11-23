@@ -2671,6 +2671,7 @@ Nilai balikan atau output dari fungsi ini bertipe string. Perlu dicatat bahwa Un
 Contoh penggunaan fungsi ini adalah `$NUMBERFORMAT($INPUT.AMOUNT, 2, ',', '.')` di mana `$INPUT.AMOUNT` adalah nilai yang akan ditampilkan.
 
 Contoh Konfigurasi:
+
 ```ini
 METHOD=POST
 
@@ -2775,6 +2776,56 @@ Jika `param1` dan `param2` tidak ada, fungsi ini akan menghasilkan bilangan bula
 Jika `param1` ada dan `param2` tidak ada, fungsi ini akan menghasilkan bilangan bulat acak dari fungsi `mt_rand(0, abs(param1))` pada PHP asli.
 
 Jika ada `param1` dan `param2`, fungsi ini akan menghasilkan bilangan bulat acak dari fungsi `mt_rand(min(abs(param1), abs(param2)), max(abs(param1), abs(param2)))` pada PHP asli.
+
+Contoh Konfigurasi:
+
+```ini
+METHOD=POST
+
+PATH=/basicauth
+
+REQUEST_TYPE=application/json
+
+RESPONSE_TYPE=application/json
+
+PARSING_RULE=\
+$INPUT.USERNAME=$AUTHORIZATION_BASIC.USERNAME\
+$INPUT.PASSWORD=$AUTHORIZATION_BASIC.PASSWORD\
+$INPUT.ACCOUNT_NUMBER=$REQUEST.data.account_number\
+$INPUT.AMOUNT=$REQUEST.data.amount\
+$INPUT.CURRENCY=$REQUEST.data.currency_code
+
+TRANSACTION_RULE=\
+{[IF]} ($INPUT.USERNAME == "user1" && $INPUT.PASSWORD == "password1" && $INPUT.ACCOUNT_NUMBER != "" && $INPUT.AMOUNT > 0)\
+{[THEN]}\
+$OUTPUT.STATUS=200\
+$OUTPUT.BODY={\
+    "action": "$INPUT.TRANSACTION_TYPE",\
+    "id": 69,\
+    "data": {\
+        "date_time": "$INPUT.DATE_TIME",\
+        "name": "Bambang",\
+        "account_number": "$INPUT.ACCOUNT_NUMBER",\
+        "amount": "$NUMBERFORMAT($INPUT.AMOUNT, 2, ',', '.')",\
+        "reference_number": "$SYSTEM.RANDOM(100000, 999999)",\
+        "currency_code": "$INPUT.CURRENCY"\
+    },\
+    "response_code": "001",\
+    "response_text": "Success"\
+}\
+{[ENDIF]}\
+{[IF]} (true)\
+{[THEN]}\
+$OUTPUT.STATUS=403\
+$OUTPUT.BODY={\
+    "action": "$INPUT.TRANSACTION_TYPE",\
+    "id": "$INPUT.TRANSACTION_ID",\
+    "data": {},\
+    "response_code": "062",\
+    "response_text": "Access forbidden"\
+}\
+{[ENDIF]}\
+```
 
 ## Fungsi $JSON.REQUEST()
 
