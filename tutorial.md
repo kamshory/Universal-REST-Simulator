@@ -66,7 +66,7 @@ Universal REST Simulator berbasis PHP dan server Apache. Dengan demikian, Univer
 
 ## File Manager
 
-Salah satu fitur penting pada Universal REST Simulator adalah file manager. File manager pada Universal REST Simulator digunakan utuk membuat, mengubah dan mengatur file konfigurasi simulator. Untuk dapat membuat dan mengatur file konfigurasi simulator, pengguna harus login ke file manager. Username dan password pengguna disimpan dalam file .htpasswd yang disimpan di direktori filemanager di dalam direktori simulator.
+Salah satu fitur penting pada Universal REST Simulator adalah file manager. File manager pada Universal REST Simulator digunakan untuk membuat, mengubah dan mengatur file konfigurasi simulator. Untuk dapat membuat dan mengatur file konfigurasi simulator, pengguna harus login ke file manager. Username dan password pengguna disimpan dalam file .htpasswd yang disimpan di direktori filemanager di dalam direktori simulator.
 
 Untuk mengakses file manager, buka Universal REST Simulator dengan menggunakan browser web dan masukkan path `/filemanager/` relatif terhadap path Universal REST Simulator.
 
