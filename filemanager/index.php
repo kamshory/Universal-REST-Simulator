@@ -23,7 +23,7 @@ if(!$dir)
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Universal REST Simulator - File Manager</title>
-    <link rel="shortcut icon" href="style/images/icon.png" type="image/jpeg" />
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <link rel="stylesheet" type="text/css" href="js/jquery/jquery-ui.min.css">
     <link rel="stylesheet" type="text/css" href="style/file-type.css" />
     <link rel="stylesheet" type="text/css" href="style/style.css" />

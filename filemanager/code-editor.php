@@ -32,6 +32,7 @@ else
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Universal REST Simulator Code Editor</title>
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
 <script type="text/javascript" src="js/jquery/jquery.min.js"></script>
 <link rel="stylesheet" href="style/file-type.css">
 <link rel="stylesheet" href="cm/lib/codemirror.css">

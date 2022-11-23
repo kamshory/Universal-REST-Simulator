@@ -13,7 +13,7 @@ if(!file_exists(dirname(__FILE__)."/.htpasswd"))
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Universal REST Simulator - File Manager</title>
-    <link rel="shortcut icon" href="../static/images/16x16.png" type="image/jpeg" />
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <link rel="stylesheet" type="text/css" href="style/login.css" />
 </head>
 

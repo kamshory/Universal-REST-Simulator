@@ -1,9 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en" >
 <head>
 <meta charset="UTF-8">  
-<meta name="apple-mobile-web-app-title" content="CodePen">
+<meta name="apple-mobile-web-app-title" content="Universal REST Simulator">
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
 <title>404 Path Not Found</title>  
 <style>
 html,
@@ -424,6 +424,7 @@ body {
   <div class="error__description">No configuration file match</div>
   <button class="error__button error__button--active" onclick="window.location='/filemanager/'">MANAGE</button>
   <button class="error__button" onclick="window.location='/checkpath/'">CHECK PATH</button>
+  <button class="error__button" onclick="window.location='/tutorial/'">TUTORIAL</button>
 </div>
 
 <div class="astronaut">
