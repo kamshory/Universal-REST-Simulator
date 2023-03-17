@@ -74,16 +74,22 @@ function kh_filter_input($type, $variable_name, $filter = FILTER_DEFAULT, $optio
 		$val = trim(strtolower($val));
 		$val = filter_var($val, FILTER_VALIDATE_EMAIL);
 		if ($val === false)
+		{
 			$val = "";
+		}
 	}
 	if ($filter == FILTER_SANITIZE_URL) {
 		// filter url
 		$val = trim($val);
 		if (stripos($val, "://") === false && strlen($val) > 2)
+		{
 			$val = "http://" . $val;
+		}
 		$val = filter_var($val, FILTER_VALIDATE_URL);
 		if ($val === false)
+		{
 			$val = "";
+		}
 	}
 	if ($filter == FILTER_SANITIZE_ALPHA) {
 		$val = preg_replace("/[^A-Za-z]/i", "", $val);
@@ -241,20 +247,20 @@ function array_stripslashes(&$item, $key)
 }
 
 
-class listFile
+class ListFile
 {
 	var $location;
 	var $result_file = array();
 	var $result_dir = array();
 
-	function listFile($location = null)
+	public function __construct($location = null)
 	{
 		if ($location !== null) {
 			$this->location = $location;
 			$this->findAll($location);
 		}
 	}
-	function findAll($location)
+	public function findAll($location)
 	{
 		global $cfg;
 		if (file_exists($location)) {
@@ -1001,7 +1007,20 @@ function get_capture_info($exif)
 	if (is_array($exif)) {
 		$tmpdt['Camera Maker'] = @$exif['IFD0']['Make'];
 		$tmpdt['Camera Model'] = @$exif['IFD0']['Model'];
-		$tmpdt['Capture Time'] = (@$exif['IFD0']['Datetime']) ? (@$exif['IFD0']['Datetime']) : (@$exif['EXIF']['DateTimeOriginal']) ? (@$exif['EXIF']['DateTimeOriginal']) : '';
+		if(isset($exif['IFD0']['Datetime']))
+		{
+			$tmpdt['Capture Time'] = $exif['IFD0']['Datetime'];
+		}
+		else if(isset($exif['EXIF']['DateTimeOriginal']))
+		{
+			$tmpdt['Capture Time'] = $exif['EXIF']['DateTimeOriginal'];
+		}
+		else
+		{
+			$tmpdt['Capture Time'] = '';
+		}
+		
+		
 		$tmpdt['Aperture F Number'] = @$exif['COMPUTED']['ApertureFNumber'];
 		$tmpdt['Orientation'] = @$exif['IFD0']['Orientation'];
 		$tmpdt['X Resolution'] = @$exif['IFD0']['XResolution'];

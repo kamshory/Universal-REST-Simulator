@@ -3,7 +3,7 @@
 /**
  * JWT configuration
  */
-$appConfig = new StdClass();
+$appConfig = new \stdClass();
 
 $appConfig->jwtSecret = "Zy&t*&ytwqytqwy72Fe^&67tT^F";
 $appConfig->jwtIssuer = "Your Company";

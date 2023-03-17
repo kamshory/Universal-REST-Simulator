@@ -74,13 +74,19 @@ class HTPasswd
 		$text = $plainpasswd.'$apr1$'.$salt;
 		$bin = pack("H32", md5($plainpasswd.$salt.$plainpasswd));
 		for($i = $len; $i > 0; $i -= 16) { $text .= substr($bin, 0, min(16, $i)); }
-		for($i = $len; $i > 0; $i >>= 1) { $text .= ($i & 1) ? chr(0) : $plainpasswd{0}; }
+		for($i = $len; $i > 0; $i >>= 1) { $text .= ($i & 1) ? chr(0) : $plainpasswd[0]; }
 		$bin = pack("H32", md5($text));
 		for($i = 0; $i < 1000; $i++)
 		{
 			$new = ($i & 1) ? $plainpasswd : $bin;
-			if ($i % 3) $new .= $salt;
-			if ($i % 7) $new .= $plainpasswd;
+			if ($i % 3) 
+			{
+				$new .= $salt;
+			}
+			if ($i % 7) 
+			{
+				$new .= $plainpasswd;
+			}
 			$new .= ($i & 1) ? $bin : $plainpasswd;
 			$bin = pack("H32", md5($new));
 		}
@@ -118,7 +124,7 @@ class HTPasswd
 			{
 				if(stripos($arr[1], '{SHA}') === 0)
 				{
-					if(self::crypt_sha1($password) === $arr[1])
+					if(self::crypt_sha1($password) == $arr[1])
 					{
 						return true;
 					}

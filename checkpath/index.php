@@ -37,7 +37,7 @@ function parse_config($context_path, $document_root = null)
 	$j = 0;
 
 	// If line ended with \, do not explode it as array
-	foreach($lines as $idx=>$line)
+	foreach($lines as $line)
 	{
 		if(endsWith($line, "\\"))
 		{
@@ -69,7 +69,7 @@ function parse_config($context_path, $document_root = null)
 	}
 	// Parse raw file to raw configuration with it properties
 	$parsed = array();
-	foreach($array as $idx=>$content)
+	foreach($array as $content)
 	{
 		if(stripos($content, "=") > 0)
 		{
@@ -182,8 +182,23 @@ function count_duplicated($result)
 	return $dup;
 }
 
+function startsWith($haystack, $needle)
+{
+	$length = strlen($needle);
+	return substr($haystack, 0, $length) === $needle;
+}
 
-error_reporting(0);
+function endsWith($haystack, $needle)
+{
+	$length = strlen($needle);
+	if (!$length) {
+		return true;
+	}
+	return substr($haystack, -$length) === $needle;
+}
+
+
+error_reporting(E_ALL);
 $config_dir = CONFIG_DIR;
 
 $parsed = get_config_file($config_dir);
