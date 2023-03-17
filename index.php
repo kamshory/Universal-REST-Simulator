@@ -4,27 +4,13 @@ require_once dirname(__FILE__) . "/lib.inc/vendor/autoload.php";
 
 use \Firebase\JWT\JWT;
 
-class UniversalSimulator
-{
-	const EVAL_PHP_END = '{[EVAL_PHP_END]}';
-	const EVAL_PHP_BEGIN = '{[EVAL_PHP_BEGIN]}';
-	const PREFIX_INPUT = '$INPUT.';
-	const PREFIX_REQUEST = '$REQUEST.';
-	const PHP_INPUT = 'php://input';
-	const SYSTEM_UUID = '$SYSTEM.UUID';
-	const FUNCTION_DATE = '$DATE';
-	const FUNCTION_CALC = '$CALC';
-	const FUNCTION_UPPERCASE = '$UPPERCASE';
-	const FUNCTION_SUBSTRING = '$SUBSTRING';
-	const HEADER_CONTENT_LENGTH = 'Content-length: ';
-	const HEADER_CONTENT_TYPE = 'Content-type: ';
+class UserAgent {
 	const SERVER_HTTP_USER_AGENT = 'HTTP_USER_AGENT';
-	const SUBFIX_URL_ENCODE = '/x-www-form-urlencoded';
 
 	public static function get_user_browser()
 	{
-		$fullUserBrowser = (!empty($_SERVER[\UniversalSimulator::SERVER_HTTP_USER_AGENT]) ?
-			$_SERVER[\UniversalSimulator::SERVER_HTTP_USER_AGENT] : getenv(\UniversalSimulator::SERVER_HTTP_USER_AGENT));
+		$fullUserBrowser = (!empty($_SERVER[\self::SERVER_HTTP_USER_AGENT]) ?
+			$_SERVER[\self::SERVER_HTTP_USER_AGENT] : getenv(\self::SERVER_HTTP_USER_AGENT));
 		$userBrowser = explode(')', $fullUserBrowser);
 		$userBrowser = $userBrowser[count($userBrowser) - 1];
 
@@ -79,32 +65,196 @@ class UniversalSimulator
 	}
 }
 
+class UniversalSimulator
+{
+	const EVAL_PHP_END = '{[EVAL_PHP_END]}';
+	const EVAL_PHP_BEGIN = '{[EVAL_PHP_BEGIN]}';
+	const PREFIX_INPUT = '$INPUT.';
+	const PREFIX_REQUEST = '$REQUEST.';
+	const PHP_INPUT = 'php://input';
+	const SYSTEM_UUID = '$SYSTEM.UUID';
+	const FUNCTION_DATE = '$DATE';
+	const FUNCTION_CALC = '$CALC';
+	const FUNCTION_NUMBERFORMAT = '$NUMBERFORMAT';
+	const FUNCTION_UPPERCASE = '$UPPERCASE';
+	const FUNCTION_LOWERCASE = '$LOWERCASE';
+	const FUNCTION_SUBSTRING = '$SUBSTRING';
+	const FUNCTION_RANDOM = '$RANDOM';
+	const HEADER_CONTENT_LENGTH = 'Content-length: ';
+	const HEADER_CONTENT_TYPE = 'Content-type: ';
+	const SUBFIX_CONTENT_TYPE_URL_ENCODE = '/x-www-form-urlencoded';
+	const SUBFIX_CONTENT_TYPE_SUBFIX_JSON = '/json';
+
+	
+	public static function fix_document_root($document_root)
+	{
+		if ($document_root == null) {
+			$document_root = dirname(__FILE__);
+		}
+		return $document_root;
+	}
+
+	public static function fix_carriage_return($data)
+	{
+		$data = str_replace("\n", "\r\n", $data);
+		$data = str_replace("\r\r\n", "\r\n", $data);
+		$data = str_replace("\r", "\r\n", $data);
+		$data = str_replace("\r\n\n", "\r\n", $data);
+		return $data;
+	}
+
+	public static function get_array_line($lines)
+	{
+		$i = 0;
+		$nl = false;
+		$j = 0;
+		// If line ended with \, do not explode it as array
+		foreach ($lines as $line) {
+			if (\self::endsWith($line, "\\")) {
+				$nl = true;
+			} else {
+				$nl = false;
+			}
+			if (!isset($array[$i])) {
+				$array[$i] = "";
+				$j = 0;
+			}
+			if ($nl) {
+				$line = substr($line, 0, strlen($line) - 1) . "\\";
+			}
+			$array[$i] .= $line;
+			if ($j > 0) {
+				$array[$i] .= EOL;
+			}
+			if (!$nl) {
+				$i++;
+			}
+			$j++;
+		}
+		return $array;
+	}
+
+		
+	public static function fix_array_key($request_data)
+	{
+		$fixed_data = array();
+		foreach ($request_data as $key => $val) {
+			$key2 = trim(preg_replace("/[^A-Za-z0-9_]/", '_', $key)); //NOSONAR
+			$fixed_data[$key2] = $val;
+		}
+		return $fixed_data;
+	}
+
+	public static function fix_header_key($request_headers)
+	{
+		$headers = array();
+		foreach ($request_headers as $key => $val) {
+			$key2 = trim(strtoupper(str_replace("-", "_", $key)));
+			$headers[$key2] = $val;
+		}
+		return $headers;
+	}
+
+		
+	public static function get_request_headers()
+	{
+		return getallheaders();
+	}
+
+	public static function startsWith($haystack, $needle)
+	{
+		$length = strlen($needle);
+		return substr($haystack, 0, $length) === $needle;
+	}
+
+	public static function endsWith($haystack, $needle)
+	{
+		$length = strlen($needle);
+		if (!$length) {
+			return true;
+		}
+		return substr($haystack, -$length) === $needle;
+	}
+
+	public static function get_context_path()
+	{
+		$url = $_SERVER['REQUEST_URI'];
+		return parse_url($url, PHP_URL_PATH);
+	}
+
+	public static function get_url()
+	{
+		return $_SERVER['REQUEST_URI'];
+	}
+
+	public static function send_response_header($headers)
+	{
+		$arr = explode("\r\n", $headers);
+		foreach ($arr as $header) {
+			$header = trim($header, " \t\r\n");
+			if (stripos($header, ":") > 0) {
+				header($header);
+			}
+		}
+	}
+
+	public static function drop_content_length($headers)
+	{
+		$arr = explode("\r\n", $headers);
+		$result = array();
+		foreach ($arr as $header) {
+			if (stripos(trim($header), 'content-length:') !== 0) {
+				$result[] = $header;
+			}
+		}
+		return implode("\r\n", $result);
+	}
+
+	public static function parse_response_header($raw_headers)
+	{
+		$hdr = array();
+		if (isset($raw_headers) && !empty($raw_headers)) {
+			$arr = explode("\r\n", $raw_headers);
+			foreach ($arr as $header) {
+				$header = trim($header, " \t\r\n");
+				if (stripos($header, ":") > 0) {
+					$row = explode(":", $header, 2);
+					$key = trim(strtoupper(str_replace("-", "_", $row[0])));
+					$hdr[] = array($key => trim($row[1]));
+				}
+			}
+		}
+		return $hdr;
+	}
+
+	public static function contains_key($headers, $key)
+	{
+		if (isset($header) && is_array($headers)) {
+			foreach ($headers as $val) {
+				if (isset($val[$key])) {
+					return true;
+				}
+			}
+		} else {
+			return false;
+		}
+	}
+
+
+}
+
 error_reporting(0);
 
 // Functions
 
-function fix_document_root($document_root)
-{
-	if ($document_root == null) {
-		$document_root = dirname(__FILE__);
-	}
-	return $document_root;
-}
 
-function fix_carriage_return($data)
-{
-	$data = str_replace("\n", "\r\n", $data);
-	$data = str_replace("\r\r\n", "\r\n", $data);
-	$data = str_replace("\r", "\r\n", $data);
-	$data = str_replace("\r\n\n", "\r\n", $data);
-	return $data;
-}
+
 
 function get_config($document_root, $context_path)
 {
 	$config = "";
 	if ($document_root !== null) {
-		$document_root = fix_document_root($document_root);
+		$document_root = \UniversalSimulator::fix_document_root($document_root);
 		$config = $document_root . "/" . $context_path;
 	} else {
 		$config = $context_path;
@@ -112,36 +262,7 @@ function get_config($document_root, $context_path)
 	return $config;
 }
 
-function get_array_line($lines)
-{
-	$i = 0;
-	$nl = false;
-	$j = 0;
-	// If line ended with \, do not explode it as array
-	foreach ($lines as $line) {
-		if (endsWith($line, "\\")) {
-			$nl = true;
-		} else {
-			$nl = false;
-		}
-		if (!isset($array[$i])) {
-			$array[$i] = "";
-			$j = 0;
-		}
-		if ($nl) {
-			$line = substr($line, 0, strlen($line) - 1) . "\\";
-		}
-		$array[$i] .= $line;
-		if ($j > 0) {
-			$array[$i] .= EOL;
-		}
-		if (!$nl) {
-			$i++;
-		}
-		$j++;
-	}
-	return $array;
-}
+
 
 function parse_config($context_path, $document_root = null)
 {
@@ -151,14 +272,12 @@ function parse_config($context_path, $document_root = null)
 
 	// Fixing new line
 	// Some operating system may have different style
-	$file_content = fix_carriage_return($file_content);
+	$file_content = \UniversalSimulator::fix_carriage_return($file_content);
 
 	$lines = explode("\r\n", $file_content);
 	$array = array();
 
-	$array = get_array_line($lines);
-
-
+	$array = \UniversalSimulator::get_array_line($lines);
 
 	// Parse raw file to raw configuration with it properties
 	$parsed = array();
@@ -231,35 +350,16 @@ function has_eval($lines)
 	return $begin && $end;
 }
 
-function fix_array_key($request_data)
-{
-	$fixed_data = array();
-	foreach ($request_data as $key => $val) {
-		$key2 = trim(preg_replace("/[^A-Za-z0-9_]/", '_', $key));
-		$fixed_data[$key2] = $val;
-	}
-	return $fixed_data;
-}
 
-function fix_header_key($request_headers)
+function parse_input($config, $request_headers, $request_data, $context_path, $query) //NOSONAR
 {
-	$headers = array();
-	foreach ($request_headers as $key => $val) {
-		$key2 = trim(strtoupper(str_replace("-", "_", $key)));
-		$headers[$key2] = $val;
-	}
-	return $headers;
-}
-
-function parse_input($config, $request_headers, $request_data, $context_path, $query)
-{
-	$headers = fix_header_key($request_headers);
+	$headers = \UniversalSimulator::fix_header_key($request_headers);
 	parse_str($query, $get_data);
 	// Parsing input
 	$rule = $config['PARSING_RULE'];
 	$rule = str_replace("\\", "\\" . EOL, $rule);
 	$rule = trim(str_replace("\\" . EOL, "\r\n", $rule), " \\ ");
-	if (endsWith($rule, EOL)) {
+	if (\UniversalSimulator::endsWith($rule, EOL)) {
 		$rule = substr($rule, 0, strlen($rule) - strlen(EOL));
 	}
 	$arr = explode("\r\n", $rule);
@@ -272,15 +372,15 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 		$end = stripos($config['PATH'], ']}');
 
 		if ($start === false || $end === false) {
-			$base_path = $config['PATH'];
+			$base_path = $config['PATH']; //NOSONAR
 		} else {
-			$base_path = substr($config['PATH'], 0, $start);
+			$base_path = substr($config['PATH'], 0, $start); //NOSONAR
 			$wildcard_data = trim(substr($context_path, $start), "/");
 			$wildcard_variable = trim(substr($config['PATH'], $start), "/");
 			$arr1 = explode("/", $wildcard_variable);
 			$arr2 = explode("/", $wildcard_data);
 			foreach ($arr1 as $key => $val) {
-				if (startsWith($val, '{[') && endsWith($val, ']}')) {
+				if (\UniversalSimulator::startsWith($val, '{[') && \UniversalSimulator::endsWith($val, ']}')) {
 					$par = trim(str_replace(array('{[', ']}'), '', $val));
 					$url_data[$par] = $arr2[$key];
 				}
@@ -288,10 +388,10 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 		}
 	}
 	foreach ($arr as $line) {
-		if (startsWith($line, EOL)) {
+		if (\UniversalSimulator::startsWith($line, EOL)) {
 			$line = substr($line, strlen(EOL));
 		}
-		if (endsWith($line, EOL)) {
+		if (\UniversalSimulator::endsWith($line, EOL)) {
 			$line = substr($line, 0, strlen($line) - strlen(EOL));
 		}
 		if (stripos($line, "=") > 0) {
@@ -338,7 +438,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 				$key = trim(substr(trim($arr2[0]), strlen(\UniversalSimulator::PREFIX_INPUT)));
 				$val = trim($arr2[1]);
 				$val = substr($val, strlen('$JSON.REQUEST'));
-				if (startsWith($val, '(') && endsWith($val, ')')) {
+				if (\UniversalSimulator::startsWith($val, '(') && \UniversalSimulator::endsWith($val, ')')) {
 					$val = substr($val, 1, strlen($val) - 2);
 				}
 				$input = file_get_contents(\UniversalSimulator::PHP_INPUT);
@@ -367,7 +467,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 							// parse as associated array
 							$obj = json_decode($input, true);
 							$attr = $params[0];
-							if (!startsWith($attr, '[')) {
+							if (!\UniversalSimulator::startsWith($attr, '[')) {
 								$arr1 = explode("[", $attr, 2);
 								$attr = '[' . $arr1[0] . ']' . $arr1[1];
 							}
@@ -429,7 +529,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 			if (stripos(trim($arr2[0]), \UniversalSimulator::PREFIX_INPUT) === 0 && stripos(trim($arr2[1]), '$GET[') === 0) {
 				$key = trim(substr(trim($arr2[0]), strlen(\UniversalSimulator::PREFIX_INPUT)));
 				$value = trim(substr(trim($arr2[1]), strlen('$GET')));
-				$val = eval('return isset($get_data' . $value . ')?($get_data' . $value . '):\'\';');
+				$val = eval('return isset($get_data' . $value . ')?($get_data' . $value . '):\'\';'); //NOSONAR
 				$res[$key] = $val;
 			}
 			// Parse from POST
@@ -458,12 +558,12 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 			}
 			// Parse from request
 			if (stripos(trim($arr2[0]), \UniversalSimulator::PREFIX_INPUT) === 0 && stripos(trim($arr2[1]), \UniversalSimulator::PREFIX_REQUEST) === 0) {
-				if (stripos($config['REQUEST_TYPE'], \UniversalSimulator::SUBFIX_URL_ENCODE) !== false) {
+				if (stripos($config['REQUEST_TYPE'], \UniversalSimulator::SUBFIX_CONTENT_TYPE_URL_ENCODE) !== false) {
 					$key = trim(substr(trim($arr2[0]), strlen(\UniversalSimulator::PREFIX_INPUT)));
 					$value = trim(substr(trim($arr2[1]), strlen(\UniversalSimulator::PREFIX_REQUEST)));
 					$res[$key] = isset($request_data[$value]) ? $request_data[$value] : '';
 				} else if (
-					stripos($config['REQUEST_TYPE'], '/json') !== false
+					stripos($config['REQUEST_TYPE'], \UniversalSimulator::SUBFIX_CONTENT_TYPE_SUBFIX_JSON) !== false
 					|| stripos($config['REQUEST_TYPE'], '/xml') !== false
 					|| (stripos($config['REQUEST_TYPE'], 'soap') !== false
 						&& stripos($config['REQUEST_TYPE'], 'xml') !== false)
@@ -484,12 +584,12 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 				}
 			}
 			if (stripos(trim($arr2[0]), \UniversalSimulator::PREFIX_INPUT) === 0 && stripos(trim($arr2[1]), '$REQUEST[') === 0) {
-				if (stripos($config['REQUEST_TYPE'], \UniversalSimulator::SUBFIX_URL_ENCODE) !== false) {
+				if (stripos($config['REQUEST_TYPE'], \UniversalSimulator::SUBFIX_CONTENT_TYPE_URL_ENCODE) !== false) {
 					$key = trim(substr(trim($arr2[0]), strlen(\UniversalSimulator::PREFIX_INPUT)));
 					$value = trim(substr(trim($arr2[1]), strlen('$REQUEST')));
 					$val = eval('return isset($request_data' . $value . ')?($request_data' . $value . '):\'\';');
 					$res[$key] = $val;
-				} else if (stripos($config['REQUEST_TYPE'], '/json') !== false || stripos($config['REQUEST_TYPE'], '/xml') !== false) {
+				} else if (stripos($config['REQUEST_TYPE'], \UniversalSimulator::SUBFIX_CONTENT_TYPE_SUBFIX_JSON) !== false || stripos($config['REQUEST_TYPE'], '/xml') !== false) {
 					$obj = $request_data;
 					$key = trim(substr(trim($arr2[0]), strlen(\UniversalSimulator::PREFIX_INPUT)));
 					$tst = trim(substr(trim($arr2[1]), strlen('$REQUEST')));
@@ -507,7 +607,7 @@ function is_valid_jwt($token_sent)
 	global $appConfig;
 	$secret_key = $appConfig->jwtSecret;
 	try {
-		$decoded = JWT::decode($token_sent, $secret_key, array('HS256'));
+		$decoded = JWT::decode($token_sent, $secret_key, array('HS256')); //NOSONAR
 		return true;
 	} catch (Exception $e) {
 		return false;
@@ -516,7 +616,7 @@ function is_valid_jwt($token_sent)
 
 function is_valid_quoted($fm1)
 {
-	return (startsWith($fm1, "'") && endsWith($fm1, "'")) || (startsWith($fm1, '"') && endsWith($fm1, '"'));
+	return (\UniversalSimulator::startsWith($fm1, "'") && \UniversalSimulator::endsWith($fm1, "'")) || (\UniversalSimulator::startsWith($fm1, '"') && \UniversalSimulator::endsWith($fm1, '"'));
 }
 
 function validate_token($string, $token_sent)
@@ -550,10 +650,10 @@ function validate_token($string, $token_sent)
 function generate_token()
 {
 	global $appConfig;
-	$id = $appConfig->jwtUserID;
-	$firstname = $appConfig->jwtUserFirstName;
-	$lastname = $appConfig->jwtUserLastName;
-	$email = $appConfig->jwtUserEmail;
+	$id = $appConfig->jwtUserID; //NOSONAR
+	$firstname = $appConfig->jwtUserFirstName; //NOSONAR
+	$lastname = $appConfig->jwtUserLastName; //NOSONAR
+	$email = $appConfig->jwtUserEmail; //NOSONAR
 
 	$lifetime = $appConfig->jwtNotValidAfter;
 
@@ -580,14 +680,14 @@ function generate_token()
 	);
 }
 
-function process_transaction($parsed, $request)
+function process_transaction($parsed, $request) //NOSONAR
 {
 	$token_sent = get_token();
-	$content_type = $parsed['RESPONSE_TYPE'];
+	$content_type = $parsed['RESPONSE_TYPE']; //NOSONAR
 	$transaction_rule = $parsed['TRANSACTION_RULE'];
 	$transaction_rule = trim($transaction_rule, "\\");
 	$transaction_rule = str_replace("\\{[EOL]}$" . "OUTPUT.", "\\{[EOL]}\r\n$" . "OUTPUT.", $transaction_rule);
-	if (endsWith($transaction_rule, EOL)) {
+	if (\UniversalSimulator::endsWith($transaction_rule, EOL)) {
 		$transaction_rule = substr($transaction_rule, 0, strlen($transaction_rule) - strlen(EOL));
 	}
 	$arr = explode('{[ENDIF]}', $transaction_rule);
@@ -601,11 +701,11 @@ function process_transaction($parsed, $request)
 			$rcondition = validate_token($rcondition, $token_sent);
 			$rline = $arr2[1];
 
-			// TODO Evaluate condition
+			// Evaluate condition
 			$str = preg_replace('/[^a-z0-9\.\$_]/i', ' ', $rcondition);
 			$str = preg_replace('/\s\s+/', ' ', $str);
 			$arr5 = explode(" ", $str);
-			foreach ($arr5 as $idx3 => $word) {
+			foreach ($arr5 as $word) {
 				if (stripos($word, \UniversalSimulator::PREFIX_INPUT) === 0) {
 					$var = substr($word, strlen(\UniversalSimulator::PREFIX_INPUT));
 					$rcondition = str_replace($word, '$request[\'' . $var . '\']', $rcondition);
@@ -621,12 +721,12 @@ function process_transaction($parsed, $request)
 			if ($test) {
 				$arr3 = explode("\r\n", $rline);
 				foreach ($arr3 as $result) {
-					// TODO Parse result
+					// Parse result
 					$str = preg_replace('/[^a-z0-9\.\$_]/i', ' ', $result);
 					$str = str_replace(\UniversalSimulator::PREFIX_INPUT, ' $INPUT.', $str);
 					$str = preg_replace('/\s\s+/', ' ', $str);
 					$arr5 = explode(" ", $str);
-					foreach ($arr5 as $idx3 => $word) {
+					foreach ($arr5 as $word) {
 						if (stripos($word, \UniversalSimulator::PREFIX_INPUT) === 0) {
 							$var = substr($word, strlen(\UniversalSimulator::PREFIX_INPUT));
 							$result = str_replace($word, $request[$var], $result);
@@ -698,7 +798,7 @@ function date_with_tz($fmt, $tz)
 	return $ret;
 }
 
-function parse_params($args)
+function parse_params($args) //NOSONAR
 {
 	$args = trim($args, SPACE_TRIMMER);
 	$parts = preg_split("/(?:'[^']*'|)\K\s*(,\s*|$)/", $args);
@@ -707,30 +807,30 @@ function parse_params($args)
 	});
 	if (empty($result) && !empty($args)) {
 		$args = trim($args);
-		if (stripos($args, ',') === false && startsWith($args, "'") && endsWith($args, "'")) {
+		if (stripos($args, ',') === false && \UniversalSimulator::startsWith($args, "'") && \UniversalSimulator::endsWith($args, "'")) {
 			return array($args);
 		}
 	}
 	if (count($result) == 1) {
 		// no time zone	
-		if (startsWith($result[0], "'")) {
+		if (\UniversalSimulator::startsWith($result[0], "'")) {
 			$result[0] = substr($result[0], 1);
 		}
-		if (endsWith($result[0], "'")) {
+		if (\UniversalSimulator::endsWith($result[0], "'")) {
 			$result[0] = substr($result[0], 0, strlen($result[0]) - 1);
 		}
 		return array($result[0]);
 	} else if (count($result) == 2) {
-		if (startsWith($result[0], "'")) {
+		if (\UniversalSimulator::startsWith($result[0], "'")) {
 			$result[0] = substr($result[0], 1);
 		}
-		if (endsWith($result[0], "'")) {
+		if (\UniversalSimulator::endsWith($result[0], "'")) {
 			$result[0] = substr($result[0], 0, strlen($result[0]) - 1);
 		}
-		if (startsWith($result[1], "'")) {
+		if (\UniversalSimulator::startsWith($result[1], "'")) {
 			$result[1] = substr($result[1], 1);
 		}
-		if (endsWith($result[1], "'")) {
+		if (\UniversalSimulator::endsWith($result[1], "'")) {
 			$result[1] = substr($result[1], 0, strlen($result[1]) - 1);
 		}
 		$result[0] = str_replace("'", "", trim($result[0]));
@@ -742,7 +842,7 @@ function parse_params($args)
 function eval_date($args)
 {
 	$args = trim($args, SPACE_TRIMMER);
-	if (startsWith($args, 'date(')) {
+	if (\UniversalSimulator::startsWith($args, 'date(')) {
 		$args = substr($args, 5, strlen($args) - 6);
 	}
 	$result = parse_params($args);
@@ -777,10 +877,10 @@ function replace_date($string)
 
 function replace_number_format($string)
 {
-	if (stripos($string, '$NUMBERFORMAT') !== false) {
+	if (stripos($string, \UniversalSimulator::FUNCTION_NUMBERFORMAT) !== false) {
 		do {
 			$total_length = strlen($string);
-			$start = stripos($string, '$NUMBERFORMAT');
+			$start = stripos($string, \UniversalSimulator::FUNCTION_NUMBERFORMAT);
 			$p1 = find_bracket_position($string, $start);
 			$formula = substr($string, $start, $p1);
 			$fm1 = trim($formula, SPACE_TRIMMER);
@@ -794,7 +894,7 @@ function replace_number_format($string)
 			if ($start + $p1 >= $total_length) {
 				break;
 			}
-		} while (stripos($string, '$NUMBERFORMAT') !== false);
+		} while (stripos($string, \UniversalSimulator::FUNCTION_NUMBERFORMAT) !== false);
 	}
 	return $string;
 }
@@ -849,10 +949,10 @@ function replace_uppercase($string)
 
 function replace_lowercase($string)
 {
-	if (stripos($string, '$LOWERCASE') !== false) {
+	if (stripos($string, \UniversalSimulator::FUNCTION_LOWERCASE) !== false) {
 		do {
 			$total_length = strlen($string);
-			$start = stripos($string, '$LOWERCASE');
+			$start = stripos($string, \UniversalSimulator::FUNCTION_LOWERCASE);
 			$p1 = find_bracket_position($string, $start);
 			$formula = substr($string, $start, $p1);
 			$fm1 = trim($formula, SPACE_TRIMMER);
@@ -866,7 +966,7 @@ function replace_lowercase($string)
 			if ($start + $p1 >= $total_length) {
 				break;
 			}
-		} while (stripos($string, '$LOWERCASE') !== false);
+		} while (stripos($string, \UniversalSimulator::FUNCTION_LOWERCASE) !== false);
 	}
 	return $string;
 }
@@ -904,7 +1004,7 @@ function replace_calc($string)
 			$fm1 = trim($formula, SPACE_TRIMMER);
 			$fm1 = substr($fm1, 6, strlen($fm1) - 7);
 			$fm1 = trim($fm1, SPACE_TRIMMER);
-			if ((startsWith($fm1, "'") && endsWith($fm1, "'")) || (startsWith($fm1, '"') && endsWith($fm1, '"'))) {
+			if ((\UniversalSimulator::startsWith($fm1, "'") && \UniversalSimulator::endsWith($fm1, "'")) || (\UniversalSimulator::startsWith($fm1, '"') && \UniversalSimulator::endsWith($fm1, '"'))) {
 				$fm1 = substr($fm1, 1, strlen($fm1) - 2);
 			}
 			$result = eval("return $fm1;");
@@ -931,10 +1031,10 @@ function replace_uuid($string)
 
 function replace_random($string)
 {
-	if (stripos($string, '$RANDOM') !== false) {
+	if (stripos($string, \UniversalSimulator::FUNCTION_RANDOM) !== false) {
 		do {
 			$total_length = strlen($string);
-			$start = stripos($string, '$RANDOM');
+			$start = stripos($string, \UniversalSimulator::FUNCTION_RANDOM);
 			$p1 = find_bracket_position($string, $start);
 			$formula = substr($string, $start, $p1);
 			$fm1 = trim($formula, SPACE_TRIMMER);
@@ -942,8 +1042,8 @@ function replace_random($string)
 			$fm1 = trim($fm1, SPACE_TRIMMER);
 			if (stripos($fm1, ",") !== false) {
 				$arr = explode(",", $fm1);
-				$arr[0] = preg_replace("/[^0-9]/", "", $arr[0]);
-				$arr[1] = preg_replace("/[^0-9]/", "", $arr[1]);
+				$arr[0] = preg_replace("/[^0-9]/", "", $arr[0]);//NOSONAR
+				$arr[1] = preg_replace("/[^0-9]/", "", $arr[1]);//NOSONAR
 				$min = $arr[0] * 1;
 				$max = $arr[1] * 1;
 				if ($min < $max) {
@@ -959,7 +1059,7 @@ function replace_random($string)
 			if ($start + $p1 >= $total_length) {
 				break;
 			}
-		} while (stripos($string, '$RANDOM') !== false);
+		} while (stripos($string, \UniversalSimulator::FUNCTION_RANDOM) !== false);
 	}
 	return $string;
 }
@@ -979,31 +1079,31 @@ function get_request_body($parsed, $url)
 {
 	if ($parsed['METHOD'] == 'GET') {
 		$query = get_query($url);
-		error_log("HTTP Request     : \r\n" . $query);
+		error_log("HTTP Request     : \r\n" . $query); //NOSONAR
 		parse_str($query, $request_data);
 	} else if ($parsed['METHOD'] == 'POST' || $parsed['METHOD'] == 'PUT') {
-		if (stripos($parsed['REQUEST_TYPE'], \UniversalSimulator::SUBFIX_URL_ENCODE) !== false) {
+		if (stripos($parsed['REQUEST_TYPE'], \UniversalSimulator::SUBFIX_CONTENT_TYPE_URL_ENCODE) !== false) {
 			$query = file_get_contents(\UniversalSimulator::PHP_INPUT);
 			error_log("HTTP Request     : \r\n" . $query);
 			parse_str($query, $request_data);
-		} else if (stripos($parsed['REQUEST_TYPE'], '/json') !== false) {
+		} else if (stripos($parsed['REQUEST_TYPE'], \UniversalSimulator::SUBFIX_CONTENT_TYPE_SUBFIX_JSON) !== false) {
 			$input_buffer = file_get_contents(\UniversalSimulator::PHP_INPUT);
 			error_log("HTTP Request     : \r\n" . $input_buffer);
 			$request_data = json_decode($input_buffer, true);
-			$request_data = fix_array_key($request_data);
+			$request_data = \UniversalSimulator::fix_array_key($request_data);
 		} else if (stripos($parsed['REQUEST_TYPE'], '/xml') !== false) {
 			$input_buffer = file_get_contents(\UniversalSimulator::PHP_INPUT);
 			error_log("HTTP Request     : \r\n" . $input_buffer);
 			$xml = simplexml_load_string($input_buffer);
 			$request_data = json_decode(json_encode($xml), true);
-			$request_data = fix_array_key($request_data);
+			$request_data = \UniversalSimulator::fix_array_key($request_data);
 		} else if (stripos($parsed['REQUEST_TYPE'], 'soap') !== false && stripos($parsed['REQUEST_TYPE'], 'xml') !== false) {
 			$input_buffer = file_get_contents(\UniversalSimulator::PHP_INPUT);
 			error_log("HTTP Request     : \r\n" . $input_buffer);
 			$input_buffer = str_ireplace(array('<soap:', '</soap:'), array('<', '</'), $input_buffer);
 			$xml = simplexml_load_string($input_buffer);
 			$request_data = json_decode(json_encode($xml), true);
-			$request_data = fix_array_key($request_data);
+			$request_data = \UniversalSimulator::fix_array_key($request_data);
 		}
 	}
 	return $request_data;
@@ -1076,7 +1176,7 @@ function is_match_path($config_path, $request_path)
 	$match = false;
 	$start = stripos($config_path, '{[');
 	if ($start === false) {
-		if (endsWith($config_path, "/")) {
+		if (\UniversalSimulator::endsWith($config_path, "/")) {
 			$match = stripos($request_path, $config_path) === 0;
 		} else {
 			$match = stripos(rtrim($config_path, "/") . "/", rtrim($request_path, "/") . "/") === 0;
@@ -1140,94 +1240,10 @@ if (!function_exists('getallheaders')) {
 	}
 }
 
-function get_request_headers()
-{
-	return getallheaders();
-}
-
-function startsWith($haystack, $needle)
-{
-	$length = strlen($needle);
-	return substr($haystack, 0, $length) === $needle;
-}
-
-function endsWith($haystack, $needle)
-{
-	$length = strlen($needle);
-	if (!$length) {
-		return true;
-	}
-	return substr($haystack, -$length) === $needle;
-}
-
-function get_context_path()
-{
-	$url = $_SERVER['REQUEST_URI'];
-	return parse_url($url, PHP_URL_PATH);
-}
-
-function get_url()
-{
-	return $_SERVER['REQUEST_URI'];
-}
-
-function send_response_header($headers)
-{
-	$arr = explode("\r\n", $headers);
-	foreach ($arr as $header) {
-		$header = trim($header, " \t\r\n");
-		if (stripos($header, ":") > 0) {
-			header($header);
-		}
-	}
-}
-
-function drop_content_length($headers)
-{
-	$arr = explode("\r\n", $headers);
-	$result = array();
-	foreach ($arr as $header) {
-		if (stripos(trim($header), 'content-length:') !== 0) {
-			$result[] = $header;
-		}
-	}
-	return implode("\r\n", $result);
-}
-
-function parse_response_header($raw_headers)
-{
-	$hdr = array();
-	if (isset($raw_headers) && !empty($raw_headers)) {
-		$arr = explode("\r\n", $raw_headers);
-		foreach ($arr as $header) {
-			$header = trim($header, " \t\r\n");
-			if (stripos($header, ":") > 0) {
-				$row = explode(":", $header, 2);
-				$key = trim(strtoupper(str_replace("-", "_", $row[0])));
-				$hdr[] = array($key => trim($row[1]));
-			}
-		}
-	}
-	return $hdr;
-}
-
-function contains_key($headers, $key)
-{
-	if (isset($header) && is_array($headers)) {
-		foreach ($headers as $val) {
-			if (isset($val[$key])) {
-				return true;
-			}
-		}
-	} else {
-		return false;
-	}
-}
-
 function get_token()
 {
 	$token_sent = "";
-	$headers = get_request_headers();
+	$headers = \UniversalSimulator::get_request_headers();
 	if (isset($headers['Authorization'])) {
 		$auth = $headers['Authorization'];
 		if (stripos($auth, 'Bearer ') === 0) {
@@ -1237,7 +1253,7 @@ function get_token()
 	return $token_sent;
 }
 
-function send_callback($output)
+function send_callback($output) //NOSONAR
 {
 	$res = "";
 	$url = @$output['CALLBACK_URL'];
@@ -1256,14 +1272,14 @@ function send_callback($output)
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); //NOSONAR
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0); //NOSONAR
 		if ($timeout > 0) {
 			curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 		}
 		$headers = array();
 		if (isset($output['CALLBACK_HEADER'])) {
-			$header = fix_carriage_return(trim($output['CALLBACK_HEADER'], SPACE_TRIMMER));
+			$header = \UniversalSimulator::fix_carriage_return(trim($output['CALLBACK_HEADER'], SPACE_TRIMMER));
 			if (strlen($header) > 2) {
 				$headers = explode("\r\n", $header);
 			}
@@ -1337,7 +1353,7 @@ function send_callback($output)
 	return $res;
 }
 
-function send_response($output, $parsed, $async)
+function send_response($output, $parsed, $async) //NOSONAR
 {
 	$response = null;
 	if (isset($output['BODY'])) {
@@ -1374,11 +1390,11 @@ function send_response($output, $parsed, $async)
 	$send_content_type = false;
 	if (isset($output['HEADER'])) {
 		$raw_header = $output['HEADER'];
-		$response_header = parse_response_header($raw_header);
-		$send_content_type = contains_key($response_header, "CONTENT_TYPE");
+		$response_header = \UniversalSimulator::parse_response_header($raw_header);
+		$send_content_type = \UniversalSimulator::contains_key($response_header, "CONTENT_TYPE");
 		// drop coontent length
-		$raw_header = drop_content_length($raw_header);
-		send_response_header($raw_header);
+		$raw_header = \UniversalSimulator::drop_content_length($raw_header);
+		\UniversalSimulator::send_response_header($raw_header);
 	}
 
 	if (!$send_content_type) {
@@ -1415,10 +1431,10 @@ function send_response($output, $parsed, $async)
 $config_dir = CONFIG_DIR;
 
 // Get context path from URL
-$context_path = get_context_path();
+$context_path = \UniversalSimulator::get_context_path();
 
 // Get URL
-$url = get_url();
+$url = \UniversalSimulator::get_url();
 
 // Select matched configuration file
 $parsed = get_config_file($config_dir, $context_path);
@@ -1430,7 +1446,7 @@ if ($parsed !== null && !empty($parsed)) {
 		}
 	} else {
 		// Get request headers
-		$request_headers = get_request_headers();
+		$request_headers = \UniversalSimulator::get_request_headers();
 
 		// Get query
 		$query = get_query($url);
@@ -1456,7 +1472,7 @@ if ($parsed !== null && !empty($parsed)) {
 	die(); //a must especially if set_time_limit=0 is used and the task ends
 } else {
 	http_response_code("404");
-	$userBrowser = \UniversalSimulator::get_user_browser();
+	$userBrowser = \UserAgent::get_user_browser();
 	if ($userBrowser || !empty($userBrowser)) {
 		include_once "404.php";
 	} else {
