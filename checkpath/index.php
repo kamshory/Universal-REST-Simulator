@@ -182,14 +182,6 @@ function count_duplicated($result)
 	return $dup;
 }
 
-function endsWith( $haystack, $needle ) 
-{
-    $length = strlen( $needle );
-    if( !$length ) {
-        return true;
-    }
-    return substr( $haystack, -$length ) === $needle;
-}
 
 error_reporting(0);
 $config_dir = CONFIG_DIR;
