@@ -9,8 +9,8 @@ class UserAgent {
 
 	public static function get_user_browser()
 	{
-		$fullUserBrowser = (!empty($_SERVER[\self::SERVER_HTTP_USER_AGENT]) ?
-			$_SERVER[\self::SERVER_HTTP_USER_AGENT] : getenv(\self::SERVER_HTTP_USER_AGENT));
+		$fullUserBrowser = (!empty($_SERVER[self::SERVER_HTTP_USER_AGENT]) ?
+			$_SERVER[self::SERVER_HTTP_USER_AGENT] : getenv(self::SERVER_HTTP_USER_AGENT));
 		$userBrowser = explode(')', $fullUserBrowser);
 		$userBrowser = $userBrowser[count($userBrowser) - 1];
 
@@ -72,14 +72,6 @@ class UniversalSimulator
 	const PREFIX_INPUT = '$INPUT.';
 	const PREFIX_REQUEST = '$REQUEST.';
 	const PHP_INPUT = 'php://input';
-	const SYSTEM_UUID = '$SYSTEM.UUID';
-	const FUNCTION_DATE = '$DATE';
-	const FUNCTION_CALC = '$CALC';
-	const FUNCTION_NUMBERFORMAT = '$NUMBERFORMAT';
-	const FUNCTION_UPPERCASE = '$UPPERCASE';
-	const FUNCTION_LOWERCASE = '$LOWERCASE';
-	const FUNCTION_SUBSTRING = '$SUBSTRING';
-	const FUNCTION_RANDOM = '$RANDOM';
 	const HEADER_CONTENT_LENGTH = 'Content-length: ';
 	const HEADER_CONTENT_TYPE = 'Content-type: ';
 	const SUBFIX_CONTENT_TYPE_URL_ENCODE = '/x-www-form-urlencoded';
@@ -110,7 +102,7 @@ class UniversalSimulator
 		$j = 0;
 		// If line ended with \, do not explode it as array
 		foreach ($lines as $line) {
-			if (\self::endsWith($line, "\\")) {
+			if (\StringProcessor::endsWith($line, "\\")) {
 				$nl = true;
 			} else {
 				$nl = false;
@@ -161,20 +153,7 @@ class UniversalSimulator
 		return getallheaders();
 	}
 
-	public static function startsWith($haystack, $needle)
-	{
-		$length = strlen($needle);
-		return substr($haystack, 0, $length) === $needle;
-	}
-
-	public static function endsWith($haystack, $needle)
-	{
-		$length = strlen($needle);
-		if (!$length) {
-			return true;
-		}
-		return substr($haystack, -$length) === $needle;
-	}
+	
 
 	public static function get_context_path()
 	{
@@ -240,6 +219,400 @@ class UniversalSimulator
 		}
 	}
 
+	public static function has_eval($lines)
+	{
+		$begin = false;
+		$end = false;
+		foreach ($lines as $line) {
+			if (trim($line) == self::EVAL_PHP_BEGIN) {
+				$begin = true;
+				break;
+			}
+		}
+		foreach ($lines as $line) {
+			if (trim($line) == self::EVAL_PHP_END) {
+				$end = true;
+				break;
+			}
+		}
+		return $begin && $end;
+	}
+
+
+		
+	public static function is_valid_jwt($token_sent)
+	{
+		global $appConfig;
+		$secret_key = $appConfig->jwtSecret;
+		try {
+			$decoded = JWT::decode($token_sent, $secret_key, array('HS256')); //NOSONAR
+			return true;
+		} catch (\Exception $e) {
+			return false;
+		}
+	}
+
+	public static function is_valid_quoted($fm1)
+	{
+		return (\StringProcessor::startsWith($fm1, "'") && \StringProcessor::endsWith($fm1, "'")) 
+		|| (\StringProcessor::startsWith($fm1, '"') && \StringProcessor::endsWith($fm1, '"'));
+	}
+
+	public static function validate_token($string, $token_sent)
+	{
+		if (stripos($string, '$ISVALIDTOKEN') !== false) {
+			do {
+				$total_length = strlen($string);
+				$start = stripos($string, '$string');
+				$p1 = \StringProcessor::find_bracket_position($string, $start);
+				$formula = substr($string, $start, $p1);
+				$fm1 = trim($formula, SPACE_TRIMMER);
+				$fm1 = substr($fm1, 6, strlen($fm1) - 7);
+				$fm1 = trim($fm1, SPACE_TRIMMER);
+				if (self::is_valid_quoted($fm1)) {
+					$fm1 = substr($fm1, 1, strlen($fm1) - 2);
+				}
+				if (self::is_valid_jwt($token_sent)) {
+					$result = "true";
+				} else {
+					$result = "false";
+				}
+				$string = str_ireplace($formula, $result, $string);
+				if ($start + $p1 >= $total_length) {
+					break;
+				}
+			} while (stripos($string, '$ISVALIDTOKEN') !== false);
+		}
+		return $string;
+	}
+
+	public static function generate_token()
+	{
+		global $appConfig;
+		$id = $appConfig->jwtUserID; //NOSONAR
+		$firstname = $appConfig->jwtUserFirstName; //NOSONAR
+		$lastname = $appConfig->jwtUserLastName; //NOSONAR
+		$email = $appConfig->jwtUserEmail; //NOSONAR
+
+		$lifetime = $appConfig->jwtNotValidAfter;
+
+		$secret_key = $appConfig->jwtSecret;
+		$issuer_claim = $appConfig->jwtIssuer; // this can be the servername
+		$audience_claim = $appConfig->jwtAudience;
+		$issuedat_claim = time(); // issued at
+		$notbefore_claim = $issuedat_claim + $appConfig->jwtNotValidBefore; //not before in seconds
+		$expire_claim = $issuedat_claim + $lifetime; // expire time in seconds
+		$token = array(
+			"iss" => $issuer_claim,
+			"aud" => $audience_claim,
+			"iat" => $issuedat_claim,
+			"nbf" => $notbefore_claim,
+			"exp" => $expire_claim,
+			"data" => array()
+		);
+
+		$jwt = JWT::encode($token, $secret_key);
+		return array(
+			"JWT" => $jwt,
+			"EXPIRE_AT" => $expire_claim,
+			"EXPIRE_IN" => $lifetime
+		);
+	}
+
+
+}
+
+class StringProcessor{
+
+	const SYSTEM_UUID = '$SYSTEM.UUID';
+	const FUNCTION_DATE = '$DATE';
+	const FUNCTION_CALC = '$CALC';
+	const FUNCTION_NUMBERFORMAT = '$NUMBERFORMAT';
+	const FUNCTION_UPPERCASE = '$UPPERCASE';
+	const FUNCTION_LOWERCASE = '$LOWERCASE';
+	const FUNCTION_SUBSTRING = '$SUBSTRING';
+	const FUNCTION_RANDOM = '$RANDOM';
+
+
+	public static function startsWith($haystack, $needle)
+	{
+		$length = strlen($needle);
+		return substr($haystack, 0, $length) === $needle;
+	}
+
+	public static function endsWith($haystack, $needle)
+	{
+		$length = strlen($needle);
+		if (!$length) {
+			return true;
+		}
+		return substr($haystack, -$length) === $needle;
+	}
+	public static function eval_date($args)
+	{
+		$args = trim($args, SPACE_TRIMMER);
+		if (self::startsWith($args, 'date(')) {
+			$args = substr($args, 5, strlen($args) - 6);
+		}
+		$result = parse_params($args);
+		if (count($result) == 1) {
+			return self::date_without_tz($result[0]);
+		} else if (count($result) == 2) {
+			return self::date_with_tz($result[0], $result[1]);
+		}
+	}
+
+	public static function replace_date($string)
+	{
+		if (stripos($string, self::FUNCTION_DATE) !== false) {
+			do {
+				$total_length = strlen($string);
+				$start = stripos($string, self::FUNCTION_DATE);
+				$p1 = self::find_bracket_position($string, $start);
+				$formula = substr($string, $start, $p1);
+				$fm1 = trim($formula, SPACE_TRIMMER);
+				$fm1 = substr($fm1, 6, strlen($fm1) - 7);
+				$fm1 = trim($fm1, SPACE_TRIMMER);
+				$result = self::eval_date('date(' . $fm1 . ')');
+
+				$string = str_ireplace($formula, $result, $string);
+				if ($start + $p1 >= $total_length) {
+					break;
+				}
+			} while (stripos($string, self::FUNCTION_DATE) !== false);
+		}
+		return $string;
+	}
+
+	public static function replace_number_format($string)
+	{
+		if (stripos($string, self::FUNCTION_NUMBERFORMAT) !== false) {
+			do {
+				$total_length = strlen($string);
+				$start = stripos($string, self::FUNCTION_NUMBERFORMAT);
+				$p1 = self::find_bracket_position($string, $start);
+				$formula = substr($string, $start, $p1);
+				$fm1 = trim($formula, SPACE_TRIMMER);
+				$fm1 = substr($fm1, 13, strlen($fm1) - 7);
+				$fm1 = trim($fm1, SPACE_TRIMMER);
+				$fm1 = ltrim($fm1, '(');
+				$fm1 = rtrim($fm1, ')');
+				$result = "";
+				eval('$result = number_format(' . $fm1 . ');');
+				$string = str_ireplace($formula, $result, $string);
+				if ($start + $p1 >= $total_length) {
+					break;
+				}
+			} while (stripos($string, self::FUNCTION_NUMBERFORMAT) !== false);
+		}
+		return $string;
+	}
+
+	public static function replace_substring($string)
+	{
+		if (stripos($string, self::FUNCTION_SUBSTRING) !== false) {
+			do {
+				$total_length = strlen($string);
+				$start = stripos($string, self::FUNCTION_SUBSTRING);
+				$p1 = self::find_bracket_position($string, $start);
+				$formula = substr($string, $start, $p1);
+				$fm1 = trim($formula, SPACE_TRIMMER);
+				$fm1 = substr($fm1, 10, strlen($fm1) - 7);
+				$fm1 = trim($fm1, SPACE_TRIMMER);
+				$fm1 = ltrim($fm1, '(');
+				$fm1 = rtrim($fm1, ')');
+				$result = "";
+				eval('$result = substr(' . $fm1 . ');');
+				$string = str_ireplace($formula, $result, $string);
+				if ($start + $p1 >= $total_length) {
+					break;
+				}
+			} while (stripos($string, self::FUNCTION_SUBSTRING) !== false);
+		}
+		return $string;
+	}
+
+	public static function replace_uppercase($string)
+	{
+		if (stripos($string, self::FUNCTION_UPPERCASE) !== false) {
+			do {
+				$total_length = strlen($string);
+				$start = stripos($string, self::FUNCTION_UPPERCASE);
+				$p1 = self::find_bracket_position($string, $start);
+				$formula = substr($string, $start, $p1);
+				$fm1 = trim($formula, SPACE_TRIMMER);
+				$fm1 = substr($fm1, 10, strlen($fm1) - 7);
+				$fm1 = trim($fm1, SPACE_TRIMMER);
+				$fm1 = ltrim($fm1, '(');
+				$fm1 = rtrim($fm1, ')');
+				$result = "";
+				eval('$result = strtoupper(' . $fm1 . ');');
+				$string = str_ireplace($formula, $result, $string);
+				if ($start + $p1 >= $total_length) {
+					break;
+				}
+			} while (stripos($string, self::FUNCTION_UPPERCASE) !== false);
+		}
+		return $string;
+	}
+
+	public static function replace_lowercase($string)
+	{
+		if (stripos($string, self::FUNCTION_LOWERCASE) !== false) {
+			do {
+				$total_length = strlen($string);
+				$start = stripos($string, self::FUNCTION_LOWERCASE);
+				$p1 = self::find_bracket_position($string, $start);
+				$formula = substr($string, $start, $p1);
+				$fm1 = trim($formula, SPACE_TRIMMER);
+				$fm1 = substr($fm1, 10, strlen($fm1) - 7);
+				$fm1 = trim($fm1, SPACE_TRIMMER);
+				$fm1 = ltrim($fm1, '(');
+				$fm1 = rtrim($fm1, ')');
+				$result = "";
+				eval('$result = strtolower(' . $fm1 . ');');
+				$string = str_ireplace($formula, $result, $string);
+				if ($start + $p1 >= $total_length) {
+					break;
+				}
+			} while (stripos($string, self::FUNCTION_LOWERCASE) !== false);
+		}
+		return $string;
+	}
+
+	public static function find_bracket_position($string, $start)
+	{
+		$p1 = 0;
+		$rem = 0;
+		$found = false;
+		do {
+			$f1 = substr($string, $start + $p1, 1);
+			$f2 = substr($string, $start + $p1, 1);
+			if ($f1 == "(") {
+				$rem++;
+				$found = true;
+			}
+			if ($f2 == ")") {
+				$rem--;
+				$found = true;
+			}
+			$p1++;
+		} while ($rem > 0 || !$found);
+		return $p1;
+	}
+
+	public static function replace_calc($string)
+	{
+		if (stripos($string, self::FUNCTION_CALC) !== false) {
+			do {
+				$total_length = strlen($string);
+				$start = stripos($string, self::FUNCTION_CALC);
+				$p1 = self::find_bracket_position($string, $start);
+
+				$formula = substr($string, $start, $p1);
+				$fm1 = trim($formula, SPACE_TRIMMER);
+				$fm1 = substr($fm1, 6, strlen($fm1) - 7);
+				$fm1 = trim($fm1, SPACE_TRIMMER);
+				if ((self::startsWith($fm1, "'") && self::endsWith($fm1, "'")) || (self::startsWith($fm1, '"') && self::endsWith($fm1, '"'))) {
+					$fm1 = substr($fm1, 1, strlen($fm1) - 2);
+				}
+				$result = eval("return $fm1;");
+				$string = str_ireplace($formula, $result, $string);
+				if ($start + $p1 >= $total_length) {
+					break;
+				}
+			} while (stripos($string, self::FUNCTION_CALC) !== false);
+		}
+		return $string;
+	}
+
+	public static function replace_uuid($string)
+	{
+		if (stripos($string, self::SYSTEM_UUID) !== false) {
+			do {
+				$formula = self::SYSTEM_UUID;
+				$result = uniqid();
+				$string = self::str_replace_first($formula, $result, $string);
+			} while (stripos($string, self::SYSTEM_UUID) !== false);
+		}
+		return $string;
+	}
+
+	public static function replace_random($string)
+	{
+		if (stripos($string, self::FUNCTION_RANDOM) !== false) {
+			do {
+				$total_length = strlen($string);
+				$start = stripos($string, self::FUNCTION_RANDOM);
+				$p1 = self::find_bracket_position($string, $start);
+				$formula = substr($string, $start, $p1);
+				$fm1 = trim($formula, SPACE_TRIMMER);
+				$fm1 = substr($fm1, 8, strlen($fm1) - 9);
+				$fm1 = trim($fm1, SPACE_TRIMMER);
+				if (stripos($fm1, ",") !== false) {
+					$arr = explode(",", $fm1);
+					$arr[0] = preg_replace("/[^0-9]/", "", $arr[0]);//NOSONAR
+					$arr[1] = preg_replace("/[^0-9]/", "", $arr[1]);//NOSONAR
+					$min = $arr[0] * 1;
+					$max = $arr[1] * 1;
+					if ($min < $max) {
+						$result = mt_rand($min, $max);
+					} else {
+						$result = mt_rand($max, $min);
+					}
+				} else {
+					$result = mt_rand();
+				}
+
+				$string = self::str_replace_first($formula, $result, $string);
+				if ($start + $p1 >= $total_length) {
+					break;
+				}
+			} while (stripos($string, self::FUNCTION_RANDOM) !== false);
+		}
+		return $string;
+	}
+
+	public static function str_replace_first($search, $replace, $subject)
+	{
+		$search = '/' . preg_quote($search, '/') . '/';
+		return preg_replace($search, $replace, $subject, 1);
+	}
+
+	public static function get_query($url)
+	{
+		return parse_url($url, PHP_URL_QUERY);
+	}
+
+		
+	public static function date_without_tz($args1)
+	{
+		return date($args1);
+	}
+
+	public static function date_with_tz($fmt, $tz)
+	{
+		$offset = 0;
+		if (stripos($tz, 'UTC') !== false) {
+			$tz1 = (str_replace("UTC", "", $tz) * 1);
+			$tz2 = date('Z') / 3600;
+			$offset = $tz1 - $tz2;
+			$time = time();
+			$tzTime = $time + ($offset * 3600);
+			$ret = date($fmt, $tzTime);
+		} else if (stripos($tz, 'GMT') !== false) {
+			$tz1 = (str_replace("GMT", "", $tz) * 1);
+			$tz2 = date('Z') / 3600;
+			$offset = $tz1 - $tz2;
+			$time = time();
+			$tzTime = $time + ($offset * 3600);
+			$ret = date($fmt, $tzTime);
+		} else {
+			date_default_timezone_set($tz);
+			$ret = date($fmt);
+		}
+		return $ret;
+	}
 
 }
 
@@ -281,7 +654,7 @@ function parse_config($context_path, $document_root = null)
 
 	// Parse raw file to raw configuration with it properties
 	$parsed = array();
-	if (has_eval($lines)) {
+	if (\UniversalSimulator::has_eval($lines)) {
 		$parsed = parse_lines_native($array, $file_content);
 	} else {
 		$parsed = parse_lines($array);
@@ -331,24 +704,6 @@ function get_php_code($file_content)
 	return $php_codes;
 }
 
-function has_eval($lines)
-{
-	$begin = false;
-	$end = false;
-	foreach ($lines as $line) {
-		if (trim($line) == \UniversalSimulator::EVAL_PHP_BEGIN) {
-			$begin = true;
-			break;
-		}
-	}
-	foreach ($lines as $line) {
-		if (trim($line) == \UniversalSimulator::EVAL_PHP_END) {
-			$end = true;
-			break;
-		}
-	}
-	return $begin && $end;
-}
 
 
 function parse_input($config, $request_headers, $request_data, $context_path, $query) //NOSONAR
@@ -359,7 +714,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 	$rule = $config['PARSING_RULE'];
 	$rule = str_replace("\\", "\\" . EOL, $rule);
 	$rule = trim(str_replace("\\" . EOL, "\r\n", $rule), " \\ ");
-	if (\UniversalSimulator::endsWith($rule, EOL)) {
+	if (\StringProcessor::endsWith($rule, EOL)) {
 		$rule = substr($rule, 0, strlen($rule) - strlen(EOL));
 	}
 	$arr = explode("\r\n", $rule);
@@ -380,7 +735,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 			$arr1 = explode("/", $wildcard_variable);
 			$arr2 = explode("/", $wildcard_data);
 			foreach ($arr1 as $key => $val) {
-				if (\UniversalSimulator::startsWith($val, '{[') && \UniversalSimulator::endsWith($val, ']}')) {
+				if (\StringProcessor::startsWith($val, '{[') && \StringProcessor::endsWith($val, ']}')) {
 					$par = trim(str_replace(array('{[', ']}'), '', $val));
 					$url_data[$par] = $arr2[$key];
 				}
@@ -388,10 +743,10 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 		}
 	}
 	foreach ($arr as $line) {
-		if (\UniversalSimulator::startsWith($line, EOL)) {
+		if (\StringProcessor::startsWith($line, EOL)) {
 			$line = substr($line, strlen(EOL));
 		}
-		if (\UniversalSimulator::endsWith($line, EOL)) {
+		if (\StringProcessor::endsWith($line, EOL)) {
 			$line = substr($line, 0, strlen($line) - strlen(EOL));
 		}
 		if (stripos($line, "=") > 0) {
@@ -438,7 +793,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 				$key = trim(substr(trim($arr2[0]), strlen(\UniversalSimulator::PREFIX_INPUT)));
 				$val = trim($arr2[1]);
 				$val = substr($val, strlen('$JSON.REQUEST'));
-				if (\UniversalSimulator::startsWith($val, '(') && \UniversalSimulator::endsWith($val, ')')) {
+				if (\StringProcessor::startsWith($val, '(') && \StringProcessor::endsWith($val, ')')) {
 					$val = substr($val, 1, strlen($val) - 2);
 				}
 				$input = file_get_contents(\UniversalSimulator::PHP_INPUT);
@@ -467,7 +822,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 							// parse as associated array
 							$obj = json_decode($input, true);
 							$attr = $params[0];
-							if (!\UniversalSimulator::startsWith($attr, '[')) {
+							if (!\StringProcessor::startsWith($attr, '[')) {
 								$arr1 = explode("[", $attr, 2);
 								$attr = '[' . $arr1[0] . ']' . $arr1[1];
 							}
@@ -494,7 +849,7 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 				}
 			}
 			// Get UUID
-			if (stripos(trim($arr2[0]), \UniversalSimulator::PREFIX_INPUT) === 0 && stripos(trim($arr2[1]), \UniversalSimulator::SYSTEM_UUID) === 0) {
+			if (stripos(trim($arr2[0]), \UniversalSimulator::PREFIX_INPUT) === 0 && stripos(trim($arr2[1]), \StringProcessor::SYSTEM_UUID) === 0) {
 				$key = trim(substr(trim($arr2[0]), strlen(\UniversalSimulator::PREFIX_INPUT)));
 				$res[$key] = uniqid();
 			}
@@ -602,84 +957,6 @@ function parse_input($config, $request_headers, $request_data, $context_path, $q
 	return $res;
 }
 
-function is_valid_jwt($token_sent)
-{
-	global $appConfig;
-	$secret_key = $appConfig->jwtSecret;
-	try {
-		$decoded = JWT::decode($token_sent, $secret_key, array('HS256')); //NOSONAR
-		return true;
-	} catch (Exception $e) {
-		return false;
-	}
-}
-
-function is_valid_quoted($fm1)
-{
-	return (\UniversalSimulator::startsWith($fm1, "'") && \UniversalSimulator::endsWith($fm1, "'")) || (\UniversalSimulator::startsWith($fm1, '"') && \UniversalSimulator::endsWith($fm1, '"'));
-}
-
-function validate_token($string, $token_sent)
-{
-	if (stripos($string, '$ISVALIDTOKEN') !== false) {
-		do {
-			$total_length = strlen($string);
-			$start = stripos($string, '$string');
-			$p1 = find_bracket_position($string, $start);
-			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, SPACE_TRIMMER);
-			$fm1 = substr($fm1, 6, strlen($fm1) - 7);
-			$fm1 = trim($fm1, SPACE_TRIMMER);
-			if (is_valid_quoted($fm1)) {
-				$fm1 = substr($fm1, 1, strlen($fm1) - 2);
-			}
-			if (is_valid_jwt($token_sent)) {
-				$result = "true";
-			} else {
-				$result = "false";
-			}
-			$string = str_ireplace($formula, $result, $string);
-			if ($start + $p1 >= $total_length) {
-				break;
-			}
-		} while (stripos($string, '$ISVALIDTOKEN') !== false);
-	}
-	return $string;
-}
-
-function generate_token()
-{
-	global $appConfig;
-	$id = $appConfig->jwtUserID; //NOSONAR
-	$firstname = $appConfig->jwtUserFirstName; //NOSONAR
-	$lastname = $appConfig->jwtUserLastName; //NOSONAR
-	$email = $appConfig->jwtUserEmail; //NOSONAR
-
-	$lifetime = $appConfig->jwtNotValidAfter;
-
-	$secret_key = $appConfig->jwtSecret;
-	$issuer_claim = $appConfig->jwtIssuer; // this can be the servername
-	$audience_claim = $appConfig->jwtAudience;
-	$issuedat_claim = time(); // issued at
-	$notbefore_claim = $issuedat_claim + $appConfig->jwtNotValidBefore; //not before in seconds
-	$expire_claim = $issuedat_claim + $lifetime; // expire time in seconds
-	$token = array(
-		"iss" => $issuer_claim,
-		"aud" => $audience_claim,
-		"iat" => $issuedat_claim,
-		"nbf" => $notbefore_claim,
-		"exp" => $expire_claim,
-		"data" => array()
-	);
-
-	$jwt = JWT::encode($token, $secret_key);
-	return array(
-		"JWT" => $jwt,
-		"EXPIRE_AT" => $expire_claim,
-		"EXPIRE_IN" => $lifetime
-	);
-}
-
 function process_transaction($parsed, $request) //NOSONAR
 {
 	$token_sent = get_token();
@@ -687,7 +964,7 @@ function process_transaction($parsed, $request) //NOSONAR
 	$transaction_rule = $parsed['TRANSACTION_RULE'];
 	$transaction_rule = trim($transaction_rule, "\\");
 	$transaction_rule = str_replace("\\{[EOL]}$" . "OUTPUT.", "\\{[EOL]}\r\n$" . "OUTPUT.", $transaction_rule);
-	if (\UniversalSimulator::endsWith($transaction_rule, EOL)) {
+	if (\StringProcessor::endsWith($transaction_rule, EOL)) {
 		$transaction_rule = substr($transaction_rule, 0, strlen($transaction_rule) - strlen(EOL));
 	}
 	$arr = explode('{[ENDIF]}', $transaction_rule);
@@ -698,7 +975,7 @@ function process_transaction($parsed, $request) //NOSONAR
 			$arr2 = explode("{[THEN]}", $data);
 			$rcondition = $arr2[0];
 			$rcondition = str_replace("\\{[EOL]}", "\r\n", $rcondition);
-			$rcondition = validate_token($rcondition, $token_sent);
+			$rcondition = \UniversalSimulator::validate_token($rcondition, $token_sent);
 			$rline = $arr2[1];
 
 			// Evaluate condition
@@ -733,21 +1010,21 @@ function process_transaction($parsed, $request) //NOSONAR
 						}
 						if (stripos($word, '$TOKEN.') === 0) {
 							if ($token_generated === null) {
-								$token_generated = generate_token();
+								$token_generated = \UniversalSimulator::generate_token();
 							}
 							$var = substr($word, strlen('$TOKEN.'));
 							$result = str_replace($word, $token_generated[$var], $result);
 						}
 					}
 					$result = trim(str_replace("\\{[EOL]}", "\r\n", $result), " \\\r\n ");
-					$result = replace_date($result);
-					$result = replace_number_format($result);
-					$result = replace_substring($result);
-					$result = replace_uppercase($result);
-					$result = replace_lowercase($result);
-					$result = replace_calc($result);
-					$result = replace_random($result);
-					$result = replace_uuid($result);
+					$result = \StringProcessor::replace_date($result);
+					$result = \StringProcessor::replace_number_format($result);
+					$result = \StringProcessor::replace_substring($result);
+					$result = \StringProcessor::replace_uppercase($result);
+					$result = \StringProcessor::replace_lowercase($result);
+					$result = \StringProcessor::replace_calc($result);
+					$result = \StringProcessor::replace_random($result);
+					$result = \StringProcessor::replace_uuid($result);
 					$result = ltrim($result, SPACE_TRIMMER);
 					$arr6 = explode("=", $result, 2);
 					$variable = $arr6[0];
@@ -769,35 +1046,6 @@ function process_transaction($parsed, $request) //NOSONAR
 	return $return_data;
 }
 
-function date_without_tz($args1)
-{
-	return date($args1);
-}
-
-function date_with_tz($fmt, $tz)
-{
-	$offset = 0;
-	if (stripos($tz, 'UTC') !== false) {
-		$tz1 = (str_replace("UTC", "", $tz) * 1);
-		$tz2 = date('Z') / 3600;
-		$offset = $tz1 - $tz2;
-		$time = time();
-		$tzTime = $time + ($offset * 3600);
-		$ret = date($fmt, $tzTime);
-	} else if (stripos($tz, 'GMT') !== false) {
-		$tz1 = (str_replace("GMT", "", $tz) * 1);
-		$tz2 = date('Z') / 3600;
-		$offset = $tz1 - $tz2;
-		$time = time();
-		$tzTime = $time + ($offset * 3600);
-		$ret = date($fmt, $tzTime);
-	} else {
-		date_default_timezone_set($tz);
-		$ret = date($fmt);
-	}
-	return $ret;
-}
-
 function parse_params($args) //NOSONAR
 {
 	$args = trim($args, SPACE_TRIMMER);
@@ -807,30 +1055,30 @@ function parse_params($args) //NOSONAR
 	});
 	if (empty($result) && !empty($args)) {
 		$args = trim($args);
-		if (stripos($args, ',') === false && \UniversalSimulator::startsWith($args, "'") && \UniversalSimulator::endsWith($args, "'")) {
+		if (stripos($args, ',') === false && \StringProcessor::startsWith($args, "'") && \StringProcessor::endsWith($args, "'")) {
 			return array($args);
 		}
 	}
 	if (count($result) == 1) {
 		// no time zone	
-		if (\UniversalSimulator::startsWith($result[0], "'")) {
+		if (\StringProcessor::startsWith($result[0], "'")) {
 			$result[0] = substr($result[0], 1);
 		}
-		if (\UniversalSimulator::endsWith($result[0], "'")) {
+		if (\StringProcessor::endsWith($result[0], "'")) {
 			$result[0] = substr($result[0], 0, strlen($result[0]) - 1);
 		}
 		return array($result[0]);
 	} else if (count($result) == 2) {
-		if (\UniversalSimulator::startsWith($result[0], "'")) {
+		if (\StringProcessor::startsWith($result[0], "'")) {
 			$result[0] = substr($result[0], 1);
 		}
-		if (\UniversalSimulator::endsWith($result[0], "'")) {
+		if (\StringProcessor::endsWith($result[0], "'")) {
 			$result[0] = substr($result[0], 0, strlen($result[0]) - 1);
 		}
-		if (\UniversalSimulator::startsWith($result[1], "'")) {
+		if (\StringProcessor::startsWith($result[1], "'")) {
 			$result[1] = substr($result[1], 1);
 		}
-		if (\UniversalSimulator::endsWith($result[1], "'")) {
+		if (\StringProcessor::endsWith($result[1], "'")) {
 			$result[1] = substr($result[1], 0, strlen($result[1]) - 1);
 		}
 		$result[0] = str_replace("'", "", trim($result[0]));
@@ -839,246 +1087,11 @@ function parse_params($args) //NOSONAR
 	}
 }
 
-function eval_date($args)
-{
-	$args = trim($args, SPACE_TRIMMER);
-	if (\UniversalSimulator::startsWith($args, 'date(')) {
-		$args = substr($args, 5, strlen($args) - 6);
-	}
-	$result = parse_params($args);
-	if (count($result) == 1) {
-		return date_without_tz($result[0]);
-	} else if (count($result) == 2) {
-		return date_with_tz($result[0], $result[1]);
-	}
-}
-
-function replace_date($string)
-{
-	if (stripos($string, \UniversalSimulator::FUNCTION_DATE) !== false) {
-		do {
-			$total_length = strlen($string);
-			$start = stripos($string, \UniversalSimulator::FUNCTION_DATE);
-			$p1 = find_bracket_position($string, $start);
-			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, SPACE_TRIMMER);
-			$fm1 = substr($fm1, 6, strlen($fm1) - 7);
-			$fm1 = trim($fm1, SPACE_TRIMMER);
-			$result = eval_date('date(' . $fm1 . ')');
-
-			$string = str_ireplace($formula, $result, $string);
-			if ($start + $p1 >= $total_length) {
-				break;
-			}
-		} while (stripos($string, \UniversalSimulator::FUNCTION_DATE) !== false);
-	}
-	return $string;
-}
-
-function replace_number_format($string)
-{
-	if (stripos($string, \UniversalSimulator::FUNCTION_NUMBERFORMAT) !== false) {
-		do {
-			$total_length = strlen($string);
-			$start = stripos($string, \UniversalSimulator::FUNCTION_NUMBERFORMAT);
-			$p1 = find_bracket_position($string, $start);
-			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, SPACE_TRIMMER);
-			$fm1 = substr($fm1, 13, strlen($fm1) - 7);
-			$fm1 = trim($fm1, SPACE_TRIMMER);
-			$fm1 = ltrim($fm1, '(');
-			$fm1 = rtrim($fm1, ')');
-			$result = "";
-			eval('$result = number_format(' . $fm1 . ');');
-			$string = str_ireplace($formula, $result, $string);
-			if ($start + $p1 >= $total_length) {
-				break;
-			}
-		} while (stripos($string, \UniversalSimulator::FUNCTION_NUMBERFORMAT) !== false);
-	}
-	return $string;
-}
-
-function replace_substring($string)
-{
-	if (stripos($string, \UniversalSimulator::FUNCTION_SUBSTRING) !== false) {
-		do {
-			$total_length = strlen($string);
-			$start = stripos($string, \UniversalSimulator::FUNCTION_SUBSTRING);
-			$p1 = find_bracket_position($string, $start);
-			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, SPACE_TRIMMER);
-			$fm1 = substr($fm1, 10, strlen($fm1) - 7);
-			$fm1 = trim($fm1, SPACE_TRIMMER);
-			$fm1 = ltrim($fm1, '(');
-			$fm1 = rtrim($fm1, ')');
-			$result = "";
-			eval('$result = substr(' . $fm1 . ');');
-			$string = str_ireplace($formula, $result, $string);
-			if ($start + $p1 >= $total_length) {
-				break;
-			}
-		} while (stripos($string, \UniversalSimulator::FUNCTION_SUBSTRING) !== false);
-	}
-	return $string;
-}
-
-function replace_uppercase($string)
-{
-	if (stripos($string, \UniversalSimulator::FUNCTION_UPPERCASE) !== false) {
-		do {
-			$total_length = strlen($string);
-			$start = stripos($string, \UniversalSimulator::FUNCTION_UPPERCASE);
-			$p1 = find_bracket_position($string, $start);
-			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, SPACE_TRIMMER);
-			$fm1 = substr($fm1, 10, strlen($fm1) - 7);
-			$fm1 = trim($fm1, SPACE_TRIMMER);
-			$fm1 = ltrim($fm1, '(');
-			$fm1 = rtrim($fm1, ')');
-			$result = "";
-			eval('$result = strtoupper(' . $fm1 . ');');
-			$string = str_ireplace($formula, $result, $string);
-			if ($start + $p1 >= $total_length) {
-				break;
-			}
-		} while (stripos($string, \UniversalSimulator::FUNCTION_UPPERCASE) !== false);
-	}
-	return $string;
-}
-
-function replace_lowercase($string)
-{
-	if (stripos($string, \UniversalSimulator::FUNCTION_LOWERCASE) !== false) {
-		do {
-			$total_length = strlen($string);
-			$start = stripos($string, \UniversalSimulator::FUNCTION_LOWERCASE);
-			$p1 = find_bracket_position($string, $start);
-			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, SPACE_TRIMMER);
-			$fm1 = substr($fm1, 10, strlen($fm1) - 7);
-			$fm1 = trim($fm1, SPACE_TRIMMER);
-			$fm1 = ltrim($fm1, '(');
-			$fm1 = rtrim($fm1, ')');
-			$result = "";
-			eval('$result = strtolower(' . $fm1 . ');');
-			$string = str_ireplace($formula, $result, $string);
-			if ($start + $p1 >= $total_length) {
-				break;
-			}
-		} while (stripos($string, \UniversalSimulator::FUNCTION_LOWERCASE) !== false);
-	}
-	return $string;
-}
-
-function find_bracket_position($string, $start)
-{
-	$p1 = 0;
-	$rem = 0;
-	$found = false;
-	do {
-		$f1 = substr($string, $start + $p1, 1);
-		$f2 = substr($string, $start + $p1, 1);
-		if ($f1 == "(") {
-			$rem++;
-			$found = true;
-		}
-		if ($f2 == ")") {
-			$rem--;
-			$found = true;
-		}
-		$p1++;
-	} while ($rem > 0 || !$found);
-	return $p1;
-}
-
-function replace_calc($string)
-{
-	if (stripos($string, \UniversalSimulator::FUNCTION_CALC) !== false) {
-		do {
-			$total_length = strlen($string);
-			$start = stripos($string, \UniversalSimulator::FUNCTION_CALC);
-			$p1 = find_bracket_position($string, $start);
-
-			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, SPACE_TRIMMER);
-			$fm1 = substr($fm1, 6, strlen($fm1) - 7);
-			$fm1 = trim($fm1, SPACE_TRIMMER);
-			if ((\UniversalSimulator::startsWith($fm1, "'") && \UniversalSimulator::endsWith($fm1, "'")) || (\UniversalSimulator::startsWith($fm1, '"') && \UniversalSimulator::endsWith($fm1, '"'))) {
-				$fm1 = substr($fm1, 1, strlen($fm1) - 2);
-			}
-			$result = eval("return $fm1;");
-			$string = str_ireplace($formula, $result, $string);
-			if ($start + $p1 >= $total_length) {
-				break;
-			}
-		} while (stripos($string, \UniversalSimulator::FUNCTION_CALC) !== false);
-	}
-	return $string;
-}
-
-function replace_uuid($string)
-{
-	if (stripos($string, \UniversalSimulator::SYSTEM_UUID) !== false) {
-		do {
-			$formula = \UniversalSimulator::SYSTEM_UUID;
-			$result = uniqid();
-			$string = str_replace_first($formula, $result, $string);
-		} while (stripos($string, \UniversalSimulator::SYSTEM_UUID) !== false);
-	}
-	return $string;
-}
-
-function replace_random($string)
-{
-	if (stripos($string, \UniversalSimulator::FUNCTION_RANDOM) !== false) {
-		do {
-			$total_length = strlen($string);
-			$start = stripos($string, \UniversalSimulator::FUNCTION_RANDOM);
-			$p1 = find_bracket_position($string, $start);
-			$formula = substr($string, $start, $p1);
-			$fm1 = trim($formula, SPACE_TRIMMER);
-			$fm1 = substr($fm1, 8, strlen($fm1) - 9);
-			$fm1 = trim($fm1, SPACE_TRIMMER);
-			if (stripos($fm1, ",") !== false) {
-				$arr = explode(",", $fm1);
-				$arr[0] = preg_replace("/[^0-9]/", "", $arr[0]);//NOSONAR
-				$arr[1] = preg_replace("/[^0-9]/", "", $arr[1]);//NOSONAR
-				$min = $arr[0] * 1;
-				$max = $arr[1] * 1;
-				if ($min < $max) {
-					$result = mt_rand($min, $max);
-				} else {
-					$result = mt_rand($max, $min);
-				}
-			} else {
-				$result = mt_rand();
-			}
-
-			$string = str_replace_first($formula, $result, $string);
-			if ($start + $p1 >= $total_length) {
-				break;
-			}
-		} while (stripos($string, \UniversalSimulator::FUNCTION_RANDOM) !== false);
-	}
-	return $string;
-}
-
-function str_replace_first($search, $replace, $subject)
-{
-	$search = '/' . preg_quote($search, '/') . '/';
-	return preg_replace($search, $replace, $subject, 1);
-}
-
-function get_query($url)
-{
-	return parse_url($url, PHP_URL_QUERY);
-}
 
 function get_request_body($parsed, $url)
 {
 	if ($parsed['METHOD'] == 'GET') {
-		$query = get_query($url);
+		$query = \StringProcessor::get_query($url);
 		error_log("HTTP Request     : \r\n" . $query); //NOSONAR
 		parse_str($query, $request_data);
 	} else if ($parsed['METHOD'] == 'POST' || $parsed['METHOD'] == 'PUT') {
@@ -1176,7 +1189,7 @@ function is_match_path($config_path, $request_path)
 	$match = false;
 	$start = stripos($config_path, '{[');
 	if ($start === false) {
-		if (\UniversalSimulator::endsWith($config_path, "/")) {
+		if (\StringProcessor::endsWith($config_path, "/")) {
 			$match = stripos($request_path, $config_path) === 0;
 		} else {
 			$match = stripos(rtrim($config_path, "/") . "/", rtrim($request_path, "/") . "/") === 0;
@@ -1449,7 +1462,7 @@ if ($parsed !== null && !empty($parsed)) {
 		$request_headers = \UniversalSimulator::get_request_headers();
 
 		// Get query
-		$query = get_query($url);
+		$query = \StringProcessor::get_query($url);
 
 		// Get request body
 		$request_data = get_request_body($parsed, $url);
